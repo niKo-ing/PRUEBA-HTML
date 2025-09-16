@@ -1,0 +1,9 @@
+
+header.bg-dark {
+    background: linear-gradient(135deg, #212529 0%, #343a40 100%)
+}
+
+.card-img-top {
+    object-fit: cover;
+    height: 180px
+}

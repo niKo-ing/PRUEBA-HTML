@@ -1,0 +1,3 @@
+/* Bootstrap-first: only tiny helpers */
+.card-img-top{object-fit:cover; height:180px}
+#cartItems .list-group-item .btn{min-width:2rem}

@@ -1,0 +1,40 @@
+
+/* SB Admin 2–like styling (Bootstrap 5, no jQuery) */
+:root{
+  --sb-primary: #4e73df;
+  --sb-success: #1cc88a;
+  --sb-info: #36b9cc;
+  --sb-warning: #f6c23e;
+  --sb-danger: #e74a3b;
+  --sb-dark: #5a5c69;
+}
+.sb-wrapper{min-height:100vh; display:flex;}
+.sb-sidebar{
+  width: 240px; flex:0 0 240px; background: linear-gradient(180deg, var(--sb-primary), #224abe);
+  color:#fff;
+}
+.sb-sidebar .brand{
+  font-weight:800; letter-spacing:.5px; text-transform:uppercase;
+  padding:1rem 1.25rem; display:flex; align-items:center; gap:.5rem; border-bottom: 1px solid rgba(255,255,255,.15);
+}
+.sb-sidebar .nav{ padding:.5rem 0; }
+.sb-sidebar .nav-link{ color:#fff; display:flex; align-items:center; gap:.5rem; padding:.6rem 1rem; opacity:.9; }
+.sb-sidebar .nav-link:hover,.sb-sidebar .nav-link.active{ opacity:1; background: rgba(255,255,255,.1); }
+.sb-content{ flex:1; display:flex; flex-direction:column; min-width:0; }
+.sb-topbar{ border-bottom:1px solid rgba(0,0,0,.08); background:#fff; }
+.card-gradient{
+  background: linear-gradient(135deg, var(--g1), var(--g2));
+  color:#fff; border:0;
+}
+.card-gradient .material-symbols-outlined{opacity:.9}
+/* Utilities */
+.text-gray-600{color:#858796 !important}
+.text-gray-800{color:#5a5c69 !important}
+.rounded-xxl{border-radius:1rem}
+.sidebar-collapsed .sb-sidebar{width:80px; flex-basis:80px}
+.sidebar-collapsed .sb-sidebar .txt{display:none}
+.sidebar-collapsed .sb-sidebar .brand{justify-content:center}
+@media (max-width: 991.98px){
+  .sb-sidebar{position:fixed; z-index:1040; transform:translateX(-100%); transition:transform .2s ease;}
+  .sidebar-open .sb-sidebar{ transform:translateX(0); }
+}

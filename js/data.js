@@ -1,11 +1,15 @@
-// Datos simulados y catálogos
+// Periféricos y catálogos
 window.App = window.App || {};
-App.categorias = ["Bebidas","Snacks","Lácteos","Tecnología"];
+App.categorias = ["Teclados","Mouses","Audio","Streaming","Almacenamiento"];
 App.productos = [
-  {id:1, codigo:"P-001", nombre:"Leche Entera 1L", precio:1290, stock:20, categoria:"Lácteos", img:"img/leche.jpg", descripcion:"Leche entera larga vida."},
-  {id:2, codigo:"P-002", nombre:"Galletas Choco", precio:990, stock:50, categoria:"Snacks", img:"img/galletas.jpg", descripcion:"Galletas de chocolate."},
-  {id:3, codigo:"P-003", nombre:"Bebida Cola 1.5L", precio:1890, stock:35, categoria:"Bebidas", img:"img/cola.jpg", descripcion:"Bebida cola 1.5 litros."},
-  {id:4, codigo:"P-004", nombre:"Audífonos USB", precio:9990, stock:10, categoria:"Tecnología", img:"img/audifonos.jpg", descripcion:"Audífonos económicos con micrófono."}
+  {id:1, codigo:"P-KEY-001", nombre:"Teclado Mecánico RGB", precio:39990, stock:20, categoria:"Teclados", img:"img/teclado_rgb.jpg", descripcion:"Switches rojos, anti-ghosting, iluminación dinámica."},
+  {id:2, codigo:"P-MOU-002", nombre:"Mouse Gamer 6 Botones", precio:19990, stock:35, categoria:"Mouses", img:"img/mouse_gamer.jpg", descripcion:"800–6400 DPI, sensor óptico, ergonomía ambidiestra."},
+  {id:3, codigo:"P-AUD-003", nombre:"Headset 7.1 con Mic", precio:34990, stock:18, categoria:"Audio", img:"img/headset.jpg", descripcion:"Sonido envolvente, cancelación de ruido, almohadillas suaves."},
+  {id:4, codigo:"P-STR-004", nombre:"Webcam Full HD 1080p", precio:29990, stock:25, categoria:"Streaming", img:"img/webcam.jpg", descripcion:"Autofoco, micrófono integrado, clip universal."},
+  {id:5, codigo:"P-STR-005", nombre:"Micrófono USB Cardioide", precio:32990, stock:15, categoria:"Streaming", img:"img/microfono.jpg", descripcion:"Ideal para streaming y videollamadas."},
+  {id:6, codigo:"P-AUD-006", nombre:"Parlantes 2.1 Compactos", precio:27990, stock:12, categoria:"Audio", img:"img/parlantes.jpg", descripcion:"Bajos potentes, control de volumen frontal."},
+  {id:7, codigo:"P-MOU-007", nombre:"Mousepad XL RGB", precio:14990, stock:40, categoria:"Mouses", img:"img/mousepad.jpg", descripcion:"Superficie speed, bordes cosidos, 10 modos RGB."},
+  {id:8, codigo:"P-ALM-008", nombre:"SSD Externo 1TB USB-C", precio:89990, stock:10, categoria:"Almacenamiento", img:"img/ssd_externo.jpg", descripcion:"Velocidad hasta 1.000 MB/s, carcasa metálica."}
 ];
 App.regiones = [
   { nombre: "Región Metropolitana", comunas:["Santiago","Maipú","Puente Alto","Ñuñoa"]},

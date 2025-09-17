@@ -1,6 +1,12 @@
-// Admin scripts Bootstrap
+// Admin scripts Bootstrap 5 + Material Icons
 document.addEventListener("DOMContentLoaded", ()=>{
-  // Productos tabla
+  const dashTbody = document.querySelector("#tblProductosDash tbody");
+  if(dashTbody){
+    const rows = App.productos.slice(-5).map(p=>({codigo:p.codigo,nombre:p.nombre,precio:p.precio,stock:p.stock,categoria:p.categoria}));
+    dashTbody.innerHTML = rows.map(r=>`<tr>
+      <td>${r.codigo}</td><td>${r.nombre}</td><td>$${Number(r.precio).toLocaleString()}</td><td>${r.stock}</td><td>${r.categoria}</td>
+    </tr>`).join("");
+  }
   const tbodyP = document.querySelector("#tblProductos tbody");
   if(tbodyP){
     const base = App.productos.map(p=>({codigo:p.codigo,nombre:p.nombre,precio:p.precio,stock:p.stock,categoria:p.categoria}));
@@ -10,7 +16,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
       <td>${r.codigo}</td><td>${r.nombre}</td><td>$${Number(r.precio).toLocaleString()}</td><td>${r.stock}</td><td>${r.categoria}</td>
     </tr>`).join("");
   }
-  // Usuarios tabla
   const tbodyU = document.querySelector("#tblUsuarios tbody");
   if(tbodyU){
     const rows = JSON.parse(localStorage.getItem("usuariosAdmin")||"[]");
@@ -18,7 +23,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
       <td>${r.run}</td><td>${r.nombres} ${r.apellidos}</td><td>${r.correo}</td><td>${r.tipo}</td><td>${r.region}</td><td>${r.comuna}</td>
     </tr>`).join("");
   }
-  // Nuevo producto
   const formP = document.getElementById("formProducto");
   if(formP){
     const sel = formP.categoria;
@@ -32,7 +36,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
       alert("Producto guardado"); location.href="productos.html";
     });
   }
-  // Nuevo usuario
   const formU = document.getElementById("formUsuarioAdmin");
   if(formU){
     const reg = document.getElementById("regionAdmin");

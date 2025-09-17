@@ -8,7 +8,6 @@ const validarRUN = (run) => {
   return dvCalc===dv;
 };
 
-// Bootstrap + Constraint Validation API
 const applyBootstrapValidation = (form, customChecks=()=>true) => {
   form.addEventListener("submit",(e)=>{
     if(!form.checkValidity() || !customChecks()) { e.preventDefault(); e.stopPropagation(); }
@@ -20,9 +19,9 @@ function initLogin(){
   const form = document.getElementById("formLogin");
   applyBootstrapValidation(form, ()=>{
     const okEmail = validarCorreoDominios(form.correo.value.trim());
-    if(!okEmail){ form.correo.setCustomValidity("Dominio no permitido"); } else { form.correo.setCustomValidity(""); }
+    form.correo.setCustomValidity(okEmail ? "" : "Dominio no permitido");
     const len = form.clave.value.trim().length;
-    if(len<4 || len>10){ form.clave.setCustomValidity("Largo inválido"); } else { form.clave.setCustomValidity(""); }
+    form.clave.setCustomValidity(len>=4 && len<=10 ? "" : "Largo inválido");
     if(okEmail && len>=4 && len<=10){
       localStorage.setItem("session", JSON.stringify({correo: form.correo.value.trim()}));
       location.href="index.html";
@@ -34,7 +33,6 @@ function initLogin(){
 function initRegistro(){
   const reg = document.getElementById("region");
   const com = document.getElementById("comuna");
-  // Poblar selects
   App.regiones.forEach(r=> reg.append(new Option(r.nombre, r.nombre)));
   reg.addEventListener("change", ()=>{
     com.innerHTML=""; const r=App.regiones.find(x=>x.nombre===reg.value);

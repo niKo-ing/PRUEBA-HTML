@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro - TodoBarato</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="../assets/css/app.css">
+  <script defer src="../assets/js/data.js"></script>
+  <script defer src="../assets/js/cart.js"></script>
+  <script defer src="../assets/js/validations.js"></script>
+  <script defer src="../assets/js/main.js"></script>
+  <script defer src="../assets/js/auth.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&libraries=places"></script>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top border-bottom">
+    <div class="container">
+      <a class="navbar-brand mx-auto d-flex justify-content-center align-items-center" href="../index.html" style="flex:1">
+        <img src="../assets/img/icono.png" alt="TodoBarato" class="logo-navbar">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="nav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
+          <li class="nav-item"><a class="nav-link" href="blogs.html">Blogs</a></li>
+          <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
+          <li class="nav-item"><a class="nav-link" href="contacto.html">Contacto</a></li>
+        </ul>
+        <div class="d-flex gap-2 align-items-center">
+          <a class="btn btn-outline-secondary" href="login.html">Iniciar sesión</a>
+          <a class="btn btn-primary" href="registro.html">Registrarse</a>
+          <button class="btn btn-outline-dark position-relative"
+                  data-bs-toggle="offcanvas" data-bs-target="#cartCanvas"
+                  aria-label="Abrir carrito" aria-controls="cartCanvas">
+            <span class="material-symbols-outlined">shopping_cart</span>
+            <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- OFFCANVAS CARRITO -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="cartCanvas" aria-labelledby="cartCanvasLabel">
+    <div class="offcanvas-header">
+      <h5 id="cartCanvasLabel" class="offcanvas-title">Carrito</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+      <div id="cartItems" class="list-group small mb-3"></div>
+      <div class="mt-auto border-top pt-3 d-flex justify-content-between align-items-center">
+        <div class="fs-5">Total: <strong id="cartTotal">$0</strong></div>
+        <div class="d-flex gap-2">
+          <button id="clearCart" class="btn btn-outline-danger btn-sm">Vaciar</button>
+          <button id="checkoutBtn" class="btn btn-success btn-sm">Pagar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <main class="container d-flex justify-content-center align-items-center py-5" style="min-height: 90vh;">
+  <div class="card shadow-lg w-100 p-4 p-md-5 p-lg-5" style="max-width: 960px;">
+
+    <div class="text-center mb-5">
+      <img src="../assets/img/icono.png" alt="Logo TodoBarato" style="width: 90px; height: 90px;">
+      <h1 class="display-5 fw-bold mt-3 mb-2">Crea tu cuenta</h1>
+      <p class="text-secondary mb-0 fs-5">Regístrate para acceder a todas las funciones y ofertas</p>
+    </div>
+
+    <form id="formRegistro" class="row needs-validation" novalidate autocomplete="on">
+      <!-- Datos personales -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-4">
+          <label class="form-label mb-2">RUN* (sin puntos ni guion)</label>
+          <input name="run" class="form-control form-control-lg" required minlength="7" maxlength="9" placeholder="19011022K">
+          <div class="invalid-feedback">RUN inválido</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label mb-2">Nombres*</label>
+          <input name="nombres" class="form-control form-control-lg" required maxlength="50">
+          <div class="invalid-feedback">Obligatorio</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label mb-2">Apellidos*</label>
+          <input name="apellidos" class="form-control form-control-lg" required maxlength="100">
+          <div class="invalid-feedback">Obligatorio</div>
+        </div>
+      </div>
+
+      <!-- Contacto y acceso -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <label class="form-label mb-2">Correo*</label>
+          <div class="input-group input-group-lg has-validation gap-2">
+            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+            <input name="correo" type="email" class="form-control" required maxlength="100" placeholder="usuario@duoc.cl">
+            <div class="valid-feedback">Correo válido.</div>
+            <div class="invalid-feedback">Solo se permiten correos @duoc.cl, @profesor.duoc.cl o @gmail.com</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label mb-2">Fecha nacimiento*</label>
+          <input type="date" name="nacimiento" class="form-control form-control-lg" required>
+          <div class="invalid-feedback">Debe seleccionar una fecha de nacimiento.</div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label mb-2">Tipo de usuario*</label>
+          <select name="tipo" class="form-select form-select-lg" required>
+            <option value="">Seleccione…</option>
+            <option>Administrador</option>
+            <option>Vendedor</option>
+            <option>Cliente</option>
+          </select>
+          <div class="invalid-feedback">Seleccione un tipo</div>
+        </div>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-4">
+          <label class="form-label mb-2">Región*</label>
+          <select id="region" name="region" class="form-select form-select-lg" required></select>
+          <div class="invalid-feedback">Seleccione región</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label mb-2">Comuna*</label>
+          <select id="comuna" name="comuna" class="form-select form-select-lg" required></select>
+          <div class="invalid-feedback">Seleccione comuna</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label mb-2">Dirección*</label>
+          <input name="direccion" class="form-control form-control-lg" required maxlength="300">
+          <div class="invalid-feedback">Obligatorio</div>
+        </div>
+      </div>
+
+      <div class="col-12 mt-4">
+        <button class="btn btn-primary btn-lg w-100 py-2" type="submit">Crear usuario</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+  <!-- FOOTER -->
+  <footer class="py-4 mt-5 border-top bg-body-tertiary">
+    <div class="container text-center text-secondary">
+      <div class="mb-2">
+        <a href="https://facebook.com" class="text-secondary me-3" target="_blank" aria-label="Facebook"><i class="bi bi-facebook fs-4"></i></a>
+        <a href="https://twitter.com" class="text-secondary me-3" target="_blank" aria-label="Twitter"><i class="bi bi-twitter-x fs-4"></i></a>
+        <a href="https://instagram.com" class="text-secondary me-3" target="_blank" aria-label="Instagram"><i class="bi bi-instagram fs-4"></i></a>
+        <a href="mailto:info@todobarato.com" class="text-secondary me-3" aria-label="Email"><i class="bi bi-envelope fs-4"></i></a>
+      </div>
+      <div class="mb-2">
+        <a href="#" class="text-secondary me-3">Política de Privacidad</a>
+        <a href="#" class="text-secondary me-3">Términos y Condiciones</a>
+        <a href="#" class="text-secondary">Contacto</a>
+      </div>
+      <div>© 2025 TodoBarato – Periféricos</div>
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => initRegistro());</script>
+</body>
+</html>

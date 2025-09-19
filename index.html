@@ -32,7 +32,12 @@
 </head>
 
 <body>
-
+  <div id="preloader">
+  <div class="preloader-box">
+    <div class="preloader-ring"></div>
+    <div class="preloader-text">Cargando…</div>
+  </div>
+</div>
   <!-- ! ========== NAVBAR ========== -->
   <!-- * Barra de navegación principal con enlaces y acciones de usuario. -->
   <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top border-bottom">
@@ -93,9 +98,9 @@
 
   <header class="hero-video position-relative">
     <video class="hero-video__tag w-100 h-100" playsinline muted autoplay loop preload="none"
-      poster="video/mouse-poster.jpg">
-      <source src="assets/video/mouse.mp4" type="video/mp4">
-      <img src="assets/video/mouse-poster.jpg" alt="Mouse gamer">
+        poster="assets/video/mouse-poster.jpg">
+        <source src="assets/video/mouse.mp4" type="video/mp4">
+        <img src="assets/video/mouse-poster.jpg" alt="Mouse gamer">
     </video>
 
     <div class="hero-video__overlay position-absolute top-0 start-0 w-100 h-100"></div>
@@ -112,9 +117,9 @@
   <!-- ! ========== MAIN ========== -->
   <!-- * Contenedor principal para productos destacados. -->
   <!-- TODO: Agrega paginación o filtros para los productos destacados. -->
-  <main class="container pb-5">
+  <main class="container pb-5 py-4">
     <h2 class="h4 mb-3">Destacados</h2>
-    <div id="featuredProducts" class="row g-3"></div>
+    <div id="featuredProducts" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3"></div>
   </main>
 
   <!-- ! ========== FOOTER ========== -->
@@ -153,7 +158,12 @@
   </footer>
   <!-- * Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+  <script>
+  window.addEventListener("load", () => {
+    const loader = document.getElementById("preloader");
+    loader.classList.add("hidden");
+  });
+  </script>
 </body>
 
 </html>

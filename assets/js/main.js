@@ -40,6 +40,23 @@ const detailHref = (id) => {
   return (inPages ? "./producto.html?id=" : "pages/producto.html?id=") + id;
 };
 
+// ==== Helpers de categorías ====
+// Soporta p.categoria como string o array
+const hasCategory = (p, cat) => {
+  if (!cat) return false;
+  const c = p?.categoria;
+  return Array.isArray(c) ? c.includes(cat) : c === cat;
+};
+
+const shareAnyCategory = (a, b) => {
+  const ca = a?.categoria, cb = b?.categoria;
+  if (Array.isArray(ca) && Array.isArray(cb)) return ca.some(c => cb.includes(c));
+  if (Array.isArray(ca)) return ca.includes(cb);
+  if (Array.isArray(cb)) return cb.includes(ca);
+  return ca === cb;
+};
+
+
 // ===== PRELOADER (inyectado + control robusto) =====
 function injectPreloader(){
   if(document.getElementById('preloader')) return;
@@ -125,9 +142,7 @@ function renderProductList() {
 
   const term = (document.getElementById("searchInput")?.value || "").toLowerCase();
   const cat = document.getElementById("filterCategory")?.value || "";
-  const filtered = App.productos.filter(
-    (p) => (!cat || p.categoria === cat) && (!term || p.nombre.toLowerCase().includes(term))
-  );
+  const filtered = App.productos.filter((p) => (!cat || hasCategory(p, cat)) && (!term || p.nombre.toLowerCase().includes(term)));
   const sorted = sortProducts(filtered);
   wrap.innerHTML = sorted.map(cardProductHTML).join("");
 }
@@ -219,16 +234,22 @@ function renderProductDetail() {
     addToCart(p.id, parseInt(qtyInput.value) || 1);
   });
 
-  // Relacionados
-  const related = App.productos
-    .filter(
-      (x) =>
-        x.id !== p.id && (x.categoria === p.categoria || x.tags?.some((t) => p.tags?.includes(t)))
-    )
-    .slice(0, 4);
-  document.getElementById("relatedWrap").innerHTML = related.length
-    ? related.map(cardProductHTML).join("")
-    : `<div class="text-secondary small">No hay relacionados.</div>`;
+  // Relacionados (soporta categoria string o array + fallback por precio)
+let related = App.productos
+  .filter((x) => x.id !== p.id && (shareAnyCategory(x, p) || x.tags?.some((t) => p.tags?.includes(t))));
+
+if (related.length < 4) {
+  const rest = App.productos
+    .filter((x) => x.id !== p.id && !related.includes(x))
+    .sort((a, b) => Math.abs(a.precio - p.precio) - Math.abs(b.precio - p.precio));
+  related = [...related, ...rest].slice(0, 4);
+} else {
+  related = related.slice(0, 4);
+}
+
+document.getElementById("relatedWrap").innerHTML = related.length
+  ? related.map(cardProductHTML).join("")
+  : `<div class="text-secondary small">No hay relacionados.</div>`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {

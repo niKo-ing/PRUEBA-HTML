@@ -38,6 +38,13 @@ function initLogin() {
     const okEmail = validarCorreoDominios(form.correo.value);
     form.correo.setCustomValidity(okEmail ? "" : MSG_DOMINIO);
 
+    
+    // Correo: requerido, max 100, dominios válidos
+    const email = form.correo.value.trim();
+    const okLenMail = email.length > 0 && email.length <= 100;
+    const okDom = validarCorreoDominios(email);
+    form.correo.setCustomValidity(okLenMail && okDom ? "" : MSG_DOMINIO);
+    // Clave: 4 a 10
     const len = form.clave.value.trim().length;
     form.clave.setCustomValidity(len >= 4 && len <= 10 ? "" : "Largo inválido");
 
@@ -121,13 +128,41 @@ if (window.google?.maps?.places && dirInput) {
   console.warn("Google Places no disponible. ¿Cargaste el script con tu API key?");
 }
   applyBootstrapValidation(form, () => {
-    const okRun = validarRUN(form.run.value.trim());
-    form.run.setCustomValidity(okRun ? "" : "RUN inválido");
+    const run = form.run.value.trim();
+    const nombres = form.nombres.value.trim();
+    const apellidos = form.apellidos.value.trim();
+    const correo = form.correo.value.trim();
+    const region = form.region.value.trim();
+    const comuna = form.comuna.value.trim();
+    const direccion = form.direccion.value.trim();
 
-    const okCorreo = validarCorreoDominios(form.correo.value);
-    form.correo.setCustomValidity(okCorreo ? "" : MSG_DOMINIO);
+    // RUN: 7-9 y DV válido
+    const okRunLen = run.length >= 7 && run.length <= 9;
+    const okRunDv = validarRUN(run);
+    form.run.setCustomValidity(okRunLen && okRunDv ? "" : "RUN inválido");
 
-    const ok = okRun && okCorreo;
+    // Nombres/apellidos
+    const okNom = nombres.length > 0 && nombres.length <= 50;
+    const okApe = apellidos.length > 0 && apellidos.length <= 100;
+    form.nombres.setCustomValidity(okNom ? "" : "Nombres (máx 50)");
+    form.apellidos.setCustomValidity(okApe ? "" : "Apellidos (máx 100)");
+
+    // Correo
+    const okCorLen = correo.length > 0 && correo.length <= 100;
+    const okCorDom = validarCorreoDominios(correo);
+    form.correo.setCustomValidity(okCorLen && okCorDom ? "" : MSG_DOMINIO);
+
+    // Región/comuna
+    const okReg = !!region;
+    const okCom = !!comuna;
+    form.region.setCustomValidity(okReg ? "" : "Seleccione región");
+    form.comuna.setCustomValidity(okCom ? "" : "Seleccione comuna");
+
+    // Dirección
+    const okDir = direccion.length > 0 && direccion.length <= 300;
+    form.direccion.setCustomValidity(okDir ? "" : "Dirección (máx 300)");
+
+    const ok = okRunLen && okRunDv && okNom && okApe && okCorLen && okCorDom && okReg && okCom && okDir;
     if (ok) {
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
       usuarios.push(Object.fromEntries(new FormData(form)));
@@ -145,10 +180,24 @@ if (window.google?.maps?.places && dirInput) {
 function initContacto() {
   const form = document.getElementById("formContacto");
   applyBootstrapValidation(form, () => {
-    const okCorreo = validarCorreoDominios(form.correo.value);
-    form.correo.setCustomValidity(okCorreo ? "" : MSG_DOMINIO);
+    const nombre = form.nombre.value.trim();
+    const email = form.correo.value.trim();
+    const comentario = form.comentario.value.trim();
 
-    const ok = okCorreo && form.nombre.value.trim() && form.comentario.value.trim();
+    // Nombre: requerido, max 100
+    const okNombre = nombre.length > 0 && nombre.length <= 100;
+    form.nombre.setCustomValidity(okNombre ? "" : "Nombre requerido (máx 100)");
+
+    // Correo: opcional, pero si viene => max 100 + dominio válido
+    const okCorreoLen = email.length === 0 || email.length <= 100;
+    const okCorreoDom = email.length === 0 || validarCorreoDominios(email);
+    form.correo.setCustomValidity(okCorreoLen && okCorreoDom ? "" : MSG_DOMINIO);
+
+    // Comentario: req., max 500
+    const okComent = comentario.length > 0 && comentario.length <= 500;
+    form.comentario.setCustomValidity(okComent ? "" : "Comentario requerido (máx 500)");
+
+    const ok = okNombre && okCorreoLen && okCorreoDom && okComent;
     if (ok) {
       const mensajes = JSON.parse(localStorage.getItem("mensajes") || "[]");
       mensajes.push(Object.fromEntries(new FormData(form)));
@@ -161,3 +210,103 @@ function initContacto() {
   });
   attachEmailLiveValidation(form);
 }
+
+// === Validaciones Admin: Producto ===
+document.addEventListener("DOMContentLoaded", () => {
+  const formP = document.getElementById("formProducto");
+  if (formP) {
+    formP.addEventListener("submit", (e) => {
+      e.preventDefault();
+      let ok = true;
+
+      const codigo = formP.codigo?.value?.trim() || "";
+      const nombre = formP.nombre?.value?.trim() || "";
+      const precio = parseFloat(formP.precio?.value || "0");
+      const stock = parseInt(formP.stock?.value || "0");
+      const stockCritico = formP.stockCritico?.value ? parseInt(formP.stockCritico.value) : null;
+      const categoria = formP.categoria?.value || "";
+
+      // Código: requerido, texto, min 3
+      if (codigo.length < 3) { ok = false; alert("Código: mínimo 3 caracteres"); }
+
+      // Nombre: requerido, max 100
+      if (!nombre || nombre.length > 100) { ok = false; alert("Nombre: requerido y máximo 100 caracteres"); }
+
+      // Precio: requerido, min 0 (FREE posible)
+      if (isNaN(precio) || precio < 0) { ok = false; alert("Precio: número válido (>= 0)"); }
+
+      // Stock: requerido entero >= 0
+      if (!Number.isInteger(stock) || stock < 0) { ok = false; alert("Stock: entero válido (>= 0)"); }
+
+      // Stock crítico: opcional entero >= 0
+      if (stockCritico !== null && (!Number.isInteger(stockCritico) || stockCritico < 0)) {
+        ok = false; alert("Stock crítico: entero válido (>= 0)");
+      }
+
+      // Categoría: requerido
+      if (!categoria) { ok = false; alert("Seleccione una categoría"); }
+
+      if (ok) {
+        // Guardar en localStorage como simulación de persistencia
+        const productos = JSON.parse(localStorage.getItem("productosAdmin") || "[]");
+        productos.push({
+          codigo, nombre, precio, stock, stockCritico, categoria,
+          descripcion: formP.descripcion?.value?.trim() || "",
+          imagen: formP.imagen?.value || ""
+        });
+        localStorage.setItem("productosAdmin", JSON.stringify(productos));
+        alert("Producto guardado (demo localStorage).");
+        formP.reset();
+      }
+    });
+  }
+
+  // === Validaciones Admin: Usuario ===
+  const formU = document.getElementById("formUsuario");
+  if (formU) {
+    formU.addEventListener("submit", (e) => {
+      e.preventDefault();
+      let ok = true;
+
+      const run = (formU.run?.value || "").trim();
+      const nombres = (formU.nombres?.value || "").trim();
+      const apellidos = (formU.apellidos?.value || "").trim();
+      const correo = (formU.correo?.value || "").trim();
+      const tipo = formU.tipo?.value || "";
+      const region = formU.region?.value || "";
+      const comuna = formU.comuna?.value || "";
+      const direccion = (formU.direccion?.value || "").trim();
+
+      // RUN
+      if (!validarRUN(run)) { ok = false; alert("RUN inválido. Ej: 19011022K (sin puntos ni guion)"); }
+      if (run.length < 7 || run.length > 9) { ok = false; alert("RUN: 7 a 9 caracteres"); }
+
+      // Nombres/apellidos
+      if (!nombres || nombres.length > 50) { ok = false; alert("Nombres: requerido, máx 50"); }
+      if (!apellidos || apellidos.length > 100) { ok = false; alert("Apellidos: requerido, máx 100"); }
+
+      // Correo
+      if (!correo || correo.length > 100 || !validarCorreoDominios(correo)) {
+        ok = false; alert(MSG_DOMINIO);
+      }
+
+      // Tipo: Admin/Cliente/Vendedor
+      if (!tipo) { ok = false; alert("Seleccione un tipo de usuario"); }
+
+      // Región/comuna
+      if (!region) { ok = false; alert("Seleccione región"); }
+      if (!comuna) { ok = false; alert("Seleccione comuna"); }
+
+      // Dirección
+      if (!direccion || direccion.length > 300) { ok = false; alert("Dirección: requerida, máx 300"); }
+
+      if (ok) {
+        const usuarios = JSON.parse(localStorage.getItem("usuariosAdmin") || "[]");
+        usuarios.push({ run, nombres, apellidos, correo, tipo, region, comuna, direccion });
+        localStorage.setItem("usuariosAdmin", JSON.stringify(usuarios));
+        alert("Usuario guardado (demo localStorage).");
+        formU.reset();
+      }
+    });
+  }
+});

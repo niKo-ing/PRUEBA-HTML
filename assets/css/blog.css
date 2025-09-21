@@ -1,0 +1,37 @@
+/* Estilos exclusivos para la página de blogs */
+.blog-card {
+  border-radius: 1.1rem;
+  transition: transform 0.18s, box-shadow 0.18s;
+  background: rgba(30,34,40,0.92) !important;
+  box-shadow: 0 8px 32px #0003, 0 1.5px 8px #0002;
+  border: 1.5px solid #23272f;
+  color: #fff;
+}
+.blog-card:hover {
+  transform: translateY(-7px) scale(1.025);
+  box-shadow: 0 16px 40px #0005, 0 2px 8px #0002;
+  border-color: #0dcaf0;
+}
+.blog-img-hover {
+  transition: transform 0.3s, filter 0.3s;
+  border-radius: 1.1rem 1.1rem 0 0;
+}
+.blog-card:hover .blog-img-hover {
+  transform: scale(1.07) rotate(-1deg);
+  filter: brightness(1.13) saturate(1.18);
+}
+@media (max-width: 767px) {
+  .blog-card {
+    border-radius: 0.8rem;
+  }
+  .blog-img-hover {
+    border-radius: 0.8rem 0.8rem 0 0;
+  }
+  .container.position-relative.z-2.d-flex {
+    padding-top: 1.2rem !important;
+    height: 170px !important;
+  }
+  section.position-relative.mb-0 {
+    min-height: 170px !important;
+  }
+}

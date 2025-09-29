@@ -40,15 +40,18 @@ El sistema está orientado a **administradores, cajeros y cocineros**, permitien
 ---
 
 ## 📂 Estructura del Proyecto
--/proyecto
--│── /admin # Módulos de administración (usuarios, productos)
--│── /assets
--│ ├── /css # Estilos globales y de administración
--│ ├── /js # Scripts de validación y lógica
--│ └── /img # Recursos gráficos
--│── /public # Páginas visibles (login, registro, pedidos)
--│── index.html # Página principal
--│── README.md # Documentación del proyecto
+```
+/proyecto
+│── /admin           # Módulos de administración (usuarios, productos)
+│── /assets
+│   ├── /css         # Estilos globales y de administración
+│   ├── /js          # Scripts de validación y lógica
+│   └── /img         # Recursos gráficos
+│── /public          # Páginas visibles (login, registro, pedidos)
+│── index.html       # Página principal
+│── README.md        # Documentación del proyecto
+```
+
 ---
 
 ## ✅ Requisitos
@@ -71,6 +74,11 @@ El sistema está orientado a **administradores, cajeros y cocineros**, permitien
 - Integración con pasarelas de pago en línea.  
 - App móvil para clientes.  
 - Reportes avanzados (ventas, estadísticas, gráficos).  
+
+---
+
+## 📜 Licencia
+Proyecto académico – uso educativo.  
 
 ---
 

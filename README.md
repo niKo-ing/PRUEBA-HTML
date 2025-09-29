@@ -49,10 +49,6 @@ El sistema está orientado a **administradores, cajeros y cocineros**, permitien
 │── /public # Páginas visibles (login, registro, pedidos)
 │── index.html # Página principal
 │── README.md # Documentación del proyecto
-
-yaml
-Copiar código
-
 ---
 
 ## ✅ Requisitos

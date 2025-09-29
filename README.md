@@ -79,8 +79,3 @@ El sistema está orientado a **administradores, cajeros y cocineros**, permitien
 
 ## 📜 Licencia
 Proyecto académico – uso educativo.  
-
----
-
-## 📜 Licencia
-Proyecto académico – uso educativo.

@@ -1,54 +1,46 @@
-/* === Corrección de contraste (modo sin imágenes) === */
+/* === Modo sin imágenes: fondo claro y texto negro === */
 
-/* Hero sin imagen: dale fondo y color de texto */
+/* Hero sin imagen */
 .blogs-noimg section.position-relative.mb-0 {
-  background: linear-gradient(180deg, #232946 0%, #1a1a2e 100%) !important;
-  color: #fff !important;
+  background: #f8f9fa !important; /* gris claro Bootstrap */
+  color: #000 !important;
   min-height: 220px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 .blogs-noimg section.position-relative.mb-0 h1,
 .blogs-noimg section.position-relative.mb-0 h2,
 .blogs-noimg section.position-relative.mb-0 p {
-  color: #fff !important;
-  text-shadow: 0 2px 6px rgba(0,0,0,.35);
+  color: #000 !important;
+  text-shadow: none !important;
 }
 
-/* Tarjetas sin imagen: fondo oscuro y textos legibles */
+/* Tarjetas */
 .blogs-noimg .blog-card {
-  background: #232946 !important;          /* oscuro */
-  border-color: #2d3355 !important;
-  color: #e6edf7 !important;                /* texto base */
+  background: #fff !important;     /* blanco */
+  border: 1px solid #dee2e6 !important;
+  color: #000 !important;
 }
-
-/* Títulos resaltados en las tarjetas */
 .blogs-noimg .blog-card h2,
 .blogs-noimg .blog-card h3,
 .blogs-noimg .blog-card h5,
 .blogs-noimg .blog-card .card-title {
-  color: #0dcaf0 !important;                /* celeste */
+  color: #000 !important;
 }
-
-/* Descripciones y subtítulos */
 .blogs-noimg .blog-card p,
 .blogs-noimg .blog-card .card-subtitle,
 .blogs-noimg .blog-card small {
-  color: #cbd5e1 !important;                /* gris claro */
+  color: #000 !important;
 }
-
-/* Botón/links con buen contraste sobre fondo oscuro */
 .blogs-noimg .blog-card .btn,
 .blogs-noimg .blog-card a {
-  color: #0dcaf0 !important;
-  border-color: #0dcaf0 !important;
+  color: #000 !important;
+  border-color: #000 !important;
 }
 .blogs-noimg .blog-card .btn:hover,
 .blogs-noimg .blog-card a:hover {
-  background: #0dcaf0 !important;
-  color: #0b2236 !important;
-}
-
-/* Por si alguna tarjeta trae overlay transparente desde el HTML */
-.blogs-noimg .blog-card .overlay,
-.blogs-noimg .blog-card .card-img-overlay {
-  background: transparent !important;
+  background: #000 !important;
+  color: #fff !important;
 }

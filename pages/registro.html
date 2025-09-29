@@ -14,7 +14,7 @@
   <script defer src="../assets/js/validations.js"></script>
   <script defer src="../assets/js/main.js"></script>
   <script defer src="../assets/js/auth.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxvWELwCdqA6kJVKfI9LGSWCSuu52-jBU&libraries=places"></script>
+<script defer src="../assets/js/maps-verify.js"></script>
 </head>
 <body>
   <div id="preloader">
@@ -137,6 +137,28 @@
           <div class="invalid-feedback">Seleccione un tipo</div>
         </div>
       </div>
+      <!-- Acceso -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <label class="form-label mb-2">Contraseña*</label>
+          <div class="input-group input-group-lg has-validation gap-2">
+            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            <input name="clave" type="password" class="form-control" required minlength="4" maxlength="10" autocomplete="new-password" placeholder="4 a 10 caracteres">
+            <button type="button" class="btn btn-outline-secondary" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'"><i class="bi bi-eye"></i></button>
+            <div class="invalid-feedback">Debe tener entre 4 y 10 caracteres.</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label mb-2">Confirmar contraseña*</label>
+          <div class="input-group input-group-lg has-validation gap-2">
+            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+            <input name="confirmar" type="password" class="form-control" required minlength="4" maxlength="10" autocomplete="new-password" placeholder="Repite la contraseña">
+            <button type="button" class="btn btn-outline-secondary" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'"><i class="bi bi-eye"></i></button>
+            <div class="invalid-feedback">Las contraseñas no coinciden.</div>
+          </div>
+        </div>
+      </div>
+
 
       <!-- Ubicación -->
       <div class="row g-4 mb-4">
@@ -189,13 +211,11 @@
       <div>© 2025 TodoBarato – Periféricos</div>
     </div>
   </footer>
+<script>document.addEventListener('DOMContentLoaded', () => initRegistro());</script>
 
-  
+  <!-- JS externos -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', () => initRegistro());</script>
-
-  <script defer src="../assets/js/maps-verify.js"></script>
-  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCNRF_oWpzb1P9cH4NTxRwhTFU3UxkkHzo&libraries=places&callback=initRegistroMap"></script>
-
+  <!-- Carga de Google Maps + Places (usa el callback que definimos en maps-verify-admin.js) -->
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCNRF_oWpzb1P9cH4NTxRwhTFU3UxkkHzo&libraries=places&region=CL&language=es&callback=initRegistroMap"></script>
 </body>
 </html>

@@ -1,8 +1,7 @@
+// Google Maps: verificación de dirección y mapa en NUEVO USUARIO (Admin)
+// Requiere selects con id="regionAdmin", id="comunaAdmin" y input name="direccion"
 
-// Google Maps: verificación automática por Autocomplete en Admin > Nuevo Usuario
-// Campos esperados: select#regionAdmin, select#comunaAdmin, input[name="direccion"]
-
-let gmapsAdmin = {
+let gmapsA = {
   map: null,
   marker: null,
   geocoder: null,
@@ -10,83 +9,142 @@ let gmapsAdmin = {
   els: {}
 };
 
-function adminStatus(msg, ok=false) {
-  const el = gmapsAdmin.els.status;
+function setGmapsStatusAdmin(msg, ok = false) {
+  const el = gmapsA.els.status;
   if (!el) return;
   el.textContent = msg;
   el.className = ok ? "text-success small" : "text-danger small";
 }
 
-function adminShowMap(show) {
-  if (gmapsAdmin.els.map) {
-    gmapsAdmin.els.map.style.display = show ? "block" : "none";
+function showMapAdmin(show) {
+  if (gmapsA.els.map) {
+    gmapsA.els.map.style.display = show ? "block" : "none";
   }
 }
 
-function adminFullAddress() {
-  const dir = (document.querySelector('input[name="direccion"]')?.value || "").trim();
+function buildFullAddressAdmin() {
+  const dir    = (document.querySelector('form#formUsuarioAdmin input[name="direccion"]')?.value || "").trim();
   const comuna = (document.getElementById("comunaAdmin")?.value || "").trim();
   const region = (document.getElementById("regionAdmin")?.value || "").trim();
-  const parts = [dir, comuna, region, "Chile"].filter(Boolean);
+
+  const parts = [dir, comuna, region, ""].filter(Boolean);
   return parts.join(", ");
 }
 
-function adminUpdateMap(latLng, formattedAddress) {
-  if (!gmapsAdmin.map || !gmapsAdmin.marker) return;
-  gmapsAdmin.map.setCenter(latLng);
-  gmapsAdmin.map.setZoom(16);
-  gmapsAdmin.marker.setPosition(latLng);
+function updateMapAdmin(latLng, formattedAddress) {
+  if (!gmapsA.map || !gmapsA.marker) return;
+  gmapsA.map.setCenter(latLng);
+  gmapsA.map.setZoom(16);
+  gmapsA.marker.setPosition(latLng);
 
-  if (gmapsAdmin.els.formatted) {
-    gmapsAdmin.els.formatted.textContent = "Dirección oficial: " + formattedAddress;
+  if (gmapsA.els.formatted) {
+    gmapsA.els.formatted.textContent = "Dirección oficial: " + (formattedAddress || "");
   }
-  adminShowMap(true);
+  showMapAdmin(true);
 }
 
-function adminInitAutocomplete() {
-  const dirInput = document.querySelector('input[name="direccion"]');
+// Rehidrata al cargar/recargar o cuando cambian Región/Comuna
+function rehydrateFromInputsAdmin() {
+  const full = buildFullAddressAdmin();
+  if (!full || !gmapsA.geocoder) return;
+
+  gmapsA.geocoder.geocode({ address: full }, (results, status) => {
+    if (status === "OK" && results?.[0]) {
+      const loc = results[0].geometry.location;
+      const faddr = results[0].formatted_address || full;
+      // si el input de dirección está vacío, al menos deja el oficial
+      const dirInput = document.querySelector('form#formUsuarioAdmin input[name="direccion"]');
+      if (dirInput && !dirInput.value) dirInput.value = faddr;
+      updateMapAdmin(loc, faddr);
+      setGmapsStatusAdmin("Dirección válida (Geocoder).", true);
+    } else {
+      setGmapsStatusAdmin("No se pudo validar la dirección.", false);
+      showMapAdmin(false);
+    }
+  });
+}
+
+function initAutocompleteAdmin() {
+  const dirInput = document.querySelector('form#formUsuarioAdmin input[name="direccion"]');
   if (!dirInput) return;
+
   try {
-    gmapsAdmin.autocomplete = new google.maps.places.Autocomplete(dirInput, {
+    gmapsA.autocomplete = new google.maps.places.Autocomplete(dirInput, {
       fields: ["formatted_address", "geometry"],
       types: ["geocode"],
-      componentRestrictions: { country: "CL" }
+      componentRestrictions: { country: "CL" } 
     });
-    gmapsAdmin.autocomplete.addListener("place_changed", () => {
-      const place = gmapsAdmin.autocomplete.getPlace();
-      if (!place || !place.geometry) return;
-      adminUpdateMap(place.geometry.location, place.formatted_address || "");
-      adminStatus("Dirección válida (Autocomplete).", true);
+
+    gmapsA.autocomplete.addListener("place_changed", () => {
+      const place = gmapsA.autocomplete.getPlace();
+      if (!place || !place.geometry) {
+        setGmapsStatusAdmin("La dirección no es válida.", false);
+        dirInput.setCustomValidity("La dirección no es válida.");
+        return;
+      }
+      dirInput.setCustomValidity("");
+
+      const faddr = place.formatted_address || dirInput.value.trim();
+      updateMapAdmin(place.geometry.location, faddr);
+      setGmapsStatusAdmin("Dirección válida (Autocomplete).", true);
     });
-  } catch(e) {
-    console.warn("Autocomplete no disponible en Admin:", e);
+  } catch (e) {
+    // Ignorar si no está Places
+    console.warn("Autocomplete no disponible (Admin):", e);
   }
-}
 
-function adminInitMapCore() {
-  gmapsAdmin.els.map = document.getElementById("gmapsMapAdmin");
-  gmapsAdmin.els.status = document.getElementById("gmapsStatusAdmin");
-  gmapsAdmin.els.formatted = document.getElementById("gmapsFormattedAdmin");
-
-  gmapsAdmin.geocoder = new google.maps.Geocoder();
-  gmapsAdmin.map = new google.maps.Map(gmapsAdmin.els.map, {
-    center: { lat: -33.45, lng: -70.6667 },
-    zoom: 12
+  // UX: si escribe manualmente, limpia estado y oculta el mapa hasta validar
+  dirInput.addEventListener("input", () => {
+    setGmapsStatusAdmin("Escribe y selecciona una dirección del Autocomplete.", false);
+    showMapAdmin(false);
   });
-  gmapsAdmin.marker = new google.maps.Marker({ map: gmapsAdmin.map, draggable: false });
 
-  adminStatus("Escribe y selecciona una dirección del Autocomplete.", false);
-  adminInitAutocomplete();
+  // Si deja texto y no eligió sugerencia, intenta validar con Geocoder
+  dirInput.addEventListener("blur", () => {
+    const v = (dirInput.value || "").trim();
+    if (v) rehydrateFromInputsAdmin();
+    else { setGmapsStatusAdmin("", false); showMapAdmin(false); }
+  });
 }
 
+function initMapCoreAdmin() {
+  setGmapsStatusAdmin("Escribe y selecciona una dirección del Autocomplete.", false);
+
+  gmapsA.els.map       = document.getElementById("gmapsMapAdmin");
+  gmapsA.els.status    = document.getElementById("gmapsStatusAdmin");
+  gmapsA.els.formatted = document.getElementById("gmapsFormattedAdmin");
+
+  gmapsA.geocoder = new google.maps.Geocoder();
+  gmapsA.map = new google.maps.Map(gmapsA.els.map, {
+    center: { lat: -33.45, lng: -70.6667 }, // Santiago
+    zoom: 12,
+    mapTypeControl: false
+  });
+  gmapsA.marker = new google.maps.Marker({ map: gmapsA.map, draggable: false });
+
+  initAutocompleteAdmin();
+
+  // 🔁 Rehidratar al cargar (F5)
+  rehydrateFromInputsAdmin();
+
+  // 🔁 Re-geocodificar cuando cambian Región/Comuna
+  document.getElementById("regionAdmin")?.addEventListener("change", rehydrateFromInputsAdmin);
+  document.getElementById("comunaAdmin")?.addEventListener("change", rehydrateFromInputsAdmin);
+}
+
+// Callback para el script async de Google Maps
 function initAdminUserMap() {
   try {
-    adminInitMapCore();
+    initMapCoreAdmin();
   } catch (e) {
-    console.error("Error inicializando Google Maps (Admin Nuevo Usuario):", e);
+    console.error("Error inicializando Google Maps (Admin):", e);
   }
 }
 
+// Si el script de Google ya estaba cargado, intenta inicializar
 if (window.google && window.google.maps) {
   initAdminUserMap();
 }
+
+// Exponer la función como global para el callback=&callback=initAdminUserMap
+window.initAdminUserMap = initAdminUserMap;

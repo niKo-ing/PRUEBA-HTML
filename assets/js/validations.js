@@ -26,7 +26,11 @@ const applyBootstrapValidation = (form, customChecks = () => true) => {
 const attachEmailLiveValidation = (form) => {
   if (!form?.correo) return;
   form.correo.addEventListener("input", () => {
-    const ok = validarCorreoDominios(form.correo.value);
+    const okPwdLen = clave.length >= 4 && clave.length <= 10;
+const okPwdEq = clave === confirmar;
+form.clave?.setCustomValidity(okPwdLen ? '' : 'Largo inválido (4 a 10)');
+form.confirmar?.setCustomValidity(okPwdEq ? '' : 'No coinciden');
+const ok = validarCorreoDominios(form.correo.value);
     form.correo.setCustomValidity(ok ? "" : MSG_DOMINIO);
   });
 };
@@ -136,7 +140,9 @@ if (window.google?.maps?.places && dirInput) {
     const comuna = form.comuna.value.trim();
     const direccion = form.direccion.value.trim();
 
-    // RUN: 7-9 y DV válido
+    const clave = form.clave?.value.trim() || '';
+const confirmar = form.confirmar?.value.trim() || '';
+// RUN: 7-9 y DV válido
     const okRunLen = run.length >= 7 && run.length <= 9;
     const okRunDv = validarRUN(run);
     form.run.setCustomValidity(okRunLen && okRunDv ? "" : "RUN inválido");
@@ -162,7 +168,7 @@ if (window.google?.maps?.places && dirInput) {
     const okDir = direccion.length > 0 && direccion.length <= 300;
     form.direccion.setCustomValidity(okDir ? "" : "Dirección (máx 300)");
 
-    const ok = okRunLen && okRunDv && okNom && okApe && okCorLen && okCorDom && okReg && okCom && okDir;
+    const ok = okRunLen && okRunDv && okNom && okApe && okCorLen && okCorDom && okReg && okCom && okDir && okPwdLen && okPwdEq;
     if (ok) {
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
       usuarios.push(Object.fromEntries(new FormData(form)));
@@ -213,6 +219,8 @@ function initContacto() {
 
 // === Validaciones Admin: Producto ===
 document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById('formUsuarioAdmin')) { initUsuarioAdmin(); }
+
   const formP = document.getElementById("formProducto");
   if (formP) {
     formP.addEventListener("submit", (e) => {
@@ -277,7 +285,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const comuna = formU.comuna?.value || "";
       const direccion = (formU.direccion?.value || "").trim();
 
-      // RUN
+      const clave = (formU.clave?.value || '').trim();
+const confirmar = (formU.confirmar?.value || '').trim();
+// RUN
       if (!validarRUN(run)) { ok = false; alert("RUN inválido. Ej: 19011022K (sin puntos ni guion)"); }
       if (run.length < 7 || run.length > 9) { ok = false; alert("RUN: 7 a 9 caracteres"); }
 
@@ -299,6 +309,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Dirección
       if (!direccion || direccion.length > 300) { ok = false; alert("Dirección: requerida, máx 300"); }
+      // Clave
+      if (clave.length < 4 || clave.length > 10) { ok = false; alert("Contraseña: 4 a 10 caracteres"); }
+      if (clave !== confirmar) { ok = false; alert("Las contraseñas no coinciden"); }
 
       if (ok) {
         const usuarios = JSON.parse(localStorage.getItem("usuariosAdmin") || "[]");
@@ -310,3 +323,152 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
+// ----- NUEVO USUARIO (ADMIN) -----
+function initUsuarioAdmin() {
+  const reg = document.getElementById("regionAdmin");
+  const com = document.getElementById("comunaAdmin");
+  const form = document.getElementById("formUsuarioAdmin");
+  if (!form) return;
+
+  // Placeholders iniciales
+  if (reg) {
+    reg.innerHTML = "";
+    reg.append(new Option("--- seleccione región ---", "", true, true));
+    reg.options[0].disabled = true;
+    // Cargar regiones
+    App.regiones.forEach(r => reg.append(new Option(r.nombre, r.nombre)));
+  }
+  if (com) {
+    com.innerHTML = "";
+    com.append(new Option("--- seleccione comuna ---", "", true, true));
+    com.options[0].disabled = true;
+  }
+
+  // Dependencia región -> comunas
+  reg?.addEventListener("change", () => {
+    com.innerHTML = "";
+    com.append(new Option("--- seleccione comuna ---", "", true, true));
+    com.options[0].disabled = true;
+    const r = App.regiones.find(x => x.nombre === reg.value);
+    (r?.comunas || []).forEach(c => com.append(new Option(c, c)));
+    if (!r) com.selectedIndex = 0;
+  });
+
+  // Google Places Autocomplete para Dirección
+  const dirInput = form.querySelector("input[name='direccion']");
+  const statusEl = document.getElementById("gmapsStatusAdmin");
+  const formattedEl = document.getElementById("gmapsFormattedAdmin");
+  const mapEl = document.getElementById("gmapsMapAdmin");
+
+  // Hidden lat/lng
+  const latInput = document.createElement("input");
+  latInput.type = "hidden"; latInput.name = "lat";
+  const lngInput = document.createElement("input");
+  lngInput.type = "hidden"; lngInput.name = "lng";
+  form.append(latInput, lngInput);
+
+  if (window.google?.maps?.places && dirInput) {
+    const autocomplete = new google.maps.places.Autocomplete(dirInput, {
+      types: ["address"]
+      // No restringimos país (el usuario pidió normal, no solo Chile)
+    });
+
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      if (!place.geometry) {
+        dirInput.setCustomValidity("La dirección no es válida.");
+        statusEl && (statusEl.textContent = "No encontré coordenadas para esa dirección.");
+        return;
+      }
+      dirInput.setCustomValidity("");
+      formattedEl && (formattedEl.textContent = place.formatted_address || "");
+      if (place.formatted_address) dirInput.value = place.formatted_address;
+      latInput.value = place.geometry.location.lat();
+      lngInput.value = place.geometry.location.lng();
+
+      // Pintar mapa si existe
+      try {
+        if (mapEl && window.google?.maps) {
+          mapEl.style.display = "block";
+          const map = new google.maps.Map(mapEl, {
+            center: place.geometry.location,
+            zoom: 16,
+            mapTypeControl: false
+          });
+          new google.maps.Marker({ position: place.geometry.location, map });
+        }
+      } catch (e) {
+        console.warn("No se pudo renderizar el mapa:", e);
+      }
+    });
+
+    dirInput.addEventListener("blur", () => {
+      if (!dirInput.value.trim()) {
+        dirInput.setCustomValidity("Obligatorio");
+      }
+    });
+  } else {
+    console.warn("Google Places no disponible en Admin. ¿Cargaste el script con tu API key?");
+  }
+
+  // Validación Bootstrap similar a Registro
+  applyBootstrapValidation(form, () => {
+    const run = form.run.value.trim();
+    const nombres = form.nombres.value.trim();
+    const apellidos = form.apellidos.value.trim();
+    const correo = form.correo.value.trim();
+    const tipo = form.tipo.value.trim();
+    const region = form.region.value.trim();
+    const comuna = form.comuna.value.trim();
+    const direccion = form.direccion.value.trim();
+    const clave = form.clave?.value.trim() || "";
+    const confirmar = form.confirmar?.value.trim() || "";
+
+    // RUN
+    const okRunLen = run.length >= 7 && run.length <= 9;
+    const okRunDv = validarRUN(run);
+    form.run.setCustomValidity(okRunLen && okRunDv ? "" : "RUN inválido");
+
+    // Nombres/apellidos
+    const okNom = !!nombres && nombres.length <= 50;
+    const okApe = !!apellidos && apellidos.length <= 100;
+    form.nombres.setCustomValidity(okNom ? "" : "Obligatorio (máx 50)");
+    form.apellidos.setCustomValidity(okApe ? "" : "Obligatorio (máx 100)");
+
+    // Correo
+    const okCorLen = correo.length > 0 && correo.length <= 100;
+    const okCorDom = validarCorreoDominios(correo);
+    form.correo.setCustomValidity(okCorLen && okCorDom ? "" : MSG_DOMINIO);
+
+    // Tipo/Región/Comuna/Dirección
+    const okTipo = !!tipo;
+    const okReg = !!region;
+    const okCom = !!comuna;
+    const okDir = !!direccion && direccion.length <= 300;
+    form.tipo.setCustomValidity(okTipo ? "" : "Seleccione");
+    form.region.setCustomValidity(okReg ? "" : "Seleccione");
+    form.comuna.setCustomValidity(okCom ? "" : "Seleccione");
+    form.direccion.setCustomValidity(okDir ? "" : "Obligatorio (máx 300)");
+
+    // Password
+    const okPwdLen = clave.length >= 4 && clave.length <= 10;
+    const okPwdEq = clave === confirmar;
+    form.clave?.setCustomValidity(okPwdLen ? "" : "Largo inválido (4 a 10)");
+    form.confirmar?.setCustomValidity(okPwdEq ? "" : "No coinciden");
+
+    const ok = okRunLen && okRunDv && okNom && okApe && okCorLen && okCorDom && okTipo && okReg && okCom && okDir && okPwdLen && okPwdEq;
+    if (ok) {
+      const usuarios = JSON.parse(localStorage.getItem("usuariosAdmin") || "[]");
+      usuarios.push(Object.fromEntries(new FormData(form)));
+      localStorage.setItem("usuariosAdmin", JSON.stringify(usuarios));
+      alert("Usuario guardado (admin).");
+      form.reset();
+    }
+    return ok;
+  });
+
+  // Validación en vivo de e-mail
+  attachEmailLiveValidation(form);
+}

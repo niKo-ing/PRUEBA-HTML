@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+
+
+    "strict": true,
+    "noImplicitAny": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+
+
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+
+
+    "baseUrl": "src",
+    "paths": {
+      "@atoms/*": ["components/atoms/*"],
+      "@molecules/*": ["components/molecules/*"],
+      "@organisms/*": ["components/organisms/*"],
+      "@templates/*": ["components/templates/*"],
+      "@pages/*": ["components/pages/*"],
+      "@domain/*": ["domain/*"],
+      "@app/*": ["app/*"]
+    }
+  },
+
+
+  "include": [
+    "src",
+    "vite-env.d.ts"
+  ],
+
+
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

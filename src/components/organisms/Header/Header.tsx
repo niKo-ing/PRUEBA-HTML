@@ -12,11 +12,10 @@ export default function Header() {
       className="border-bottom sticky-top shadow-sm"
       style={{ backdropFilter: "saturate(180%) blur(8px)" }}
     >
-      <Container className="py-2">
+      <Container className="py-1">
         {/* Brand como <Link> con clases de Bootstrap */}
         <Link to="/" className="navbar-brand d-flex align-items-center gap-2">
-          <img src="/assets/img/logo.png" alt="Todobarato" className="logo-navbar" />
-          <span className="fw-semibold">TODOBARATO</span>
+          <img src="/assets/img/icono.png" alt="Todobarato" className="logo-navbar"/>
         </Link>
 
         <Navbar.Toggle />

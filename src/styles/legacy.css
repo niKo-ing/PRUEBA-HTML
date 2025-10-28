@@ -32,12 +32,6 @@
 }
 .product-card .card-title { line-height: 1.2; }
 
-/* Navbar spacing similar al ZIP */
-.navbar .nav-link {
-  padding-left: .75rem;
-  padding-right: .75rem;
-}
-
 /* Footer links hover */
 footer a:hover { text-decoration: underline; }
 

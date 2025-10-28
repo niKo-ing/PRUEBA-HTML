@@ -1,24 +1,19 @@
-import { Component, type ReactNode } from "react";
+import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 
-export class ErrorBoundary extends Component<
-  { fallback?: ReactNode; children: ReactNode },
-  { hasError: boolean }
-> {
-  state = { hasError: false };
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
+export default function ErrorBoundary() {
+  const err = useRouteError();
+  if (isRouteErrorResponse(err)) {
+    return (
+      <div className="container py-5">
+        <h1 className="h3">Error {err.status}</h1>
+        <p className="text-body-secondary">{err.statusText}</p>
+      </div>
+    );
   }
-
-  override render() {
-    if (this.state.hasError) {
-      return this.props.fallback ?? (
-        <div role="alert" className="text-center p-4 text-danger">
-          <h2>Algo salió mal 😢</h2>
-          <p>Por favor recarga la página o vuelve más tarde.</p>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
+  return (
+    <div className="container py-5">
+      <h1 className="h3">Algo salió mal</h1>
+      <pre className="small text-body-secondary">{String((err as any)?.message ?? err)}</pre>
+    </div>
+  );
 }

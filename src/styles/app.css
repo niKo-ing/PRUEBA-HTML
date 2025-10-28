@@ -59,30 +59,6 @@
   border-top-color: #ff6600;
 }
 
-/* =========================================================
-   NAVBAR Y LOGO
-   ========================================================= */
-.logo-navbar {
-  height: 70px; 
-  width: 86px;
-  display: block;
-}
-@media (max-width: 992px) {
-  .logo-navbar {
-    height: 40px;
-  }
-}
-.navbar .navbar-brand {
-  flex: 1 1 auto;
-}
-
-.navbar .nav-actions {
-  flex: 0 0 auto;
-}
-
-.navbar-brand {
-  gap: 0 !important;
-}
 
 /* =========================================================
    CARDS DE PRODUCTO
@@ -215,4 +191,131 @@
   overflow-x: auto;
   padding-bottom: 0.25rem;
   scroll-behavior: smooth;
+}
+/* =====================
+   NAVBAR COMPACTA + BLUR
+   ===================== */
+.navbar-custom {
+  background-color: rgba(255, 255, 255, 0.85); /* Fondo semitransparente */
+  backdrop-filter: saturate(180%) blur(10px);  /* efecto blur */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
+}
+
+/* En modo oscuro */
+:root[data-bs-theme="dark"] .navbar-custom {
+  background-color: rgba(25, 25, 25, 0.8);
+}
+
+.logo-navbar {
+  height: 74px; 
+  width: 90px;
+  display: block;
+}
+@media (max-width: 992px) {
+  .logo-navbar {
+    height: 40px;
+  }
+}
+
+.navbar .navbar-brand {
+  flex: 1 1 auto;
+}
+
+.navbar .nav-actions {
+  flex: 0 0 auto;
+}
+
+.navbar-brand {
+  gap: 0 !important;
+}
+
+/* Efecto al hacer scroll */
+.navbar-custom.scrolled {
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+:root[data-bs-theme="dark"] .navbar-custom.scrolled {
+  background-color: rgba(25, 25, 25, 0.95);
+}
+
+/* ====== Product Detail ====== */
+.pd-wrap { --pd-gap: 1rem; }
+.pd-title { line-height: 1.2; }
+
+.pd-gallery {
+  display: grid;
+  gap: var(--pd-gap);
+}
+@media (min-width: 992px) {
+  .pd-gallery {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Imagen principal */
+.pd-main {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;         /* relación agradable en desktop */
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+.pd-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .35s ease;
+  will-change: transform;
+  cursor: zoom-in;
+}
+.pd-main:hover img {
+  transform: scale(1.15);       /* ZOOM al hover */
+}
+
+/* Miniaturas horizontales con scroll suave */
+.pd-thumbs {
+  display: flex;
+  gap: .5rem;
+  overflow-x: auto;
+  padding-bottom: .25rem;
+  scroll-behavior: smooth;
+}
+.pd-thumb {
+  width: 72px; height: 72px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: #fff;
+  border: 2px solid transparent;
+  padding: 2px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.pd-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pd-thumb:hover { border-color: var(--bs-primary); }
+.pd-thumb.active {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 2px rgba(13,110,253,.18);
+}
+
+/* Tarjetas relacionadas */
+.related-grid .card-img-top {
+  aspect-ratio: 4 / 3;       /* todas iguales */
+  object-fit: cover;
+  width: 100%;
+}
+/* Cart drawer tweaks */
+.offcanvas .list-unstyled > li {
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  padding-bottom: .75rem;
+  margin-bottom: .25rem;
+}
+:root[data-bs-theme="dark"] .offcanvas .list-unstyled > li {
+  border-color: rgba(255,255,255,.08);
 }

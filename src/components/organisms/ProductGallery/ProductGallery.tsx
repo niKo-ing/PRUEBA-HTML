@@ -1,35 +1,91 @@
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-type Props = {
-  images?: string[] | undefined;
-  cover: string;
-  alt: string;
-};
+type Props = { images?: string[]; cover?: string; alt?: string };
 
-export default function ProductGallery({ images, cover, alt }: Props) {
-  const all = useMemo(() => (images?.length ? images : [cover]), [images, cover]);
-  const [current, setCurrent] = useState(0);
+export default function ProductGallery({ images = [], cover, alt }: Props) {
+  // 1) Asegura array válido y sin duplicados (si solo hay cover, igual habrá 1 thumb)
+  const allImgs = Array.from(new Set([cover, ...(images ?? [])].filter(Boolean))) as string[];
+  const [current, setCurrent] = useState<string>(allImgs[0]!);
+  const [zooming, setZooming] = useState(false);
+  const zoomRef = useRef<HTMLDivElement | null>(null);
+
+  // Limpieza de zoom (para evitar “interposición” al navegar)
+  const resetZoom = () => {
+    const el = zoomRef.current;
+    if (!el) return;
+    el.style.backgroundImage = "none";
+    el.style.backgroundPosition = "center";
+    el.style.backgroundSize = "contain";
+    setZooming(false);
+  };
+
+  useEffect(() => {
+    // si cambia el set de imágenes, resetea current y zoom
+    setCurrent(allImgs[0]!);
+    resetZoom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(allImgs)]);
+
+  useEffect(() => {
+    // limpieza al desmontar y al ocultar la pestaña
+    const onVis = () => resetZoom();
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      resetZoom();
+    };
+  }, []);
+
+  const handleEnter = () => {
+    const el = zoomRef.current;
+    if (!el) return;
+    el.style.backgroundImage = `url(${current})`;
+    el.style.backgroundSize = "200%"; // ajusta 180–300% a gusto
+    setZooming(true);
+  };
+
+  const handleMove = (e: React.MouseEvent) => {
+    const el = zoomRef.current;
+    if (!el || !zooming) return;
+    const r = el.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * 100;
+    const y = ((e.clientY - r.top) / r.height) * 100;
+    el.style.backgroundPosition = `${x}% ${y}%`;
+  };
 
   return (
     <div className="pd-gallery">
-      <div className="pd-main">
-        <img src={all[current]} alt={alt} />
+      <div
+        ref={zoomRef}
+        className={`pd-main ${zooming ? "pd-main--zoom" : ""}`}
+        onMouseEnter={handleEnter}
+        onMouseLeave={resetZoom}
+        onMouseMove={handleMove}
+      >
+        {/* oculto mientras hay zoom para que no se “duplique” */}
+        <img src={current} alt={alt} draggable="false" className={zooming ? "is-hidden" : ""} />
       </div>
 
-      {all.length > 1 && (
-        <div className="pd-thumbs">
-          {all.map((src, idx) => (
-            <button
-              key={`${src}-${idx}`}
-              type="button"
-              className={`pd-thumb ${idx === current ? "active" : ""}`}
-              onClick={() => setCurrent(idx)}
-            >
-              <img src={src} alt={`${alt} ${idx + 1}`} />
-            </button>
-          ))}
-        </div>
-      )}
+      {/* SIEMPRE renderiza thumbs, aunque haya 1 */}
+      <div className="pd-thumbs">
+        {allImgs.map((src) => (
+          <button
+            key={src}
+            type="button"
+            className={`pd-thumb ${src === current ? "active" : ""}`}
+            onClick={() => {
+              setCurrent(src);
+              // si estás con zoom, actualiza el fondo también
+              if (zoomRef.current && zooming) {
+                zoomRef.current.style.backgroundImage = `url(${src})`;
+              }
+            }}
+            aria-label="Cambiar imagen"
+          >
+            <img src={src} alt={alt} />
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

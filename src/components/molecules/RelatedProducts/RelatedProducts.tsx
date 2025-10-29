@@ -1,16 +1,11 @@
 import { Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { productos } from "@domain/data";
+import { useCart } from "@domain/cart/cart.context";
 
 type Categoria = string | string[];
+type Props = { categoria: Categoria; excludeId: number; max?: number; };
 
-type Props = {
-  categoria: Categoria;  // ✅ acepta string o string[]
-  excludeId: number;
-  max?: number;
-};
-
-// helper para comparar categorías (string vs string[])
 function matchCategoria(pCat: Categoria, target: Categoria) {
   const toArr = (c: Categoria) => (Array.isArray(c) ? c : [c]);
   const a = toArr(pCat);
@@ -19,6 +14,8 @@ function matchCategoria(pCat: Categoria, target: Categoria) {
 }
 
 export default function RelatedProducts({ categoria, excludeId, max = 4 }: Props) {
+  const { add } = useCart();
+
   const items = productos
     .filter(p => p.id !== excludeId && matchCategoria(p.categoria as Categoria, categoria))
     .slice(0, max);
@@ -33,16 +30,25 @@ export default function RelatedProducts({ categoria, excludeId, max = 4 }: Props
           <div key={p.id} className="col-12 col-sm-6 col-lg-3">
             <Card className="h-100">
               <Link to={`/producto/${p.slug}`} className="text-decoration-none">
-                <Card.Img variant="top" src={(p.images?.[0] ?? p.img)!} alt={p.nombre} />
+                <Card.Img
+                  variant="top"
+                  src={(p.images?.[0] ?? p.img)!}
+                  alt={p.nombre}
+                  className="card-img-fit"
+                />
               </Link>
               <Card.Body className="d-flex flex-column">
                 <Card.Title className="h6">{p.nombre}</Card.Title>
                 <div className="mt-auto d-flex gap-2">
-                  {/* Evita el typing conflict de react-bootstrap 'as' */}
                   <Link to={`/producto/${p.slug}`} className="btn btn-outline-secondary btn-sm">
                     Ver
                   </Link>
-                  <button className="btn btn-warning btn-sm">Añadir</button>
+                  <button
+                    className="btn btn-warning btn-sm"
+                    onClick={() => add(p.id, 1)}   // 👈 agrega desde relacionados
+                  >
+                    Añadir
+                  </button>
                 </div>
               </Card.Body>
             </Card>

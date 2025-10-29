@@ -4,6 +4,8 @@ import type { Product } from "@domain/types";
 import ProductGallery from "@organisms/ProductGallery/ProductGallery";
 import RelatedProducts from "@molecules/RelatedProducts/RelatedProducts";
 import { Badge, Button } from "react-bootstrap";
+import { useCart } from "@domain/cart/cart.context";
+import { useCartUI } from "@app/cart-ui.context";
 
 function formatCLP(v: number) {
   return v.toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
@@ -12,6 +14,8 @@ function formatCLP(v: number) {
 export default function ProductPage() {
   const { slug } = useParams();
   const prod: Product | undefined = productos.find(p => p.slug === slug);
+  const { add } = useCart();
+  const { open } = useCartUI();
 
   if (!prod) return <Navigate to="/productos" replace />;
 
@@ -19,8 +23,8 @@ export default function ProductPage() {
     <div id="productDetail" className="container py-4">
       <div className="row g-4">
         {/* Galería */}
-        <div className="col-12 col-lg-6">
-          <ProductGallery images={prod.images} cover={prod.img} alt={prod.nombre} />
+        <div className="col-12 col-lg-6" key={prod.id}> {/* 👈 forzamos remount */}
+          <ProductGallery images={prod.images ?? []} cover={prod.img} alt={prod.nombre} />
         </div>
 
         {/* Info */}
@@ -36,7 +40,11 @@ export default function ProductPage() {
           <p className="text-body-secondary">{prod.descripcion}</p>
 
           <div className="d-flex gap-2 mt-3">
-            <Button variant="warning" size="lg">
+            <Button
+              variant="warning"
+              size="lg"
+              onClick={() => { add(prod.id, 1); open(); }}   // 👈 agrega y abre carrito
+            >
               <i className="bi bi-cart-plus me-2" />
               Añadir al carrito
             </Button>
@@ -46,11 +54,10 @@ export default function ProductPage() {
             </Button>
           </div>
 
-          {/* Extras (si quieres características) */}
-          {/* <ul className="mt-4 list-unstyled small text-body-secondary">
+          <ul className="mt-4 list-unstyled small text-body-secondary">
             <li>• Envío 24-48h</li>
             <li>• Garantía 1 año</li>
-          </ul> */}
+          </ul>
         </div>
       </div>
 

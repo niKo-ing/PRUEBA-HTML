@@ -34,7 +34,12 @@ export default function Header() {
             <button
               type="button"
               className="btn btn-light position-relative"
-              onClick={open}
+              onClick={(e) => {
+                console.log("open cart CLICK");       // 👈 verifica en consola
+                e.preventDefault();                   // evita navegación
+                e.stopPropagation();                  // evita burbujeo hacia un Link/Nav
+                open();                               // abre el drawer del carrito
+              }}
               aria-label="Abrir carrito"
             >
               <i className="bi bi-cart" />

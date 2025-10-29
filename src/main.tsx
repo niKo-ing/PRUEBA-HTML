@@ -22,6 +22,4 @@ root.render(
   </StrictMode>
 );
 
-setTimeout(() => {
-  hidePreloader();
-}, 300);
+setTimeout(() => hidePreloader(), 300);

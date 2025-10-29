@@ -11,7 +11,6 @@ export default function CartDrawer({ show, onHide }: Props) {
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Tu carrito</Offcanvas.Title>
       </Offcanvas.Header>
-
       <Offcanvas.Body>
         {items.length === 0 ? (
           <div className="text-center text-body-secondary py-5">
@@ -36,26 +35,14 @@ export default function CartDrawer({ show, onHide }: Props) {
                       {it.precio.toLocaleString("es-CL")} CLP
                     </div>
                     <div className="d-flex align-items-center gap-2 mt-2">
-                      <button
-                        type="button"
-                        className="btn btn-outline-secondary btn-sm"
-                        onClick={() => dec?.(it.id)}
-                      >
+                      <button className="btn btn-outline-secondary btn-sm" onClick={() => dec?.(it.id)}>
                         <i className="bi bi-dash" />
                       </button>
                       <span className="px-2">{it.cantidad}</span>
-                      <button
-                        type="button"
-                        className="btn btn-outline-secondary btn-sm"
-                        onClick={() => inc?.(it.id)}
-                      >
+                      <button className="btn btn-outline-secondary btn-sm" onClick={() => inc?.(it.id)}>
                         <i className="bi bi-plus" />
                       </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline-danger btn-sm ms-auto"
-                        onClick={() => remove?.(it.id)}
-                      >
+                      <button className="btn btn-outline-danger btn-sm ms-auto" onClick={() => remove?.(it.id)}>
                         <i className="bi bi-trash" />
                       </button>
                     </div>
@@ -67,7 +54,7 @@ export default function CartDrawer({ show, onHide }: Props) {
               ))}
             </ul>
 
-            <div className="border-top pt-3 d-flex justify-content-between">
+            <div className="d-flex justify-content-between border-top pt-3">
               <div className="fw-semibold">Total</div>
               <div className="fs-5 fw-bold">{total.toLocaleString("es-CL")} CLP</div>
             </div>

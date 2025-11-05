@@ -8,7 +8,7 @@ import "./styles/app.css";
 import "./styles/blog.css";
 import App from "./App";
 import { hidePreloader } from "@app/preloader"; 
-
+import { AuthProvider } from "@domain/auth/auth.context";
 
 const container = document.getElementById("root");
 if (!container) throw new Error(" No se encontró el elemento #root");
@@ -18,7 +18,9 @@ const root = createRoot(container);
 
 root.render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </StrictMode>
 );
 

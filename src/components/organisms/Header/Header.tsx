@@ -1,12 +1,13 @@
-// src/components/organisms/Header/Header.tsx
-import { Navbar, Container, Nav, Button, Badge } from "react-bootstrap";
+import { Navbar, Container, Nav, Badge } from "react-bootstrap";
 import { Link, NavLink } from "react-router-dom";
 import { useCart } from "@domain/cart/cart.context";
-import { useCartUI } from "@app/cart-ui.context"; // ⬅️ importante: mismo contexto en toda la app
+import { useCartUI } from "@app/cart-ui.context";
+import { useAuth } from "@domain/auth/auth.context";
 
 export default function Header() {
   const { count } = useCart();
   const { open } = useCartUI();
+  const { user, logout } = useAuth();
 
   return (
     <Navbar expand="lg" className="navbar-custom border-bottom sticky-top shadow-sm">
@@ -27,19 +28,28 @@ export default function Header() {
           </Nav>
 
           <div className="d-flex align-items-center gap-2">
-            <Button variant="outline-secondary" size="sm">Iniciar sesión</Button>
-            <Button variant="primary" size="sm">Registrarse</Button>
+            {/* Estado de sesión */}
+            {user ? (
+              <>
+                <span className="text-body-secondary small">
+                  Hola, <strong>{user.nombre}</strong>
+                </span>
+                <button className="btn btn-outline-secondary btn-sm" onClick={logout}>
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn-outline-secondary btn-sm">Iniciar sesión</Link>
+                <Link to="/registro" className="btn btn-primary btn-sm">Registrarse</Link>
+              </>
+            )}
 
-            {/* Botón: abre el drawer, NO navega */}
+           
             <button
               type="button"
               className="btn btn-light position-relative"
-              onClick={(e) => {
-                console.log("open cart CLICK");       // 👈 verifica en consola
-                e.preventDefault();                   // evita navegación
-                e.stopPropagation();                  // evita burbujeo hacia un Link/Nav
-                open();                               // abre el drawer del carrito
-              }}
+              onClick={open}
               aria-label="Abrir carrito"
             >
               <i className="bi bi-cart" />

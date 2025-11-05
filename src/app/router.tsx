@@ -8,6 +8,8 @@ const ProductPage  = lazy(() => import("@pages/Product/ProductPage"));
 const ProductsPage = lazy(() => import("@pages/Product/ProductsPage"));
 const AboutPage    = lazy(() => import("@pages/About/AboutPage"));
 const CartPage     = lazy(() => import("@pages/Cart/CartPage"));     
+const LoginPage    = lazy(() => import("@pages/Auth/LoginPage"));
+const RegisterPage = lazy(() => import("@pages/Auth/RegisterPage"));
 
 function RootLayout() {
   return (
@@ -30,6 +32,8 @@ const router = createBrowserRouter([
       { path: "producto/:slug", element: <ProductPage /> },
       { path: "about", element: <AboutPage /> },
       { path: "carrito", element: <CartPage /> },
+      { path: "login", element: <LoginPage /> },          
+      { path: "registro", element: <RegisterPage /> },
     ],
   },
 ]);

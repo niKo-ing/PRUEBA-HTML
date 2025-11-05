@@ -8,6 +8,8 @@ const ProductPage = lazy(() => import("@pages/Product/ProductPage"));
 const ProductsPage = lazy(() => import("@pages/Product/ProductsPage"));
 const AboutPage = lazy(() => import("@pages/About/AboutPage"));
 const CartPage = lazy(() => import("@pages/Cart/CartPage"));
+const LoginPage = lazy(() => import("@pages/Auth/LoginPage"));
+const RegisterPage = lazy(() => import("@pages/Auth/RegisterPage"));
 function RootLayout() {
     return (_jsx(MainLayout, { children: _jsx(Suspense, { fallback: _jsx("div", { className: "py-5 text-center", children: "Cargando\u2026" }), children: _jsx(Outlet, {}) }) }));
 }
@@ -22,6 +24,8 @@ const router = createBrowserRouter([
             { path: "producto/:slug", element: _jsx(ProductPage, {}) },
             { path: "about", element: _jsx(AboutPage, {}) },
             { path: "carrito", element: _jsx(CartPage, {}) },
+            { path: "login", element: _jsx(LoginPage, {}) },
+            { path: "registro", element: _jsx(RegisterPage, {}) },
         ],
     },
 ]);

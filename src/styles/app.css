@@ -350,3 +350,16 @@ form .form-control { border-radius: 10px; }
   overflow: hidden;
   box-shadow: 0 1px 6px rgba(0,0,0,.06);
 }
+
+.card-img-fit {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  background: #fff;
+  padding: .5rem;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+.object-cover { object-fit: cover; width: 100%; }
+.about-page .card img { background: #fff; }

@@ -11,9 +11,9 @@ export default function RegisterPage() {
         apellido: "",
         email: "",
         telefono: "",
-        ciudad: "",
         password: "",
         confirmPassword: "",
+        role: "user",
     });
     const [direccionText, setDireccionText] = useState("");
     const [direccionParsed, setDireccionParsed] = useState(null);
@@ -26,13 +26,17 @@ export default function RegisterPage() {
     const passwordsMatch = form.password === form.confirmPassword;
     // Dirección válida si el usuario eligió una sugerencia (placeId y lat/lng)
     const addressSelected = !!direccionParsed?.placeId && typeof direccionParsed?.lat === "number" && typeof direccionParsed?.lng === "number";
-    const handleChange = (e) => {
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
         if (name === "telefono") {
             const numeric = value.replace(/[^0-9+]/g, "");
             setForm({ ...form, [name]: numeric });
             return;
         }
+        setForm({ ...form, [name]: value });
+    };
+    const handleSelectChange = (e) => {
+        const { name, value } = e.target;
         setForm({ ...form, [name]: value });
     };
     const handleSubmit = (e) => {
@@ -44,7 +48,6 @@ export default function RegisterPage() {
             form.apellido,
             form.email,
             form.telefono,
-            form.ciudad,
             form.password,
             form.confirmPassword,
         ];
@@ -75,7 +78,7 @@ export default function RegisterPage() {
             apellido: form.apellido,
             email: form.email,
             telefono: form.telefono,
-            ciudad: form.ciudad,
+            role: form.role,
             direccion: {
                 fullText: direccionParsed?.fullText,
                 street: direccionParsed?.street,
@@ -95,7 +98,7 @@ export default function RegisterPage() {
         setSuccess(true);
         setTimeout(() => navigate("/login"), 2000);
     };
-    return (_jsx(Container, { className: "py-5", children: _jsx(Row, { className: "justify-content-center", children: _jsx(Col, { md: 8, lg: 6, children: _jsx(Card, { className: "shadow-sm border-0", children: _jsxs(Card.Body, { children: [_jsx("h3", { className: "mb-4 text-center", children: "Crear una cuenta" }), error && _jsx(Alert, { variant: "danger", children: error }), success && _jsx(Alert, { variant: "success", children: "Registro exitoso, redirigiendo..." }), _jsxs(Form, { onSubmit: handleSubmit, noValidate: true, children: [_jsxs(Row, { children: [_jsx(Col, { md: 6, children: _jsxs(Form.Group, { className: "mb-3", controlId: "nombre", children: [_jsx(Form.Label, { children: "Nombre" }), _jsx(Form.Control, { type: "text", name: "nombre", value: form.nombre, onChange: handleChange, placeholder: "Ej: Juanito", required: true })] }) }), _jsx(Col, { md: 6, children: _jsxs(Form.Group, { className: "mb-3", controlId: "apellido", children: [_jsx(Form.Label, { children: "Apellido" }), _jsx(Form.Control, { type: "text", name: "apellido", value: form.apellido, onChange: handleChange, placeholder: "Ej: P\u00E9rez", required: true })] }) })] }), _jsxs(Row, { children: [_jsx(Col, { md: 6, children: _jsxs(Form.Group, { className: "mb-3", controlId: "password", children: [_jsx(Form.Label, { children: "Contrase\u00F1a" }), _jsx(Form.Control, { type: "password", name: "password", value: form.password, onChange: handleChange, placeholder: "M\u00EDnimo 8 caracteres", autoComplete: "new-password", required: true, isInvalid: form.password.length > 0 && !passwordStrong, isValid: passwordStrong }), _jsx(Form.Control.Feedback, { type: "invalid", children: "La contrase\u00F1a debe tener al menos 8 caracteres." })] }) }), _jsx(Col, { md: 6, children: _jsxs(Form.Group, { className: "mb-3", controlId: "confirmPassword", children: [_jsx(Form.Label, { children: "Confirmar contrase\u00F1a" }), _jsx(Form.Control, { type: "password", name: "confirmPassword", value: form.confirmPassword, onChange: handleChange, placeholder: "********", autoComplete: "new-password", required: true, isInvalid: passwordsFilled && !passwordsMatch, isValid: passwordsFilled && passwordsMatch }), _jsx(Form.Control.Feedback, { type: "invalid", children: "Las contrase\u00F1as no coinciden." })] }) })] }), _jsxs(Form.Group, { className: "mb-3", controlId: "email", children: [_jsx(Form.Label, { children: "Correo electr\u00F3nico" }), _jsx(Form.Control, { type: "email", name: "email", value: form.email, onChange: handleChange, placeholder: "correo@ejemplo.com", required: true })] }), _jsxs(Form.Group, { className: "mb-3", controlId: "telefono", children: [_jsx(Form.Label, { children: "Tel\u00E9fono" }), _jsx(Form.Control, { type: "text", name: "telefono", value: form.telefono, onChange: handleChange, placeholder: "+56912345678", inputMode: "tel", pattern: "^\\\\+?[0-9]{8,15}$", required: true }), _jsx(Form.Text, { className: "text-muted", children: "Solo n\u00FAmeros (puede incluir + al inicio)" })] }), _jsx(AddressAutocomplete, { label: "Direcci\u00F3n", value: direccionText, onTextChange: (v) => {
+    return (_jsx(Container, { className: "py-5", children: _jsx(Row, { className: "justify-content-center", children: _jsx(Col, { md: 8, lg: 6, children: _jsx(Card, { className: "shadow-sm border-0", children: _jsxs(Card.Body, { children: [_jsx("h3", { className: "mb-4 text-center", children: "Crear una cuenta" }), error && _jsx(Alert, { variant: "danger", children: error }), success && _jsx(Alert, { variant: "success", children: "Registro exitoso, redirigiendo..." }), _jsxs(Form, { onSubmit: handleSubmit, noValidate: true, children: [_jsxs(Row, { children: [_jsx(Col, { md: 6, children: _jsxs(Form.Group, { className: "mb-3", controlId: "nombre", children: [_jsx(Form.Label, { children: "Nombre" }), _jsx(Form.Control, { type: "text", name: "nombre", value: form.nombre, onChange: handleInputChange, placeholder: "Ej: Juanito", required: true })] }) }), _jsx(Col, { md: 6, children: _jsxs(Form.Group, { className: "mb-3", controlId: "apellido", children: [_jsx(Form.Label, { children: "Apellido" }), _jsx(Form.Control, { type: "text", name: "apellido", value: form.apellido, onChange: handleInputChange, placeholder: "Ej: P\u00E9rez", required: true })] }) })] }), _jsxs(Row, { children: [_jsx(Col, { md: 6, children: _jsxs(Form.Group, { className: "mb-3", controlId: "password", children: [_jsx(Form.Label, { children: "Contrase\u00F1a" }), _jsx(Form.Control, { type: "password", name: "password", value: form.password, onChange: handleInputChange, placeholder: "M\u00EDnimo 8 caracteres", autoComplete: "new-password", required: true, isInvalid: form.password.length > 0 && !passwordStrong, isValid: passwordStrong }), _jsx(Form.Control.Feedback, { type: "invalid", children: "La contrase\u00F1a debe tener al menos 8 caracteres." })] }) }), _jsx(Col, { md: 6, children: _jsxs(Form.Group, { className: "mb-3", controlId: "confirmPassword", children: [_jsx(Form.Label, { children: "Confirmar contrase\u00F1a" }), _jsx(Form.Control, { type: "password", name: "confirmPassword", value: form.confirmPassword, onChange: handleInputChange, placeholder: "********", autoComplete: "new-password", required: true, isInvalid: passwordsFilled && !passwordsMatch, isValid: passwordsFilled && passwordsMatch }), _jsx(Form.Control.Feedback, { type: "invalid", children: "Las contrase\u00F1as no coinciden." })] }) })] }), _jsxs(Form.Group, { className: "mb-3", controlId: "email", children: [_jsx(Form.Label, { children: "Correo electr\u00F3nico" }), _jsx(Form.Control, { type: "email", name: "email", value: form.email, onChange: handleInputChange, placeholder: "correo@ejemplo.com", required: true })] }), _jsxs(Form.Group, { className: "mb-3", controlId: "telefono", children: [_jsx(Form.Label, { children: "Tel\u00E9fono" }), _jsx(Form.Control, { type: "text", name: "telefono", value: form.telefono, onChange: handleInputChange, placeholder: "+56912345678", inputMode: "tel", pattern: "^\\\\+?[0-9]{8,15}$", required: true }), _jsx(Form.Text, { className: "text-muted", children: "Solo n\u00FAmeros (puede incluir + al inicio)" })] }), _jsxs(Form.Group, { className: "mb-3", controlId: "role", children: [_jsx(Form.Label, { children: "Rol de usuario" }), _jsxs(Form.Select, { name: "role", value: form.role, onChange: handleSelectChange, required: true, children: [_jsx("option", { value: "user", children: "Usuario" }), _jsx("option", { value: "admin", children: "Administrador" })] }), _jsx(Form.Text, { className: "text-muted", children: "El rol \"Administrador\" tiene acceso al panel de administraci\u00F3n." })] }), _jsx(AddressAutocomplete, { label: "Direcci\u00F3n", value: direccionText, onTextChange: (v) => {
                                             setDireccionText(v);
                                             setDireccionParsed(null); // si escribe a mano, invalida selección
                                         }, onAddressSelected: (addr) => setDireccionParsed(addr), required: true, error: !addressSelected ? "Selecciona una sugerencia para validar la dirección." : null, isInvalid: direccionText.length > 0 && !addressSelected, isValid: addressSelected }), _jsx("div", { className: "mb-3", children: typeof direccionParsed?.lat === "number" && typeof direccionParsed?.lng === "number" ? (_jsx(MapPreview, { lat: direccionParsed.lat, lng: direccionParsed.lng })) : (_jsx("div", { className: "bg-light rounded-4 d-flex align-items-center justify-content-center", style: { height: 240 }, children: _jsx("small", { className: "text-body-secondary", children: "Escribe y selecciona una direcci\u00F3n para ver el mapa\u2026" }) })) }), _jsx("div", { className: "d-grid mt-4", children: _jsx(Button, { variant: "warning", size: "lg", type: "submit", disabled: !passwordStrong || !passwordsMatch || !addressSelected, children: "Registrarme" }) }), _jsxs("p", { className: "mt-4 text-center mb-0", children: ["\u00BFYa tienes cuenta?", " ", _jsx(Button, { variant: "link", className: "p-0", onClick: () => navigate("/login"), children: "Inicia sesi\u00F3n" })] })] })] }) }) }) }) }));

@@ -152,11 +152,10 @@ export default function AboutPage() {
               <Col key={i} md={4}>
                 <Card className="h-100 text-center shadow-sm">
                   <Card.Img
-                    src={`/assets/img/team/${i}.jpg`}
+                    src={`/assets/img/team/${i}.png`}
                     alt={`Integrante ${i}`}
-                    className="object-cover"
-                    style={{ height: 220 }}
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/assets/img/team/placeholder.jpg"; }}
+                    style={{ height: 220, width: "100%", objectFit: "cover" }}
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/assets/img/icono.png"; }}
                   />
                   <Card.Body>
                     <Card.Title>Integrante {i}</Card.Title>

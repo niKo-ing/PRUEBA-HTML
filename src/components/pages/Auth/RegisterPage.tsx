@@ -12,9 +12,9 @@ type FormData = {
   apellido: string;
   email: string;
   telefono: string;
-  ciudad: string;
   password: string;
   confirmPassword: string;
+  role: "user" | "admin";
 };
 
 export default function RegisterPage() {
@@ -23,9 +23,9 @@ export default function RegisterPage() {
     apellido: "",
     email: "",
     telefono: "",
-    ciudad: "",
     password: "",
     confirmPassword: "",
+    role: "user",
   });
 
   const [direccionText, setDireccionText] = useState("");
@@ -43,7 +43,7 @@ export default function RegisterPage() {
   const addressSelected =
     !!direccionParsed?.placeId && typeof direccionParsed?.lat === "number" && typeof direccionParsed?.lng === "number";
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
     if (name === "telefono") {
@@ -52,6 +52,11 @@ export default function RegisterPage() {
       return;
     }
 
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
@@ -65,7 +70,6 @@ export default function RegisterPage() {
       form.apellido,
       form.email,
       form.telefono,
-      form.ciudad,
       form.password,
       form.confirmPassword,
     ];
@@ -101,7 +105,7 @@ export default function RegisterPage() {
       apellido: form.apellido,
       email: form.email,
       telefono: form.telefono,
-      ciudad: form.ciudad,
+      role: form.role,
       direccion: {
         fullText: direccionParsed?.fullText,
         street: direccionParsed?.street,
@@ -144,7 +148,7 @@ export default function RegisterPage() {
                         type="text"
                         name="nombre"
                         value={form.nombre}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
                         placeholder="Ej: Juanito"
                         required
                       />
@@ -158,7 +162,7 @@ export default function RegisterPage() {
                         type="text"
                         name="apellido"
                         value={form.apellido}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
                         placeholder="Ej: Pérez"
                         required
                       />
@@ -175,7 +179,7 @@ export default function RegisterPage() {
                         type="password"
                         name="password"
                         value={form.password}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
                         placeholder="Mínimo 8 caracteres"
                         autoComplete="new-password"
                         required
@@ -195,7 +199,7 @@ export default function RegisterPage() {
                         type="password"
                         name="confirmPassword"
                         value={form.confirmPassword}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
                         placeholder="********"
                         autoComplete="new-password"
                         required
@@ -216,7 +220,7 @@ export default function RegisterPage() {
                     type="email"
                     name="email"
                     value={form.email}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     placeholder="correo@ejemplo.com"
                     required
                   />
@@ -229,7 +233,7 @@ export default function RegisterPage() {
                     type="text"
                     name="telefono"
                     value={form.telefono}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     placeholder="+56912345678"
                     inputMode="tel"
                     pattern="^\\+?[0-9]{8,15}$"
@@ -237,6 +241,23 @@ export default function RegisterPage() {
                   />
                   <Form.Text className="text-muted">
                     Solo números (puede incluir + al inicio)
+                  </Form.Text>
+                </Form.Group>
+
+                {/* === ROL === */}
+                <Form.Group className="mb-3" controlId="role">
+                  <Form.Label>Rol de usuario</Form.Label>
+                  <Form.Select
+                    name="role"
+                    value={form.role}
+                    onChange={handleSelectChange}
+                    required
+                  >
+                    <option value="user">Usuario</option>
+                    <option value="admin">Administrador</option>
+                  </Form.Select>
+                  <Form.Text className="text-muted">
+                    El rol "Administrador" tiene acceso al panel de administración.
                   </Form.Text>
                 </Form.Group>
                 

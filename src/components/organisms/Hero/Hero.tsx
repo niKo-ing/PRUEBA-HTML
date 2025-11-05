@@ -1,5 +1,6 @@
 type Props = {
   video?: string;
+  poster?: string;
   title?: string;
   subtitle?: string;
   full?: boolean;
@@ -7,6 +8,7 @@ type Props = {
 
 export default function Hero({
   video,
+  poster,
   title = "Precisión y velocidad",
   subtitle = "Periféricos de alto rendimiento",
   full = false,     
@@ -14,7 +16,7 @@ export default function Hero({
   return (
     <section className={`hero ${full ? "hero--full" : "hero--flat"}`}>
       {video && (
-        <video className="hero-media" autoPlay loop muted playsInline preload="auto">
+        <video className="hero-media" autoPlay loop muted playsInline preload="metadata" poster={poster}>
           <source src={video} type="video/mp4" />
         </video>
       )}

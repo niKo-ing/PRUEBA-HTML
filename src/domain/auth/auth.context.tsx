@@ -39,11 +39,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const current: User = { nombre: match.nombre, apellido: match.apellido, email: match.email };
     setUser(current);
     localStorage.setItem(KEY_SESSION, JSON.stringify(current));
+
+    // Marcador de admin (mock): si el usuario tiene campo role === 'admin' o email conocido
+    const isAdmin = match.role === 'admin' || /^(admin|root)@/i.test(match.email);
+    try { localStorage.setItem('isAdmin', isAdmin ? '1' : '0'); } catch {}
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem(KEY_SESSION);
+    try { localStorage.removeItem('isAdmin'); } catch {}
   };
 
   const value = useMemo<AuthCtx>(() => ({ user, login, logout }), [user]);

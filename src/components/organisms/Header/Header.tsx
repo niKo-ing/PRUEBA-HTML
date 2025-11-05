@@ -8,6 +8,9 @@ export default function Header() {
   const { count } = useCart();
   const { open } = useCartUI();
   const { user, logout } = useAuth();
+  const isAdminStorage = (() => { try { return localStorage.getItem("isAdmin") === "1"; } catch { return false; } })();
+  const isAdminByEmail = !!user && /^(admin|root)@/i.test(user.email);
+  const isAdmin = isAdminStorage || isAdminByEmail;
 
   return (
     <Navbar expand="lg" className="navbar-custom border-bottom sticky-top shadow-sm">
@@ -34,6 +37,11 @@ export default function Header() {
                 <span className="text-body-secondary small">
                   Hola, <strong>{user.nombre}</strong>
                 </span>
+                {isAdmin && (
+                  <Link to="/admin" className="btn btn-outline-warning btn-sm">
+                    Panel admin
+                  </Link>
+                )}
                 <button className="btn btn-outline-secondary btn-sm" onClick={logout}>
                   Cerrar sesión
                 </button>

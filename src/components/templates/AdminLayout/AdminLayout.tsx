@@ -1,6 +1,6 @@
 import { Navbar, Container, Nav } from "react-bootstrap";
 import { Link, NavLink, Outlet } from "react-router-dom";
-import "./admin.css";
+import "@/styles/admin.css";
 
 export default function AdminLayout() {
   return (

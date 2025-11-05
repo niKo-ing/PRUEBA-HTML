@@ -16,7 +16,13 @@ export default function LoginPage() {
         setLoading(true);
         try {
             await login(email.trim(), password);
-            navigate("/", { replace: true });
+            const goAdmin = (() => { try {
+                return localStorage.getItem("isAdmin") === "1";
+            }
+            catch {
+                return false;
+            } })();
+            navigate(goAdmin ? "/admin" : "/", { replace: true });
         }
         catch (err) {
             setError(err?.message || "No se pudo iniciar sesión");

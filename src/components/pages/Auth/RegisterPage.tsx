@@ -1,13 +1,17 @@
+// src/components/pages/Auth/RegisterPage.tsx
 import { useState } from "react";
 import { Container, Row, Col, Form, Button, Card, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import type { ChangeEvent, FormEvent } from "react";
+import MapPreview from "@molecules/AddressAutocomplete/MapPreview";
+import AddressAutocomplete from "@molecules/AddressAutocomplete/AddressAutocomplete";
+import type { ParsedAddress } from "@molecules/AddressAutocomplete/AddressAutocomplete";
 
 type FormData = {
   nombre: string;
   apellido: string;
   email: string;
   telefono: string;
-  direccion: string;
   ciudad: string;
   password: string;
   confirmPassword: string;
@@ -19,25 +23,29 @@ export default function RegisterPage() {
     apellido: "",
     email: "",
     telefono: "",
-    direccion: "",
     ciudad: "",
     password: "",
     confirmPassword: "",
   });
 
+  const [direccionText, setDireccionText] = useState("");
+  const [direccionParsed, setDireccionParsed] = useState<ParsedAddress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Validaciones dinámicas
+  // Validaciones dinámicas
   const passwordStrong = form.password.length >= 8;
   const passwordsFilled = form.password.length > 0 && form.confirmPassword.length > 0;
   const passwordsMatch = form.password === form.confirmPassword;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Dirección válida si el usuario eligió una sugerencia (placeId y lat/lng)
+  const addressSelected =
+    !!direccionParsed?.placeId && typeof direccionParsed?.lat === "number" && typeof direccionParsed?.lng === "number";
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // ✅ Restringe el teléfono a números y "+"
     if (name === "telefono") {
       const numeric = value.replace(/[^0-9+]/g, "");
       setForm({ ...form, [name]: numeric });
@@ -47,20 +55,37 @@ export default function RegisterPage() {
     setForm({ ...form, [name]: value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (Object.values(form).some((v) => v.trim() === "")) {
+    // Validaciones principales
+    const required = [
+      form.nombre,
+      form.apellido,
+      form.email,
+      form.telefono,
+      form.ciudad,
+      form.password,
+      form.confirmPassword,
+    ];
+    if (required.some((v) => v.trim() === "")) {
       setError("Todos los campos son obligatorios");
       return;
     }
+
     if (!passwordStrong) {
       setError("La contraseña debe tener al menos 8 caracteres");
       return;
     }
+
     if (!passwordsMatch) {
       setError("Las contraseñas no coinciden");
+      return;
+    }
+
+    if (!addressSelected) {
+      setError("Selecciona una dirección desde las sugerencias de Google Maps");
       return;
     }
 
@@ -70,13 +95,26 @@ export default function RegisterPage() {
       return;
     }
 
+    // Guardado en localStorage (simulado)
     usuarios.push({
       nombre: form.nombre,
       apellido: form.apellido,
       email: form.email,
       telefono: form.telefono,
-      direccion: form.direccion,
       ciudad: form.ciudad,
+      direccion: {
+        fullText: direccionParsed?.fullText,
+        street: direccionParsed?.street,
+        number: direccionParsed?.number,
+        comuna: direccionParsed?.comuna,
+        city: direccionParsed?.city,
+        region: direccionParsed?.region,
+        country: direccionParsed?.country,
+        postalCode: direccionParsed?.postalCode,
+        lat: direccionParsed?.lat,
+        lng: direccionParsed?.lng,
+        placeId: direccionParsed?.placeId,
+      },
       password: form.password,
     });
 
@@ -96,7 +134,8 @@ export default function RegisterPage() {
               {error && <Alert variant="danger">{error}</Alert>}
               {success && <Alert variant="success">Registro exitoso, redirigiendo...</Alert>}
 
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleSubmit} noValidate>
+                {/* === NOMBRE Y APELLIDO === */}
                 <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3" controlId="nombre">
@@ -127,8 +166,8 @@ export default function RegisterPage() {
                   </Col>
                 </Row>
 
+                {/* === CONTRASEÑAS === */}
                 <Row>
-                  {/* === Contraseña === */}
                   <Col md={6}>
                     <Form.Group className="mb-3" controlId="password">
                       <Form.Label>Contraseña</Form.Label>
@@ -138,6 +177,7 @@ export default function RegisterPage() {
                         value={form.password}
                         onChange={handleChange}
                         placeholder="Mínimo 8 caracteres"
+                        autoComplete="new-password"
                         required
                         isInvalid={form.password.length > 0 && !passwordStrong}
                         isValid={passwordStrong}
@@ -145,13 +185,9 @@ export default function RegisterPage() {
                       <Form.Control.Feedback type="invalid">
                         La contraseña debe tener al menos 8 caracteres.
                       </Form.Control.Feedback>
-                      <Form.Control.Feedback type="valid">
-                        Contraseña segura ✔️
-                      </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
 
-                  {/* === Confirmar Contraseña === */}
                   <Col md={6}>
                     <Form.Group className="mb-3" controlId="confirmPassword">
                       <Form.Label>Confirmar contraseña</Form.Label>
@@ -161,6 +197,7 @@ export default function RegisterPage() {
                         value={form.confirmPassword}
                         onChange={handleChange}
                         placeholder="********"
+                        autoComplete="new-password"
                         required
                         isInvalid={passwordsFilled && !passwordsMatch}
                         isValid={passwordsFilled && passwordsMatch}
@@ -168,14 +205,11 @@ export default function RegisterPage() {
                       <Form.Control.Feedback type="invalid">
                         Las contraseñas no coinciden.
                       </Form.Control.Feedback>
-                      <Form.Control.Feedback type="valid">
-                        Contraseñas coinciden ✔️
-                      </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
                 </Row>
 
-                {/* === Email === */}
+                {/* === EMAIL === */}
                 <Form.Group className="mb-3" controlId="email">
                   <Form.Label>Correo electrónico</Form.Label>
                   <Form.Control
@@ -188,7 +222,7 @@ export default function RegisterPage() {
                   />
                 </Form.Group>
 
-                {/* === Teléfono === */}
+                {/* === TELÉFONO === */}
                 <Form.Group className="mb-3" controlId="telefono">
                   <Form.Label>Teléfono</Form.Label>
                   <Form.Control
@@ -197,58 +231,70 @@ export default function RegisterPage() {
                     value={form.telefono}
                     onChange={handleChange}
                     placeholder="+56912345678"
-                    pattern="^\+?[0-9]{8,15}$"
+                    inputMode="tel"
+                    pattern="^\\+?[0-9]{8,15}$"
                     required
                   />
                   <Form.Text className="text-muted">
                     Solo números (puede incluir + al inicio)
                   </Form.Text>
                 </Form.Group>
+                
+                {/* === DIRECCIÓN CON GOOGLE MAPS === */}
+                <AddressAutocomplete
+                  label="Dirección"
+                  value={direccionText}
+                  onTextChange={(v) => {
+                    setDireccionText(v);
+                    setDireccionParsed(null); // si escribe a mano, invalida selección
+                  }}
+                  onAddressSelected={(addr) => setDireccionParsed(addr)}
+                  required
+                  error={!addressSelected ? "Selecciona una sugerencia para validar la dirección." : null}
+                  isInvalid={direccionText.length > 0 && !addressSelected}
+                  isValid={addressSelected}
+                />
 
-                {/* === Ciudad === */}
-                <Form.Group className="mb-3" controlId="ciudad">
-                  <Form.Label>Ciudad</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="ciudad"
-                    value={form.ciudad}
-                    onChange={handleChange}
-                    placeholder="Ej: Santiago"
-                    required
-                  />
-                </Form.Group>
+                {/* === MAPA: solo mostrar si hay lat/lng válidos === */}
+                <div className="mb-3">
+                  {typeof direccionParsed?.lat === "number" && typeof direccionParsed?.lng === "number" ? (
+                    <MapPreview lat={direccionParsed.lat} lng={direccionParsed.lng} />
+                  ) : (
+                    <div
+                      className="bg-light rounded-4 d-flex align-items-center justify-content-center"
+                      style={{ height: 240 }}
+                    >
+                      <small className="text-body-secondary">
+                        Escribe y selecciona una dirección para ver el mapa…
+                      </small>
+                    </div>
+                  )}
+                </div>
 
-                {/* === Dirección === */}
-                <Form.Group className="mb-3" controlId="direccion">
-                  <Form.Label>Dirección</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="direccion"
-                    value={form.direccion}
-                    onChange={handleChange}
-                    placeholder="Calle, número, depto..."
-                    required
-                  />
-                </Form.Group>
-
+                {/* === BOTÓN SUBMIT === */}
                 <div className="d-grid mt-4">
                   <Button
                     variant="warning"
                     size="lg"
                     type="submit"
-                    disabled={!passwordStrong || !passwordsMatch}
+                    disabled={!passwordStrong || !passwordsMatch || !addressSelected}
                   >
                     Registrarme
                   </Button>
                 </div>
-              </Form>
 
-              <p className="mt-4 text-center mb-0">
-                ¿Ya tienes cuenta?{" "}
-                <Button variant="link" className="p-0" onClick={() => navigate("/login")}>
-                  Inicia sesión
-                </Button>
-              </p>
+                {/* === LINK A LOGIN === */}
+                <p className="mt-4 text-center mb-0">
+                  ¿Ya tienes cuenta?{" "}
+                  <Button
+                    variant="link"
+                    className="p-0"
+                    onClick={() => navigate("/login")}
+                  >
+                    Inicia sesión
+                  </Button>
+                </p>
+              </Form>
             </Card.Body>
           </Card>
         </Col>

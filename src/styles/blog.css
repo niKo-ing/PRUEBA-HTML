@@ -1,46 +1,49 @@
-/* === Modo sin imágenes: fondo claro y texto negro === */
-
-/* Hero sin imagen */
-.blogs-noimg section.position-relative.mb-0 {
-  background: #f8f9fa !important; /* gris claro Bootstrap */
-  color: #000 !important;
-  min-height: 220px !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-.blogs-noimg section.position-relative.mb-0 h1,
-.blogs-noimg section.position-relative.mb-0 h2,
-.blogs-noimg section.position-relative.mb-0 p {
-  color: #000 !important;
-  text-shadow: none !important;
+/* Blog Cards */
+.blog-card-hover {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-/* Tarjetas */
-.blogs-noimg .blog-card {
-  background: #fff !important;     /* blanco */
-  border: 1px solid #dee2e6 !important;
-  color: #000 !important;
+.blog-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  border-color: #0d6efd;
 }
-.blogs-noimg .blog-card h2,
-.blogs-noimg .blog-card h3,
-.blogs-noimg .blog-card h5,
-.blogs-noimg .blog-card .card-title {
-  color: #000 !important;
+
+.blog-card-hover .card-title {
+  transition: color 0.3s ease;
 }
-.blogs-noimg .blog-card p,
-.blogs-noimg .blog-card .card-subtitle,
-.blogs-noimg .blog-card small {
-  color: #000 !important;
+
+.blog-card-hover:hover .card-title {
+  color: #0d6efd !important;
 }
-.blogs-noimg .blog-card .btn,
-.blogs-noimg .blog-card a {
-  color: #000 !important;
-  border-color: #000 !important;
+
+/* Blog Page Header */
+.blog-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4rem 0;
+  margin-bottom: 2rem;
 }
-.blogs-noimg .blog-card .btn:hover,
-.blogs-noimg .blog-card a:hover {
-  background: #000 !important;
-  color: #fff !important;
+
+.blog-header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.blog-header .lead {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .blog-header h1 {
+    font-size: 2rem;
+  }
+  
+  .blog-header {
+    padding: 2rem 0;
+  }
 }

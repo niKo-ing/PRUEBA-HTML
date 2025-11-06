@@ -13,6 +13,7 @@ const CartPage = lazy(() => import("@pages/Cart/CartPage"));
 const LoginPage = lazy(() => import("@pages/Auth/LoginPage"));
 const RegisterPage = lazy(() => import("@pages/Auth/RegisterPage"));
 const BlogsPage = lazy(() => import("@pages/Blog/BlogsPage"));
+const BlogPostPage = lazy(() => import("@pages/Blog/BlogPostPage"));
 const ContactPage = lazy(() => import("@pages/Contact/ContactPage"));
 const AdminDashboard = lazy(() => import("@pages/Admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("@pages/Admin/AdminProducts"));
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
             { path: "producto/:slug", element: _jsx(ProductPage, {}) },
             { path: "about", element: _jsx(AboutPage, {}) },
             { path: "blogs", element: _jsx(BlogsPage, {}) },
+            { path: "blog/:slug", element: _jsx(BlogPostPage, {}) },
             { path: "carrito", element: _jsx(CartPage, {}) },
             { path: "contacto", element: _jsx(ContactPage, {}) },
             { path: "login", element: _jsx(LoginPage, {}) },

@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";
+import AddressAutocomplete from "@molecules/AddressAutocomplete/AddressAutocomplete";
+import type { ParsedAddress } from "@molecules/AddressAutocomplete/AddressAutocomplete";
 
 type Usuario = {
   nombre: string;
   apellido?: string;
   email: string;
   telefono?: string;
-  ciudad?: string;
+  direccion?: ParsedAddress;
+  ciudad?: string; // Campo legacy para compatibilidad hacia atrás
   role?: string; // 'admin' | 'user'
 };
 
@@ -15,6 +18,10 @@ const sv = (v?: string | null) => v ?? "";
 export default function AdminUsers() {
   const [rows, setRows] = useState<Usuario[]>([]);
   const [q, setQ] = useState("");
+  
+  // Estado para manejar los campos de dirección de cada usuario
+  const [addressTexts, setAddressTexts] = useState<Record<string, string>>({});
+  const [addressErrors, setAddressErrors] = useState<Record<string, string>>({});
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
     return rows.filter((u) => {
@@ -26,6 +33,16 @@ export default function AdminUsers() {
   useEffect(() => {
     try {
       const usuarios: Usuario[] = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      // Inicializar textos de dirección para usuarios existentes
+      const initialTexts: Record<string, string> = {};
+      usuarios.forEach(user => {
+        if (user.direccion?.fullText) {
+          initialTexts[user.email] = user.direccion.fullText;
+        } else if (user.ciudad) {
+          initialTexts[user.email] = user.ciudad;
+        }
+      });
+      setAddressTexts(initialTexts);
       setRows(usuarios);
     } catch {}
   }, []);
@@ -44,14 +61,52 @@ export default function AdminUsers() {
     };
 
   const addUser = () => {
-    setRows((prev) => [
-      ...prev,
-      { nombre: "", apellido: "", email: `user${prev.length + 1}@example.com`, telefono: "", ciudad: "", role: "user" }
-    ]);
+    const newUser: Usuario = {
+      nombre: "",
+      apellido: "",
+      email: `user${rows.length + 1}@example.com`,
+      telefono: "",
+      direccion: undefined as any,
+      role: "user"
+    };
+    setRows((prev) => [...prev, newUser]);
   };
 
   const removeUser = (idx: number) => {
     setRows((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  // Funciones para manejar cambios de dirección
+  const onAddressTextChange = (email: string, value: string) => {
+    setAddressTexts((prev) => ({ ...prev, [email]: value }));
+  };
+
+  const onAddressSelected = (email: string, address: ParsedAddress | null) => {
+    setRows((prev) => prev.map((user) =>
+      user.email === email ? { ...user, direccion: address ?? undefined as any } : user
+
+    ));
+    setAddressErrors((prev) => ({ ...prev, [email]: "" }));
+  };
+
+  // Función para obtener el texto de dirección actual
+  const getAddressText = (user: Usuario): string => {
+    if (user.email && addressTexts[user.email]) {
+      return addressTexts[user.email]!;
+    }
+    if (user.direccion?.fullText) {
+      return user.direccion.fullText;
+    }
+    // Compatibilidad hacia atrás: si existe ciudad legacy, usarla
+    if (user.ciudad) {
+      return user.ciudad;
+    }
+    return "";
+  };
+
+  // Función para validar dirección seleccionada
+  const isAddressValid = (user: Usuario): boolean => {
+    return !!user.direccion?.placeId && typeof user.direccion?.lat === "number" && typeof user.direccion?.lng === "number";
   };
 
   const saveAll = () => {
@@ -92,7 +147,7 @@ export default function AdminUsers() {
                 <th>Apellido</th>
                 <th>Email</th>
                 <th>Teléfono</th>
-                <th>Ciudad</th>
+                <th>Dirección</th>
                 <th>Rol</th>
                 <th style={{ width: 120 }}>Acciones</th>
               </tr>
@@ -113,7 +168,17 @@ export default function AdminUsers() {
                     <Form.Control type="text" value={sv(u.telefono)} onChange={onEditInput(idx, "telefono")} />
                   </td>
                   <td>
-                    <Form.Control type="text" value={sv(u.ciudad)} onChange={onEditInput(idx, "ciudad")} />
+                    <AddressAutocomplete
+                      label=""
+                      value={getAddressText(u)}
+                      onTextChange={(value) => onAddressTextChange(u.email, value)}
+                      onAddressSelected={(address) => onAddressSelected(u.email, address)}
+                      required={false}
+                      placeholder="Ej: Av. Apoquindo 1234, Las Condes"
+                      error={addressErrors[u.email] || null}
+                      isInvalid={!!addressErrors[u.email]}
+                      isValid={isAddressValid(u)}
+                    />
                   </td>
                   <td>
                     <Form.Select value={sv(u.role)} onChange={onEditSelect(idx, "role")}>
@@ -130,7 +195,7 @@ export default function AdminUsers() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="text-center text-body-secondary py-4">
+                  <td colSpan={6} className="text-center text-body-secondary py-4">
                     Sin usuarios para los filtros actuales.
                   </td>
                 </tr>
@@ -140,7 +205,21 @@ export default function AdminUsers() {
         </Card.Body>
         <Card.Footer className="d-flex justify-content-end gap-2">
           <Button variant="outline-secondary" onClick={() => {
-            try { const usuarios: Usuario[] = JSON.parse(localStorage.getItem("usuarios") || "[]"); setRows(usuarios); } catch {}
+            try { 
+              const usuarios: Usuario[] = JSON.parse(localStorage.getItem("usuarios") || "[]"); 
+              // Reinicializar textos de dirección
+              const initialTexts: Record<string, string> = {};
+              usuarios.forEach(user => {
+                if (user.direccion?.fullText) {
+                  initialTexts[user.email] = user.direccion.fullText;
+                } else if (user.ciudad) {
+                  initialTexts[user.email] = user.ciudad;
+                }
+              });
+              setAddressTexts(initialTexts);
+              setAddressErrors({});
+              setRows(usuarios); 
+            } catch {}
           }}>Descartar cambios</Button>
           <Button variant="warning" onClick={saveAll}>Guardar cambios</Button>
         </Card.Footer>

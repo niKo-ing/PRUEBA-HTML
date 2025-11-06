@@ -1,5 +1,8 @@
-import { Container, Row, Col, Card, Badge } from "react-bootstrap";
+import { Container, Row, Col, Card, Badge, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { blogPosts } from "./blogData";
 import "@/styles/blog.css";
+import "@/styles/blog-post.css";
 
 type Post = {
   id: string;
@@ -8,6 +11,7 @@ type Post = {
   date: string;
   tag?: string;
   cover?: string;
+  slug: string;
 };
 
 const posts: Post[] = [
@@ -18,6 +22,7 @@ const posts: Post[] = [
     date: new Date().toISOString(),
     tag: "Guías",
     cover: "/assets/img/blog1.jpg",
+    slug: "guia-para-elegir-tu-mouse-gamer",
   },
   {
     id: "blog-2",
@@ -26,6 +31,7 @@ const posts: Post[] = [
     date: new Date(Date.now() - 86400000).toISOString(),
     tag: "Comparativas",
     cover: "/assets/img/blog2.jpg",
+    slug: "teclados-mecanicos-switches-comparativa",
   },
   {
     id: "blog-3",
@@ -34,6 +40,7 @@ const posts: Post[] = [
     date: new Date(Date.now() - 2 * 86400000).toISOString(),
     tag: "Tips",
     cover: "/assets/img/blog3.jpg",
+    slug: "setup-eficiente-teletrabajo",
   },
 ];
 
@@ -57,19 +64,24 @@ export default function BlogsPage() {
         <Row className="g-4">
           {posts.map((p) => (
             <Col key={p.id} md={4}>
-              <Card className="h-100 shadow-sm">
-                {p.cover && (
-                  <Card.Img
-                    variant="top"
-                    src={p.cover}
-                    alt={p.title}
-                    className="object-cover"
-                    style={{ height: 180 }}
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "/assets/img/icono.png";
-                    }}
-                  />
-                )}
+              <Card className="h-100 shadow-sm blog-card-hover">
+                <Link 
+                  to={`/blog/${p.slug}`}
+                  className="text-decoration-none text-dark"
+                >
+                  {p.cover && (
+                    <Card.Img
+                      variant="top"
+                      src={p.cover}
+                      alt={p.title}
+                      className="object-cover"
+                      style={{ height: 180 }}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "/assets/img/icono.png";
+                      }}
+                    />
+                  )}
+                </Link>
                 <Card.Body className="d-flex flex-column">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <Badge bg="dark">{p.tag || "Blog"}</Badge>
@@ -77,8 +89,23 @@ export default function BlogsPage() {
                       {new Date(p.date).toLocaleDateString()}
                     </span>
                   </div>
-                  <Card.Title className="h5">{p.title}</Card.Title>
-                  <Card.Text className="text-body-secondary">{p.excerpt}</Card.Text>
+                  <Link 
+                    to={`/blog/${p.slug}`}
+                    className="text-decoration-none text-dark"
+                  >
+                    <Card.Title className="h5 mb-3">{p.title}</Card.Title>
+                  </Link>
+                  <Card.Text className="text-body-secondary flex-grow-1">
+                    {p.excerpt}
+                  </Card.Text>
+                  <div className="mt-auto">
+                    <Link to={`/blog/${p.slug}`} className="text-decoration-none">
+                      <Button variant="outline-primary" size="sm">
+                        Leer más
+                        <i className="bi bi-arrow-right ms-1"></i>
+                      </Button>
+                    </Link>
+                  </div>
                 </Card.Body>
               </Card>
             </Col>

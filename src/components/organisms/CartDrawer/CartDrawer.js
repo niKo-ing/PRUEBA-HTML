@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { Offcanvas } from "react-bootstrap";
-import { useCart } from "@domain/cart/cart.context";
+import { useCart } from "@domain/cart/useCart";
 import { productos } from "@domain/data";
 function formatCLP(v) {
     return (Number(v) || 0).toLocaleString("es-CL", {

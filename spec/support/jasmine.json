@@ -1,0 +1,19 @@
+{
+  "spec_dir": "src/tests",
+  "spec_files": [
+    "**/*[sS]pec.ts",
+    "**/*[sS]pec.js"
+  ],
+  "helpers": [
+    "helpers/**/*.ts",
+    "helpers/**/*.js"
+  ],
+  "stopSpecOnExpectationFailure": false,
+  "random": true,
+  "defaultTimeoutInterval": 20000,
+  "reporters": [
+    {
+      "name": "jasmine-spec-reporter"
+    }
+  ]
+}

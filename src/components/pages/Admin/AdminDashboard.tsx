@@ -1,9 +1,11 @@
+// Dashboard: muestra KPIs del día y últimos pedidos desde localStorage.
 import { useEffect, useMemo, useState } from "react";
 import { Card, Row, Col, Badge, ProgressBar, Table } from "react-bootstrap";
 
 type Estado = "pendiente" | "procesando" | "enviado" | "completado" | "cancelado";
 type Order = { id: string; cliente: string; email: string; total: number; fecha: string; estado: Estado; items: number };
 
+// Formatea valores en CLP sin decimales
 function formatCLP(v: number) {
   try { return v.toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }); }
   catch { return `$${Math.round(v)}`; }
@@ -12,6 +14,7 @@ function formatCLP(v: number) {
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
 
+  // Carga pedidos para estadísticas (mock) desde localStorage
   useEffect(() => {
     try {
       const saved: Order[] = JSON.parse(localStorage.getItem("admin_orders") || "null") || [];
@@ -20,6 +23,7 @@ export default function AdminDashboard() {
   }, []);
 
   const pending = useMemo(() => orders.filter(o => o.estado === "pendiente").length, [orders]);
+  // Suma ventas de hoy usando rango horario
   const today = useMemo(() => {
     const t0 = new Date(); t0.setHours(0,0,0,0);
     const t1 = new Date(); t1.setHours(23,59,59,999);
@@ -31,6 +35,7 @@ export default function AdminDashboard() {
 
   const totalProducts =  productosPublicados();
 
+  // Obtiene número de productos publicados (mock o desde localStorage)
   function productosPublicados() {
     try {
       // Si en el futuro guardamos productos en localStorage, tomarlos; por ahora estimado
@@ -44,6 +49,7 @@ export default function AdminDashboard() {
 
   const progressDay = Math.min(100, Math.round((today / 200000) * 100)); // meta visual
 
+  // Tabla de los 5 últimos pedidos
   const recent = useMemo(() => orders.slice(0, 5), [orders]);
 
   return (

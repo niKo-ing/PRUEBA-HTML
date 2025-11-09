@@ -1,6 +1,8 @@
+// Ajustes: configuración básica del sitio con persistencia en localStorage.
 import { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 
+// Estructura de configuración editable desde el panel
 type Settings = {
   siteName: string;
   currency: string; // CLP, USD, etc.
@@ -22,6 +24,7 @@ const defaults: Settings = {
 export default function AdminSettings() {
   const [cfg, setCfg] = useState<Settings>(defaults);
 
+  // Carga inicial desde localStorage si existe
   useEffect(() => {
     try {
       const saved: Settings | null = JSON.parse(localStorage.getItem("admin_settings") || "null");
@@ -29,6 +32,7 @@ export default function AdminSettings() {
     } catch {}
   }, []);
 
+  // Helper genérico para vincular inputs al estado según tipo
   const bind = <K extends keyof Settings>(key: K) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -41,11 +45,13 @@ export default function AdminSettings() {
     setCfg((prev) => ({ ...prev, [key]: val as Settings[K] }));
   };
 
+  // Persistencia mock en localStorage
   const save = () => {
     localStorage.setItem("admin_settings", JSON.stringify(cfg));
     alert("Ajustes guardados (localStorage)");
   };
 
+  // Recupera última versión guardada o defaults
   const discard = () => {
     try {
       const saved: Settings | null = JSON.parse(localStorage.getItem("admin_settings") || "null");

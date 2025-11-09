@@ -1,3 +1,4 @@
+// Muestra productos relacionados por categoría, con acciones de ver y añadir.
 import { Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { productos } from "@domain/data";

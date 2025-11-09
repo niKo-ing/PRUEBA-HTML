@@ -1,4 +1,7 @@
 
+// Contexto del carrito de compras.
+// Guarda ítems (id, qty) y expone acciones para agregarlos/quitar o vaciar,
+// además de cálculos derivados como cantidad total y precio total.
 import {
   createContext,
   useContext,
@@ -27,6 +30,8 @@ const CartCtx = createContext<Ctx | null>(null);
 /* Utils seguras para localStorage */
 const canUseStorage = typeof window !== "undefined" && !!window.localStorage;
 
+// Carga el carrito desde localStorage de forma segura,
+// validando que los elementos tengan la forma esperada.
 function loadCart(): CartItem[] {
   if (!canUseStorage) return [];
   try {
@@ -45,6 +50,7 @@ function loadCart(): CartItem[] {
   return [];
 }
 
+// Guarda el carrito en localStorage (si existe y no lanza errores)
 function saveCart(items: CartItem[]) {
   if (!canUseStorage) return;
   try {
@@ -53,6 +59,7 @@ function saveCart(items: CartItem[]) {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  // Estado principal del carrito: lista de { id, qty }
   const [items, setItems] = useState<CartItem[]>(() => loadCart());
 
   // Persistencia
@@ -68,6 +75,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // Agrega un producto al carrito, sumando cantidad si ya existe
   const add = useCallback((id: number, qty = 1) => {
   setItems((cs) => {
     const i = cs.findIndex((x) => x.id === id);
@@ -81,6 +89,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   });
 }, []);
 
+  // Cambia la cantidad (delta puede ser negativo). Elimina si llega a 0.
   const change = useCallback((id: number, delta: number) => {
     setItems((cs) =>
       cs
@@ -89,12 +98,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  // Quita completamente un producto del carrito
   const remove = useCallback((id: number) => {
     setItems((cs) => cs.filter((x) => x.id !== id));
   }, []);
 
+  // Vacía el carrito
   const clear = useCallback(() => setItems([]), []);
 
+  // Derivados: cantidad total de ítems y precio total (según datos de productos)
   const { count, total } = useMemo(() => {
     return items.reduce(
       (acc, it) => {
@@ -112,6 +124,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 }
 
 export const useCart = () => {
+  // Hook de consumo del carrito: asegura que exista un provider arriba
   const ctx = useContext(CartCtx);
   if (!ctx) throw new Error("useCart must be used within CartProvider");
   return ctx;

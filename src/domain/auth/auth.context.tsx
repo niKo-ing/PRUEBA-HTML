@@ -1,3 +1,5 @@
+// Contexto de autenticación: guarda el usuario actual, expone login/logout
+// y persiste la sesión en localStorage.
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type User = {
@@ -20,6 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    // Restaura sesión si existe en localStorage
     try {
       const raw = localStorage.getItem(KEY_SESSION);
       if (raw) setUser(JSON.parse(raw));
@@ -57,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useAuth() {
+  // Hook de consumo para leer usuario y acciones. Requiere AuthProvider arriba.
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;

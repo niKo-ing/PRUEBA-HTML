@@ -1,5 +1,7 @@
+// Pedidos: tabla editable de estados, filtros por texto y estado, y boleta.
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 type Estado = "pendiente" | "procesando" | "enviado" | "completado" | "cancelado";
 
@@ -16,6 +18,7 @@ type Order = {
 const sv = (v?: string | null) => v ?? "";
 const sn = (v?: number | null) => (Number.isFinite(v as number) ? (v as number) : 0);
 
+// Utilidad para mostrar CLP sin decimales
 function formatCLP(v: number) {
   try {
     return v.toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
@@ -35,6 +38,7 @@ export default function AdminOrders() {
   const [q, setQ] = useState("");
   const [estado, setEstado] = useState<"" | Estado>("");
 
+  // Carga inicial desde localStorage o dataset por defecto
   useEffect(() => {
     try {
       const saved: Order[] = JSON.parse(localStorage.getItem("admin_orders") || "null") || defaultOrders;
@@ -46,6 +50,7 @@ export default function AdminOrders() {
 
   const estados: Estado[] = ["pendiente", "procesando", "enviado", "completado", "cancelado"];
 
+  // Aplica filtros de búsqueda y estado
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
     return rows.filter((r) => {
@@ -56,16 +61,19 @@ export default function AdminOrders() {
     });
   }, [rows, q, estado]);
 
+  // Permite cambiar el estado por fila
   const onEditEstado = (idx: number) => (e: ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value as Estado;
     setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, estado: val } : r)));
   };
 
+  // Persistencia mock de pedidos
   const saveAll = () => {
     localStorage.setItem("admin_orders", JSON.stringify(rows));
     alert("Pedidos guardados (localStorage)");
   };
 
+  // Recupera última versión guardada
   const discard = () => {
     try { const saved: Order[] = JSON.parse(localStorage.getItem("admin_orders") || "null") || defaultOrders; setRows(saved); } catch { setRows(defaultOrders); }
   };
@@ -123,12 +131,15 @@ export default function AdminOrders() {
                   <td>{sn(r.items)}</td>
                   <td className="fw-semibold">{formatCLP(sn(r.total))}</td>
                   <td className="text-nowrap">{new Date(r.fecha).toLocaleString()}</td>
-                  <td style={{ width: 170 }}>
-                    <Form.Select value={r.estado} onChange={onEditEstado(idx)}>
-                      {estados.map((e) => (
-                        <option key={e} value={e}>{e}</option>
-                      ))}
-                    </Form.Select>
+                  <td style={{ width: 240 }}>
+                    <div className="d-flex gap-2">
+                      <Form.Select value={r.estado} onChange={onEditEstado(idx)} style={{ minWidth: 150 }}>
+                        {estados.map((e) => (
+                          <option key={e} value={e}>{e}</option>
+                        ))}
+                      </Form.Select>
+                      <Link to={`/admin/receipt/${r.id}`} className="btn btn-outline-primary btn-sm">Ver boleta</Link>
+                    </div>
                   </td>
                 </tr>
               ))}

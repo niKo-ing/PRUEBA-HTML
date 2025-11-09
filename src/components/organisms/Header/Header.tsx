@@ -1,10 +1,12 @@
+// Header: navegación principal, estado de sesión y acceso al carrito.
 import { Navbar, Container, Nav, Badge } from "react-bootstrap";
 import { Link, NavLink } from "react-router-dom";
-import { useCart } from "@domain/cart/cart.context";
+import { useCart } from "@domain/cart/useCart";
 import { useCartUI } from "@app/cart-ui.context";
 import { useAuth } from "@domain/auth/auth.context";
 
 export default function Header() {
+  // count = cantidad de ítems; open = abre el drawer del carrito
   const { count } = useCart();
   const { open } = useCartUI();
   const { user, logout } = useAuth();
@@ -25,13 +27,14 @@ export default function Header() {
           <Nav className="me-auto">
             <Nav.Link as={NavLink} to="/" end>Home</Nav.Link>
             <Nav.Link as={NavLink} to="/productos">Productos</Nav.Link>
+            <Nav.Link as={NavLink} to="/categorias">Categorías</Nav.Link>
             <Nav.Link as={NavLink} to="/blogs">Blogs</Nav.Link>
             <Nav.Link as={NavLink} to="/about">Nosotros</Nav.Link>
             <Nav.Link as={NavLink} to="/contacto">Contacto</Nav.Link>
           </Nav>
 
           <div className="d-flex align-items-center gap-2">
-            {/* Estado de sesión */}
+            {/* Estado de sesión: si hay usuario, muestra saludo, admin y logout */}
             {user ? (
               <>
                 <span className="text-body-secondary small">
@@ -54,6 +57,7 @@ export default function Header() {
             )}
 
            
+            {/* Botón del carrito: abre el drawer con badge de cantidad */}
             <button
               type="button"
               className="btn btn-light position-relative"

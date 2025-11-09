@@ -1,8 +1,10 @@
+// Usuarios: administración básica con búsqueda, edición inline y autocompletado de dirección.
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";
 import AddressAutocomplete from "@molecules/AddressAutocomplete/AddressAutocomplete";
 import type { ParsedAddress } from "@molecules/AddressAutocomplete/AddressAutocomplete";
 
+// Modelo de usuario editable en tabla
 type Usuario = {
   nombre: string;
   apellido?: string;
@@ -30,6 +32,7 @@ export default function AdminUsers() {
     });
   }, [rows, q]);
 
+  // Carga usuarios desde localStorage y sincroniza textos de dirección
   useEffect(() => {
     try {
       const usuarios: Usuario[] = JSON.parse(localStorage.getItem("usuarios") || "[]");
@@ -60,6 +63,7 @@ export default function AdminUsers() {
       setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, [key]: sv(val) } : r)));
     };
 
+  // Agrega un usuario nuevo con valores por defecto
   const addUser = () => {
     const newUser: Usuario = {
       nombre: "",
@@ -109,6 +113,7 @@ export default function AdminUsers() {
     return !!user.direccion?.placeId && typeof user.direccion?.lat === "number" && typeof user.direccion?.lng === "number";
   };
 
+  // Persistencia mock a localStorage
   const saveAll = () => {
     localStorage.setItem("usuarios", JSON.stringify(rows));
     alert("Usuarios guardados (localStorage)");

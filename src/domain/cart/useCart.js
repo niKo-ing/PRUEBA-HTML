@@ -1,1 +1,1 @@
-"use strict";
+export { useCart } from "./cart.context";

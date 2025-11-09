@@ -6,7 +6,7 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
-    "types": ["google.maps"],
+    "types": ["google.maps", "jasmine"],
 
     "strict": true,
     "noImplicitAny": true,
@@ -41,6 +41,12 @@
 
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "src/tests",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "run-tests.js"
   ]
 }

@@ -1,3 +1,4 @@
+// Página de detalle de producto: muestra galería, información y acciones.
 import { useParams, Navigate } from "react-router-dom";
 import { productos } from "@domain/data";
 import type { Product } from "@domain/types";
@@ -22,12 +23,12 @@ export default function ProductPage() {
   return (
     <div id="productDetail" className="container py-4">
       <div className="row g-4">
-        {/* Galería */}
+        {/* Galería: imagen principal + miniaturas, con re-mount al cambiar id */}
         <div className="col-12 col-lg-6" key={prod.id}> {/* 👈 forzamos remount */}
           <ProductGallery images={prod.images ?? []} cover={prod.img} alt={prod.nombre} />
         </div>
 
-        {/* Info */}
+        {/* Info del producto: nombre, stock, categoría, precio y descripción */}
         <div className="col-12 col-lg-6">
           <h1 className="pd-title h2 mb-2">{prod.nombre}</h1>
 
@@ -43,7 +44,7 @@ export default function ProductPage() {
             <Button
               variant="warning"
               size="lg"
-              onClick={() => { add(prod.id, 1); open(); }}   // 👈 agrega y abre carrito
+              onClick={() => { add(prod.id, 1); open(); }}   // agrega y abre carrito
             >
               <i className="bi bi-cart-plus me-2" />
               Añadir al carrito
@@ -61,7 +62,7 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* Relacionados */}
+      {/* Relacionados: sugiere productos de la misma categoría */}
       <RelatedProducts categoria={prod.categoria} excludeId={prod.id} />
     </div>
   );

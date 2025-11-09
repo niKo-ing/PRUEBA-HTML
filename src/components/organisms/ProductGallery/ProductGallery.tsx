@@ -1,9 +1,10 @@
+// Galería de producto: permite elegir miniatura y hace zoom en desktop.
 import { useEffect, useRef, useState } from "react";
 
 type Props = { images?: string[]; cover?: string; alt?: string };
 
 export default function ProductGallery({ images = [], cover, alt }: Props) {
-  // 1) Asegura array válido y sin duplicados (si solo hay cover, igual habrá 1 thumb)
+  // Asegura array válido y sin duplicados (si solo hay cover, igual habrá 1 thumb)
   const allImgs = Array.from(new Set([cover, ...(images ?? [])].filter(Boolean))) as string[];
   const [current, setCurrent] = useState<string>(allImgs[0]!);
   const [zooming, setZooming] = useState(false);

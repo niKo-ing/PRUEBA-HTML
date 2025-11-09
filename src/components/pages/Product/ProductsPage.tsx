@@ -1,3 +1,5 @@
+// Listado de productos: permite buscar, filtrar, ordenar y paginar.
+// Cada tarjeta muestra info básica y acciones para ver/añadir al carrito.
 import { useMemo, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import {
@@ -105,7 +107,7 @@ export default function ProductsPage() {
   return (
     <Container className="py-4">
       <Row className="align-items-end g-3 mb-3">
-        {/* Búsqueda */}
+        {/* Búsqueda: sincronizada con query param "q" para compartir estado */}
         <Col md={4}>
           <Form.Label className="fw-semibold">Buscar</Form.Label>
           <InputGroup>
@@ -120,7 +122,7 @@ export default function ProductsPage() {
           </InputGroup>
         </Col>
 
-        {/* Categoría */}
+        {/* Categoría: filtra por categoría única del producto (query "cat") */}
         <Col md={3}>
           <Form.Label className="fw-semibold">Categoría</Form.Label>
           <Form.Select
@@ -134,7 +136,7 @@ export default function ProductsPage() {
           </Form.Select>
         </Col>
 
-        {/* Precio */}
+        {/* Precio: rango mínimo/máximo (queries "min"/"max") */}
         <Col md={3}>
           <Form.Label className="fw-semibold">Precio</Form.Label>
           <InputGroup>
@@ -155,7 +157,7 @@ export default function ProductsPage() {
           </InputGroup>
         </Col>
 
-        {/* Orden */}
+        {/* Orden: selector de criterio (query "sort") */}
         <Col md={2}>
           <Form.Label className="fw-semibold">Ordenar por</Form.Label>
           <Form.Select
@@ -189,6 +191,7 @@ export default function ProductsPage() {
         </Col>
       </Row>
 
+      {/* Resumen de filtros aplicados y contador de resultados */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="text-body-secondary">
           {total} resultado{total !== 1 ? "s" : ""}
@@ -197,7 +200,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* GRID */}
+      {/* Grid de tarjetas de producto */}
       <Row className="g-3">
         {pageItems.map((p) => (
           <Col key={p.id} xs={12} sm={6} md={4} lg={3}>
@@ -234,7 +237,7 @@ export default function ProductsPage() {
         ))}
       </Row>
 
-      {/* Paginación */}
+      {/* Paginación: controla page actual y total con query param "page" */}
       {totalPages > 1 && (
         <div className="d-flex justify-content-center mt-4">
           <Pagination>

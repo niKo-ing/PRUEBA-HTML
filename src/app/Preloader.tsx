@@ -1,3 +1,6 @@
+// Componente de “pantalla de carga” simple.
+// Muestra un anillo girando y el texto “Cargando…” mientras la app prepara datos.
+// Úsalo como fallback de React.Suspense o durante la inicialización.
 export default function Preloader() {
   return (
     <div id="preloader">

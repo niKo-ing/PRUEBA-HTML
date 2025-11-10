@@ -1,3 +1,16 @@
+/**
+ * Punto de entrada de la aplicación.
+ *
+ * Propósito
+ * - Monta React en `#root` y registra estilos globales.
+ * - Envuelve la app con `AuthProvider` para estado global de autenticación.
+ * - Activa `StrictMode` para detectar efectos secundarios y patrones no seguros.
+ * - Gestiona el preloader inicial ocultándolo tras el primer render estable.
+ *
+ * Dependencias clave
+ * - `bootstrap`, `bootstrap-icons`, `globals.css`, `app.css`, `blog.css`.
+ * - `@app/preloader` y `@domain/auth/auth.context`.
+ */
 // src/main.tsx
 // Punto de entrada de la aplicación. Aquí montamos React dentro del elemento #root
 // y cargamos estilos globales. También activamos el proveedor de autenticación

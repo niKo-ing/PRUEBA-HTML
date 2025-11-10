@@ -1,3 +1,25 @@
+/**
+ * Nombre del componente: CategoriesPage
+ * Propósito: Listar categorías y mostrar productos filtrados por la categoría seleccionada.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; usa query param `cat`.
+ *
+ * Métodos/funciones:
+ * - toArr(c): normaliza categoría a arreglo.
+ *
+ * Hooks utilizados:
+ * - useSearchParams: leer/actualizar categoría.
+ * - useMemo: categorías únicas y productos filtrados.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <CategoriesPage />
+ * ```
+ */
 // Página de categorías: lista todas las categorías y permite filtrar productos.
 import { useMemo } from "react";
 import { Container, Row, Col, Card, Badge } from "react-bootstrap";

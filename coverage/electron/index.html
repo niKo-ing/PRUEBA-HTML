@@ -1,101 +1,113 @@
-
 <!doctype html>
 <html lang="en">
-
 <head>
+    <!-- Título de la página: reporte de cobertura de código para todos los archivos -->
     <title>Code coverage report for All files</title>
     <meta charset="utf-8" />
+    <!-- Estilos para resaltar sintaxis y estilos base del reporte -->
     <link rel="stylesheet" href="prettify.css" />
     <link rel="stylesheet" href="base.css" />
+    <!-- Icono de la página -->
     <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <!-- Configuración de viewport para dispositivos móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
+        /* Icono de flecha para ordenar columnas de la tabla */
         .coverage-summary .sorter {
             background-image: url(sort-arrow-sprite.png);
         }
     </style>
 </head>
-    
 <body>
-<div class='wrapper'>
-    <div class='pad1'>
-        <h1>All files</h1>
-        <div class='clearfix'>
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">Unknown% </span>
-                <span class="quiet">Statements</span>
-                <span class='fraction'>0/0</span>
+    <!-- Contenedor principal -->
+    <div class='wrapper'>
+        <!-- Sección de encabezado con métricas generales -->
+        <div class='pad1'>
+            <h1>All files</h1>
+            <!-- Resumen de métricas de cobertura -->
+            <div class='clearfix'>
+                <!-- Métrica: declaraciones (statements) -->
+                <div class='fl pad1y space-right2'>
+                    <span class="strong">Unknown% </span>
+                    <span class="quiet">Statements</span>
+                    <span class='fraction'>0/0</span>
+                </div>
+                <!-- Métrica: ramas (branches) -->
+                <div class='fl pad1y space-right2'>
+                    <span class="strong">Unknown% </span>
+                    <span class="quiet">Branches</span>
+                    <span class='fraction'>0/0</span>
+                </div>
+                <!-- Métrica: funciones -->
+                <div class='fl pad1y space-right2'>
+                    <span class="strong">Unknown% </span>
+                    <span class="quiet">Functions</span>
+                    <span class='fraction'>0/0</span>
+                </div>
+                <!-- Métrica: líneas -->
+                <div class='fl pad1y space-right2'>
+                    <span class="strong">Unknown% </span>
+                    <span class="quiet">Lines</span>
+                    <span class='fraction'>0/0</span>
+                </div>
             </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">Unknown% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">Unknown% </span>
-                <span class="quiet">Functions</span>
-                <span class='fraction'>0/0</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">Unknown% </span>
-                <span class="quiet">Lines</span>
-                <span class='fraction'>0/0</span>
-            </div>
-        
-            
+            <!-- Instrucciones de navegación por bloques no cubiertos -->
+            <p class="quiet">
+                Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+            </p>
+            <!-- Plantilla para el filtro de búsqueda de archivos -->
+            <template id="filterTemplate">
+                <div class="quiet">
+                    Filter:
+                    <input type="search" id="fileSearch">
+                </div>
+            </template>
         </div>
-        <p class="quiet">
-            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
-        </p>
-        <template id="filterTemplate">
-            <div class="quiet">
-                Filter:
-                <input type="search" id="fileSearch">
-            </div>
-        </template>
+        <!-- Línea de estado visual (barra de progreso) -->
+        <div class='status-line medium'></div>
+        <!-- Tabla de resumen de cobertura por archivo -->
+        <div class="pad1">
+            <table class="coverage-summary">
+                <thead>
+                    <tr>
+                        <!-- Columna de nombre de archivo -->
+                        <th data-col="file" data-fmt="html" data-html="true" class="file">File</th>
+                        <!-- Columna de gráfico (placeholder para futura visualización) -->
+                        <th data-col="pic" data-type="number" data-fmt="html" data-html="true" class="pic"></th>
+                        <!-- Columnas de métricas: declaraciones, ramas, funciones, líneas -->
+                        <th data-col="statements" data-type="number" data-fmt="pct" class="pct">Statements</th>
+                        <th data-col="statements_raw" data-type="number" data-fmt="html" class="abs"></th>
+                        <th data-col="branches" data-type="number" data-fmt="pct" class="pct">Branches</th>
+                        <th data-col="branches_raw" data-type="number" data-fmt="html" class="abs"></th>
+                        <th data-col="functions" data-type="number" data-fmt="pct" class="pct">Functions</th>
+                        <th data-col="functions_raw" data-type="number" data-fmt="html" class="abs"></th>
+                        <th data-col="lines" data-type="number" data-fmt="pct" class="pct">Lines</th>
+                        <th data-col="lines_raw" data-type="number" data-fmt="html" class="abs"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Filas de datos se insertarán dinámicamente aquí -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Espaciado para mantener el pie pegado al fondo (sticky footer) -->
+        <div class='push'></div>
     </div>
-    <div class='status-line medium'></div>
-    <div class="pad1">
-<table class="coverage-summary">
-<thead>
-<tr>
-   <th data-col="file" data-fmt="html" data-html="true" class="file">File</th>
-   <th data-col="pic" data-type="number" data-fmt="html" data-html="true" class="pic"></th>
-   <th data-col="statements" data-type="number" data-fmt="pct" class="pct">Statements</th>
-   <th data-col="statements_raw" data-type="number" data-fmt="html" class="abs"></th>
-   <th data-col="branches" data-type="number" data-fmt="pct" class="pct">Branches</th>
-   <th data-col="branches_raw" data-type="number" data-fmt="html" class="abs"></th>
-   <th data-col="functions" data-type="number" data-fmt="pct" class="pct">Functions</th>
-   <th data-col="functions_raw" data-type="number" data-fmt="html" class="abs"></th>
-   <th data-col="lines" data-type="number" data-fmt="pct" class="pct">Lines</th>
-   <th data-col="lines_raw" data-type="number" data-fmt="html" class="abs"></th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
-                <div class='push'></div><!-- for sticky footer -->
-            </div><!-- /wrapper -->
-            <div class='footer quiet pad2 space-top1 center small'>
-                Code coverage generated by
-                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-09T00:46:02.442Z
-            </div>
-        <script src="prettify.js"></script>
-        <script>
-            window.onload = function () {
-                prettyPrint();
-            };
-        </script>
-        <script src="sorter.js"></script>
-        <script src="block-navigation.js"></script>
-    </body>
+    <!-- Pie de página con información de generación -->
+    <div class='footer quiet pad2 space-top1 center small'>
+        Code coverage generated by
+        <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+        at 2025-11-10T01:57:42.177Z
+    </div>
+    <!-- Scripts para funcionalidad: resaltado de sintaxis, ordenamiento y navegación -->
+    <script src="prettify.js"></script>
+    <script>
+        // Inicializa el resaltado de sintaxis al cargar la página
+        window.onload = function () {
+            prettyPrint();
+        };
+    </script>
+    <script src="sorter.js"></script>
+    <script src="block-navigation.js"></script>
+</body>
 </html>
-    

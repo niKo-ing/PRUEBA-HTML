@@ -1,3 +1,28 @@
+/**
+ * Nombre del componente: AdminProducts
+ * Propósito: Administración y edición inline de catálogo con filtros y persistencia local.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; carga catálogo y permite edición en tabla.
+ *
+ * Métodos/funciones:
+ * - sv(v?): string — Normaliza strings a valor seguro.
+ * - sn(v?): number — Asegura números válidos en formularios.
+ * - slugify(s: string): string — Genera slugs web.
+ * - toEditable(p: Product): Editable — Convierte Product a tipo editable.
+ *
+ * Hooks utilizados:
+ * - useMemo: inicialización y filtros; categorías únicas.
+ * - useState: estado de filas y filtros.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <AdminProducts />
+ * ```
+ */
 // Página de administración de productos: edición inline, filtros y guardado en localStorage.
 // No cambia la lógica: solo añade contexto para facilitar el mantenimiento.
 // src/components/pages/Admin/AdminProducts.tsx

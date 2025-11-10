@@ -4,10 +4,9 @@ import {
   formatCardNumber, 
   formatExpiryDate, 
   detectCardType,
-  SimulatedPaymentGateway,
-  PaymentData,
-  PaymentResponse
+  SimulatedPaymentGateway
 } from '../../services/payment.service';
+import type { PaymentData } from '../../services/payment.service';
 
 describe('PaymentService', () => {
   let paymentGateway: SimulatedPaymentGateway;

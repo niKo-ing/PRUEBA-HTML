@@ -22,7 +22,7 @@ describe('Product Card Component', () => {
             expect(mockProduct.stock).toBeGreaterThanOrEqual(0);
         });
         it('should calculate correct product price formatting', () => {
-            const formattedPrice = mockProduct.precio.toLocaleString();
+            const formattedPrice = new Intl.NumberFormat('es-CL').format(mockProduct.precio);
             expect(formattedPrice).toBe('29.990');
         });
         it('should handle products with and without images array', () => {

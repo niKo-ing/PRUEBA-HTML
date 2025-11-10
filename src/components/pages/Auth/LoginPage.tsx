@@ -1,3 +1,26 @@
+/**
+ * Nombre del componente: LoginPage
+ * Propósito: Formulario de inicio de sesión con validación básica y redirección.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props.
+ *
+ * Métodos/funciones:
+ * - onSubmit(e): maneja envío, llama `useAuth.login`, redirige a admin/home.
+ *
+ * Hooks utilizados:
+ * - useState: gestiona email, password, error y loading.
+ * - useNavigate: navegación tras login.
+ * - useAuth: acceso a `login`.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <LoginPage />
+ * ```
+ */
 import { useState } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";

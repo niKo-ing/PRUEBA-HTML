@@ -1,3 +1,29 @@
+/**
+ * Nombre del componente: AdminCategories
+ * Propósito: Gestión de categorías con CRUD básico y persistencia local.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; deriva categorías desde el catálogo y localStorage.
+ *
+ * Métodos/funciones:
+ * - addRow(): agrega una categoría nueva.
+ * - onEdit(idx): edición inline de nombre.
+ * - onDelete(idx): elimina categoría.
+ * - saveAll(): guarda en localStorage.
+ * - discard(): recupera último guardado o estado inicial.
+ *
+ * Hooks utilizados:
+ * - useMemo: inicialización, filtro de búsqueda.
+ * - useState: filas y consulta de búsqueda.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <AdminCategories />
+ * ```
+ */
 // Categorías: deriva categorías iniciales del catálogo, permite CRUD básico y guarda en localStorage.
 import { useMemo, useState } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";

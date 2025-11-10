@@ -1,3 +1,25 @@
+/**
+ * Nombre del componente: OffersPage
+ * Propósito: Mostrar ofertas especiales con cálculo de descuentos y ahorro.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; calcula ofertas desde el catálogo en memoria.
+ *
+ * Métodos/funciones:
+ * - calculateSavings(original, discounted): número — Retorna ahorro.
+ *
+ * Hooks utilizados:
+ * - useState: estado de ofertas y loading.
+ * - useEffect: simula carga y cálculo de descuentos.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <OffersPage />
+ * ```
+ */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productos } from '../../../domain/data';

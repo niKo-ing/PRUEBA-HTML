@@ -1,5 +1,11 @@
 // Contexto de autenticación: guarda el usuario actual, expone login/logout
 // y persiste la sesión en localStorage.
+/**
+ * @file Contexto de autenticación.
+ * @description Gestiona el usuario actual, login/logout y persistencia.
+ * @author Equipo Todobaratisimo
+ * @date 2025-11-10
+ */
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type User = {

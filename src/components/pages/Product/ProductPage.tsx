@@ -1,4 +1,32 @@
-// Página de detalle de producto: muestra galería, información y acciones.
+/**
+ * Nombre del componente: ProductPage
+ * Propósito: Página de detalle del producto con galería, info y acciones.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; lee `slug` desde la URL.
+ *
+ * Métodos/funciones:
+ * - formatCLP(v: number): string — Formatea un número en CLP.
+ *   Parámetros: v (number). Retorno: string con moneda.
+ *   Lógica: utiliza `toLocaleString` con configuración es-CL.
+ *
+ * Hooks utilizados:
+ * - useParams: obtiene `slug` del router.
+ * - useCart: acciones para añadir al carrito.
+ * - useCartUI: abrir el panel de carrito.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <ProductPage />
+ * ```
+ */
+/**
+ * Página ProductPage - Detalle del producto
+ * Props: no recibe; Estado: none; Dependencias: react-router-dom, ProductGallery, RelatedProducts, useCart/useCartUI
+ */
 import { useParams, Navigate } from "react-router-dom";
 import { productos } from "@domain/data";
 import type { Product } from "@domain/types";
@@ -8,10 +36,19 @@ import { Badge, Button } from "react-bootstrap";
 import { useCart } from "@domain/cart/cart.context";
 import { useCartUI } from "@app/cart-ui.context";
 
+/**
+ * Formatea número a CLP sin decimales
+ * @param {number} v - Valor numérico
+ * @returns {string} Moneda CLP
+ */
 function formatCLP(v: number) {
   return v.toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
 }
 
+/**
+ * Renderiza la página de detalle con galería e info
+ * @returns {JSX.Element} Contenido del producto o redirección
+ */
 export default function ProductPage() {
   const { slug } = useParams();
   const prod: Product | undefined = productos.find(p => p.slug === slug);
@@ -23,7 +60,7 @@ export default function ProductPage() {
   return (
     <div id="productDetail" className="container py-4">
       <div className="row g-4">
-        {/* Galería: imagen principal + miniaturas, con re-mount al cambiar id */}
+        // Galería: imagen principal + miniaturas, con re-mount al cambiar id
         <div className="col-12 col-lg-6" key={prod.id}> {/* 👈 forzamos remount */}
           <ProductGallery images={prod.images ?? []} cover={prod.img} alt={prod.nombre} />
         </div>
@@ -62,7 +99,7 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* Relacionados: sugiere productos de la misma categoría */}
+      // Relacionados: sugiere productos de la misma categoría
       <RelatedProducts categoria={prod.categoria} excludeId={prod.id} />
     </div>
   );

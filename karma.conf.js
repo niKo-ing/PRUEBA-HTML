@@ -35,7 +35,12 @@ export default function(config) {
         rules: [
           {
             test: /\.(ts|tsx)$/,
-            use: 'ts-loader',
+            use: {
+              loader: 'ts-loader',
+              options: {
+                transpileOnly: true // Evita chequear tipos de todo el proyecto durante pruebas
+              }
+            },
             exclude: /node_modules/
           },
           {
@@ -48,8 +53,17 @@ export default function(config) {
       devtool: 'inline-source-map'
     },
 
-    // Test results reporter to use
-    reporters: ['progress', 'spec', 'coverage'],
+    // Test results reporter to use (solo errores con spec)
+    reporters: ['spec', 'coverage'],
+
+    // Configuración del spec reporter para ocultar tests que pasan/skipped
+    specReporter: {
+      suppressPassed: true,
+      suppressSkipped: true,
+      showSpecTiming: false,
+      suppressErrorSummary: false,
+      failFast: false
+    },
 
     // Coverage reporter configuration
     coverageReporter: {
@@ -66,8 +80,8 @@ export default function(config) {
     // Enable / disable colors in the output (reporters and logs)
     colors: true,
 
-    // Level of logging
-    logLevel: config.LOG_INFO,
+    // Level of logging (solo errores)
+    logLevel: config.LOG_ERROR,
 
   // Enable / disable watching file and executing tests whenever any file changes
   autoWatch: true,

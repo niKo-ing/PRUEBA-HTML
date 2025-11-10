@@ -1,1 +1,54 @@
-.pln{color:#000}@media screen{.str{color:#080}.kwd{color:#008}.com{color:#800}.typ{color:#606}.lit{color:#066}.pun,.opn,.clo{color:#660}.tag{color:#008}.atn{color:#606}.atv{color:#080}.dec,.var{color:#606}.fun{color:red}}@media print,projection{.str{color:#060}.kwd{color:#006;font-weight:bold}.com{color:#600;font-style:italic}.typ{color:#404;font-weight:bold}.lit{color:#044}.pun,.opn,.clo{color:#440}.tag{color:#006;font-weight:bold}.atn{color:#404}.atv{color:#060}}pre.prettyprint{padding:2px;border:1px solid #888}ol.linenums{margin-top:0;margin-bottom:0}li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8{list-style-type:none}li.L1,li.L3,li.L5,li.L7,li.L9{background:#eee}
+/* Estilos para el resaltado de sintaxis de Google Prettify */
+
+/* Color para texto plano */
+.pln { color: #000; }
+
+/* Media query para pantallas: define colores para distintos tokens */
+@media screen {
+  .str { color: #080; }  /* cadenas de texto */
+  .kwd { color: #008; }  /* palabras clave */
+  .com { color: #800; }  /* comentarios */
+  .typ { color: #606; }  /* tipos de datos */
+  .lit { color: #066; }  /* literales (números, etc.) */
+  .pun, .opn, .clo { color: #660; }  /* signos de puntuación y paréntesis */
+  .tag { color: #008; }  /* etiquetas HTML/XML */
+  .atn { color: #606; }  /* nombres de atributos */
+  .atv { color: #080; }  /* valores de atributos */
+  .dec, .var { color: #606; }  /* declaraciones y variables */
+  .fun { color: red; }  /* funciones */
+}
+
+/* Media query para impresión o proyección: ajusta colores y estilos */
+@media print, projection {
+  .str { color: #060; }  /* cadenas */
+  .kwd { color: #006; font-weight: bold; }  /* palabras clave en negrita */
+  .com { color: #600; font-style: italic; }  /* comentarios en cursiva */
+  .typ { color: #404; font-weight: bold; }  /* tipos en negrita */
+  .lit { color: #044; }  /* literales */
+  .pun, .opn, .clo { color: #440; }  /* puntuación y paréntesis */
+  .tag { color: #006; font-weight: bold; }  /* etiquetas en negrita */
+  .atn { color: #404; }  /* nombres de atributos */
+  .atv { color: #060; }  /* valores de atributos */
+}
+
+/* Estilos para el bloque <pre> que contiene el código */
+pre.prettyprint {
+  padding: 2px;
+  border: 1px solid #888;
+}
+
+/* Estilos para la lista numerada de líneas */
+ol.linenums {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Elimina el estilo de lista de viñetas en ciertas líneas */
+li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
+  list-style-type: none;
+}
+
+/* Aplica fondo gris claro a líneas alternas para mejorar legibilidad */
+li.L1, li.L3, li.L5, li.L7, li.L9 {
+  background: #eee;
+}

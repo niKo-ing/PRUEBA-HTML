@@ -1,8 +1,17 @@
-// Galería de producto: permite elegir miniatura y hace zoom en desktop.
+/**
+ * Componente ProductGallery - Galería con miniaturas y zoom
+ * Props: { images?: string[], cover?: string, alt?: string }; Estado: current, zooming
+ * Dependencias: ninguna externa (usa DOM para efecto de zoom)
+ */
 import { useEffect, useRef, useState } from "react";
 
 type Props = { images?: string[]; cover?: string; alt?: string };
 
+/**
+ * Renderiza galería con imagen principal y miniaturas
+ * @param {Props} props - Imágenes y texto alternativo
+ * @returns {JSX.Element} Contenedor de galería interactiva
+ */
 export default function ProductGallery({ images = [], cover, alt }: Props) {
   // Asegura array válido y sin duplicados (si solo hay cover, igual habrá 1 thumb)
   const allImgs = Array.from(new Set([cover, ...(images ?? [])].filter(Boolean))) as string[];
@@ -11,6 +20,9 @@ export default function ProductGallery({ images = [], cover, alt }: Props) {
   const zoomRef = useRef<HTMLDivElement | null>(null);
 
   // Limpieza de zoom (para evitar “interposición” al navegar)
+  /**
+   * Restablece el estado y estilos del zoom
+   */
   const resetZoom = () => {
     const el = zoomRef.current;
     if (!el) return;
@@ -37,6 +49,9 @@ export default function ProductGallery({ images = [], cover, alt }: Props) {
     };
   }, []);
 
+  /**
+   * Activa el zoom al entrar al área principal
+   */
   const handleEnter = () => {
     const el = zoomRef.current;
     if (!el) return;
@@ -45,6 +60,9 @@ export default function ProductGallery({ images = [], cover, alt }: Props) {
     setZooming(true);
   };
 
+  /**
+   * Posiciona el zoom según el puntero del mouse
+   */
   const handleMove = (e: React.MouseEvent) => {
     const el = zoomRef.current;
     if (!el || !zooming) return;

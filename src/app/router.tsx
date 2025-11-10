@@ -6,6 +6,7 @@ import MainLayout from "@templates/MainLayout/MainLayout";
 import ErrorBoundary from "./error-boundary";
 import RequireAdmin from "@app/admin/require-admin";
 import AdminShell from "@templates/AdminLayout/AdminLayout";
+import { ADMIN_SEGMENTS } from "@templates/AdminLayout/menu.config";
 const CategoriesPage = lazy(() => import("@pages/Categories/CategoriesPage"));
 
 const HomePage     = lazy(() => import("@pages/Home/HomePage"));
@@ -76,13 +77,13 @@ const router = createBrowserRouter([
         element: <AdminShell />, // Layout para las pantallas de admin
         children: [
           { index: true, element: <AdminDashboard /> },
-          { path: "products", element: <AdminProducts /> },
-          { path: "categories", element: <AdminCategories /> },
-          { path: "users", element: <AdminUsers /> },
-          { path: "orders", element: <AdminOrders /> },
-          { path: "reports", element: <AdminReports /> },
-          { path: "receipt/:id", element: <AdminReceipt /> }, // Boleta imprimible
-          { path: "settings", element: <AdminSettings /> },
+          { path: ADMIN_SEGMENTS.products, element: <AdminProducts /> },
+          { path: ADMIN_SEGMENTS.categories, element: <AdminCategories /> },
+          { path: ADMIN_SEGMENTS.users, element: <AdminUsers /> },
+          { path: ADMIN_SEGMENTS.orders, element: <AdminOrders /> },
+          { path: ADMIN_SEGMENTS.reports, element: <AdminReports /> },
+          { path: ADMIN_SEGMENTS.receipt, element: <AdminReceipt /> }, // Boleta imprimible
+          { path: ADMIN_SEGMENTS.settings, element: <AdminSettings /> },
         ],
       },
     ],

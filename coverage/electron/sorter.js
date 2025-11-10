@@ -1,38 +1,41 @@
 /* eslint-disable */
+// Función autoinvocada que añade la capacidad de ordenar y filtrar a la tabla de cobertura
 var addSorting = (function() {
     'use strict';
+    // Variable que almacena la definición de las columnas
     var cols,
+        // Estado actual de ordenación: índice de columna y si es descendente
         currentSort = {
             index: 0,
             desc: false
         };
 
-    // returns the summary table element
+    // Devuelve el elemento tabla con clase coverage-summary
     function getTable() {
         return document.querySelector('.coverage-summary');
     }
-    // returns the thead element of the summary table
+    // Devuelve la fila del thead de la tabla resumen
     function getTableHeader() {
         return getTable().querySelector('thead tr');
     }
-    // returns the tbody element of the summary table
+    // Devuelve el tbody de la tabla resumen
     function getTableBody() {
         return getTable().querySelector('tbody');
     }
-    // returns the th element for nth column
+    // Devuelve el th de la columna n-ésima
     function getNthColumn(n) {
         return getTableHeader().querySelectorAll('th')[n];
     }
 
+    // Manejador del input de búsqueda: filtra filas según texto o regex
     function onFilterInput() {
         const searchValue = document.getElementById('fileSearch').value;
         const rows = document.getElementsByTagName('tbody')[0].children;
 
-        // Try to create a RegExp from the searchValue. If it fails (invalid regex),
-        // it will be treated as a plain text search
+        // Intenta crear una RegExp a partir del valor. Si falla, se usa búsqueda de texto plano
         let searchRegex;
         try {
-            searchRegex = new RegExp(searchValue, 'i'); // 'i' for case-insensitive
+            searchRegex = new RegExp(searchValue, 'i'); // 'i' para insensible a mayúsculas
         } catch (error) {
             searchRegex = null;
         }
@@ -42,10 +45,10 @@ var addSorting = (function() {
             let isMatch = false;
 
             if (searchRegex) {
-                // If a valid regex was created, use it for matching
+                // Si la regex es válida, úsala para comparar
                 isMatch = searchRegex.test(row.textContent);
             } else {
-                // Otherwise, fall back to the original plain text search
+                // Si no, búsqueda normal en minúsculas
                 isMatch = row.textContent
                     .toLowerCase()
                     .includes(searchValue.toLowerCase());
@@ -55,7 +58,7 @@ var addSorting = (function() {
         }
     }
 
-    // loads the search box
+    // Inserta la caja de búsqueda en el DOM
     function addSearchBox() {
         var template = document.getElementById('filterTemplate');
         var templateClone = template.content.cloneNode(true);
@@ -63,7 +66,7 @@ var addSorting = (function() {
         template.parentElement.appendChild(templateClone);
     }
 
-    // loads all columns
+    // Carga la configuración de cada columna (clave, ordenable, tipo)
     function loadColumns() {
         var colNodes = getTableHeader().querySelectorAll('th'),
             colNode,
@@ -80,15 +83,16 @@ var addSorting = (function() {
             };
             cols.push(col);
             if (col.sortable) {
+                // Por defecto, las columnas numéricas se ordenan descendentemente
                 col.defaultDescSort = col.type === 'number';
+                // Añade el icono de ordenación
                 colNode.innerHTML =
                     colNode.innerHTML + '<span class="sorter"></span>';
             }
         }
         return cols;
     }
-    // attaches a data attribute to every tr element with an object
-    // of data values keyed by column name
+    // Extrae los datos de una fila y los guarda en un objeto con claves según columna
     function loadRowData(tableRow) {
         var tableCols = tableRow.querySelectorAll('td'),
             colNode,
@@ -107,7 +111,7 @@ var addSorting = (function() {
         }
         return data;
     }
-    // loads all row data
+    // Carga los datos de todas las filas
     function loadData() {
         var rows = getTableBody().querySelectorAll('tr'),
             i;
@@ -116,7 +120,7 @@ var addSorting = (function() {
             rows[i].data = loadRowData(rows[i]);
         }
     }
-    // sorts the table using the data for the ith column
+    // Ordena la tabla según la columna index y el sentido desc
     function sortByIndex(index, desc) {
         var key = cols[index].key,
             sorter = function(a, b) {
@@ -136,18 +140,21 @@ var addSorting = (function() {
             };
         }
 
+        // Desconecta las filas del DOM
         for (i = 0; i < rowNodes.length; i += 1) {
             rows.push(rowNodes[i]);
             tableBody.removeChild(rowNodes[i]);
         }
 
+        // Ordena el array
         rows.sort(finalSorter);
 
+        // Vuelve a insertar las filas en el nuevo orden
         for (i = 0; i < rows.length; i += 1) {
             tableBody.appendChild(rows[i]);
         }
     }
-    // removes sort indicators for current column being sorted
+    // Quita las clases de ordenación de la columna actual
     function removeSortIndicators() {
         var col = getNthColumn(currentSort.index),
             cls = col.className;
@@ -155,13 +162,13 @@ var addSorting = (function() {
         cls = cls.replace(/ sorted$/, '').replace(/ sorted-desc$/, '');
         col.className = cls;
     }
-    // adds sort indicators for current column being sorted
+    // Añade las clases de ordenación a la columna actual
     function addSortIndicators() {
         getNthColumn(currentSort.index).className += currentSort.desc
             ? ' sorted-desc'
             : ' sorted';
     }
-    // adds event listeners for all sorter widgets
+    // Activa los eventos click en los encabezados para ordenar
     function enableUI() {
         var i,
             el,
@@ -183,8 +190,7 @@ var addSorting = (function() {
             };
         for (i = 0; i < cols.length; i += 1) {
             if (cols[i].sortable) {
-                // add the click event handler on the th so users
-                // dont have to click on those tiny arrows
+                // Añade el listener al th completo, no solo a la flecha
                 el = getNthColumn(i).querySelector('.sorter').parentElement;
                 if (el.addEventListener) {
                     el.addEventListener('click', ithSorter(i));
@@ -194,7 +200,7 @@ var addSorting = (function() {
             }
         }
     }
-    // adds sorting functionality to the UI
+    // Función pública que inicializa toda la funcionalidad
     return function() {
         if (!getTable()) {
             return;
@@ -207,4 +213,5 @@ var addSorting = (function() {
     };
 })();
 
+// Cuando el DOM esté listo, activa la ordenación
 window.addEventListener('load', addSorting);

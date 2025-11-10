@@ -1,4 +1,9 @@
-// Servicio de pago simulado: valida tarjeta/fecha/CVV y "procesa" el pago.
+/**
+ * @file Servicio de pago simulado.
+ * @description Valida tarjeta, expiración y CVV; procesa pagos con latencia controlada.
+ * @author Equipo Todobaratisimo
+ * @date 2025-11-10
+ */
 // Útil para demos y pruebas sin integrar un gateway real.
 export interface PaymentData {
   cardNumber: string;

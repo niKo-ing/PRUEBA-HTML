@@ -1,3 +1,26 @@
+/**
+ * Nombre del componente: AdminReports
+ * Propósito: Filtrar órdenes por fecha y texto; calcular totales y exportar CSV.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props.
+ *
+ * Métodos/funciones:
+ * - exportCSV(): void — Genera CSV en memoria y dispara descarga.
+ *
+ * Hooks utilizados:
+ * - useEffect: cargar órdenes desde localStorage.
+ * - useState: estados `orders`, `from`, `to`, `q`.
+ * - useMemo: `filtered` y `total` derivados según filtros.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <AdminReports />
+ * ```
+ */
 // Reportes: filtra órdenes por rango de fechas y texto; exporta CSV.
 import { useEffect, useMemo, useState } from "react";
 import { Container, Row, Col, Card, Table, Form, Button } from "react-bootstrap";

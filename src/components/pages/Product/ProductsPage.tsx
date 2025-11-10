@@ -1,5 +1,34 @@
-// Listado de productos: permite buscar, filtrar, ordenar y paginar.
-// Cada tarjeta muestra info básica y acciones para ver/añadir al carrito.
+/**
+ * Nombre del componente: ProductsPage
+ * Propósito: Listado de productos con búsqueda, filtros, orden y paginación.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; usa query params para estado (q, cat, min, max, sort, page, size).
+ *
+ * Métodos/funciones:
+ * - formatCLP(v: number): string — Formatea moneda CLP.
+ * - toArr(c: string|string[]): string[] — Normaliza categorías a arreglo.
+ * - matchCategoria(pCat, target): boolean — Verifica coincidencia de categoría.
+ * - sorters: Record<SortKey, (a,b)=>number> — Map de comparadores.
+ *
+ * Hooks utilizados:
+ * - useSearchParams: lee/actualiza query params.
+ * - useMemo: calcula filtrado, orden y paginación.
+ * - useCallback: actualiza parámetros preservando estado.
+ * - useCart: añade productos al carrito.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <ProductsPage />
+ * ```
+ */
+/**
+ * Página ProductsPage - Listado con búsqueda/filtros/orden/paginación
+ * Props: no recibe; Estado: derivado de query params; Dependencias: react-bootstrap, react-router-dom, useCart
+ */
 import { useMemo, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import {
@@ -12,15 +41,23 @@ import { useCart } from "@domain/cart/cart.context";
 // ————————————————————————————————————————
 // Utils
 // ————————————————————————————————————————
+/**
+ * Formatea número a CLP sin decimales
+ * @param {number} v - Valor numérico
+ * @returns {string} Moneda CLP
+ */
 function formatCLP(v: number) {
   return v.toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
 }
 
 // categoria puede ser string o string[]
 type Categoria = string | string[];
+/**
+ * Helpers de categorías: normaliza y compara
+ * @returns {boolean} True si pCat incluye target
+ */
 const toArr = (c: Categoria) => (Array.isArray(c) ? c : [c]);
-const matchCategoria = (pCat: Categoria, target: string) =>
-  !target || toArr(pCat).some((x) => x === target);
+const matchCategoria = (pCat: Categoria, target: string) => !target || toArr(pCat).some((x) => x === target);
 
 // categorías únicas desde la data
 const ALL_CATEGORIES = Array.from(
@@ -31,6 +68,10 @@ const ALL_CATEGORIES = Array.from(
 
 // ordenadores
 type SortKey = "relevancia" | "precio_asc" | "precio_desc" | "nombre_asc" | "nombre_desc";
+/**
+ * Map de ordenadores por clave
+ * @returns {number} Comparador de sort
+ */
 const sorters: Record<SortKey, (a: Product, b: Product) => number> = {
   relevancia: () => 0,
   precio_asc: (a, b) => a.precio - b.precio,
@@ -42,6 +83,10 @@ const sorters: Record<SortKey, (a: Product, b: Product) => number> = {
 // ————————————————————————————————————————
 // Página
 // ————————————————————————————————————————
+/**
+ * Renderiza listado con filtros, tarjetas y paginación
+ * @returns {JSX.Element} Contenido de la página de productos
+ */
 export default function ProductsPage() {
   const { add } = useCart();
   const [params, setParams] = useSearchParams();
@@ -56,6 +101,10 @@ export default function ProductsPage() {
   const pageSize = Math.min(48, Math.max(4, parseInt(params.get("size") ?? "12", 10))); // 12 por defecto
 
   // setters de params (mantienen el resto)
+  /**
+   * Actualiza query param manteniendo el resto
+   * Resetea page al cambiar filtros (salvo page/size)
+   */
   const setParam = useCallback((k: string, v: string | null) => {
     const next = new URLSearchParams(params);
     if (v === null || v === "") next.delete(k);
@@ -65,6 +114,9 @@ export default function ProductsPage() {
     setParams(next, { replace: true });
   }, [params, setParams]);
 
+  /**
+   * Limpia filtros; conserva el tamaño de página si está definido
+   */
   const resetFilters = () => {
     const keep = new URLSearchParams();
     // conserva page size si quieres
@@ -73,6 +125,9 @@ export default function ProductsPage() {
   };
 
   // filtrar + ordenar
+  /**
+   * Aplica búsqueda, filtros y orden a la lista de productos
+   */
   const filtered = useMemo(() => {
     const qNorm = q.trim().toLowerCase();
     const minV = min ? Number(min) : null;
@@ -96,6 +151,7 @@ export default function ProductsPage() {
   }, [q, cat, min, max, sort]);
 
   // paginación
+  // Paginación segura
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const pageSafe = Math.min(page, totalPages);

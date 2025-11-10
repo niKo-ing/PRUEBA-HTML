@@ -1,4 +1,12 @@
+/**
+ * Componente Footer - Pie de página con enlaces y redes
+ * Props: no recibe; Estado: ninguno; Dependencias: íconos Bootstrap Icons
+ */
 export default function Footer() {
+  /**
+   * Renderiza pie con enlaces, redes y copyright
+   * @returns {JSX.Element} Contenido de pie de página
+   */
   return (
     <footer className="border-top mt-5">
       <div className="container py-4">

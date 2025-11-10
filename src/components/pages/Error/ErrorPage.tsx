@@ -1,3 +1,24 @@
+/**
+ * Nombre del componente: ErrorPage
+ * Propósito: Mostrar un estado de error de pago y opciones para reintentar o contactar soporte.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props.
+ *
+ * Métodos/funciones:
+ * - No define métodos; renderiza contenido informativo y enlaces de navegación.
+ *
+ * Hooks utilizados:
+ * - No utiliza hooks.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <Route path="/error-compra" element={<ErrorPage />} />
+ * ```
+ */
 import React from 'react';
 import { Link } from 'react-router-dom';
 

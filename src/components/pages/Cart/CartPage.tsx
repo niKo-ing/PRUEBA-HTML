@@ -1,10 +1,40 @@
-// Página del carrito: tabla interactiva de ítems, resumen y acciones.
+/**
+ * Nombre del componente: CartPage
+ * Propósito: Mostrar la tabla del carrito con controles y resumen de compra.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; lee estado desde el contexto `useCart`.
+ *
+ * Métodos/funciones:
+ * - No define helpers externos; calcula filas y total vía `useMemo`.
+ *
+ * Hooks utilizados:
+ * - useCart: obtener items del carrito y acciones de cambio/eliminar/vaciar.
+ * - useMemo: normalización de filas y cálculo de total.
+ * - useNavigate: navegación hacia checkout.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <CartPage />
+ * ```
+ */
+/**
+ * Página CartPage - Tabla de carrito con resumen y acciones
+ * Props: no recibe; Estado: derivado del contexto; Dependencias: react-bootstrap, react-router-dom, useCart
+ */
 import { useMemo } from "react";
 import { Container, Row, Col, Table, Button, Alert, Card } from "react-bootstrap";
 import { productos } from "@domain/data";
 import { useCart } from "@domain/cart/cart.context";
 import { useNavigate, Link } from "react-router-dom";
 
+/**
+ * Renderiza la página del carrito con tabla y resumen
+ * @returns {JSX.Element} Contenido del carrito
+ */
 export default function CartPage() {
   const { items, change, remove, clear } = useCart();
   const navigate = useNavigate();
@@ -51,7 +81,7 @@ export default function CartPage() {
           <h2 className="mb-3">Carrito de compras</h2>
           <Card className="shadow-sm">
             <Card.Body className="p-0">
-              {/* Tabla con controles de cantidad y eliminación por ítem */}
+              // Tabla con controles de cantidad y eliminación por ítem
               <Table responsive hover className="mb-0 align-middle">
                 <thead className="table-light">
                   <tr>
@@ -98,7 +128,7 @@ export default function CartPage() {
           </Card>
         </Col>
 
-        {/* Resumen a la derecha con total y acciones principales */}
+        // Resumen a la derecha con total y acciones principales
         <Col lg={4} className="mt-4 mt-lg-0">
           <Card className="shadow-sm">
             <Card.Body>

@@ -1,3 +1,27 @@
+/**
+ * Nombre del componente: RegisterPage
+ * Propósito: Registro de usuarios con validaciones y autocompletado de dirección.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; persiste usuarios en localStorage.
+ *
+ * Métodos/funciones:
+ * - handleInputChange(e): normaliza entrada (teléfono numérico, resto texto).
+ * - handleSelectChange(e): actualiza `role`.
+ * - handleSubmit(e): valida campos, persiste usuario y redirige a login.
+ *
+ * Hooks utilizados:
+ * - useState: estado del formulario, dirección, validaciones y feedback.
+ * - useNavigate: redirección tras registro.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <RegisterPage />
+ * ```
+ */
 // src/components/pages/Auth/RegisterPage.tsx
 import { useState } from "react";
 import { Container, Row, Col, Form, Button, Card, Alert } from "react-bootstrap";

@@ -1,3 +1,29 @@
+/**
+ * Nombre del componente: AdminOrders
+ * Propósito: Administración de pedidos con filtros y edición de estado.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; carga pedidos desde localStorage con dataset por defecto.
+ *
+ * Métodos/funciones:
+ * - formatCLP(v: number): string — Formatea CLP sin decimales.
+ * - onEditEstado(idx): cambia estado de un pedido.
+ * - saveAll(): guarda pedidos en localStorage.
+ * - discard(): restaura últimos cambios.
+ *
+ * Hooks utilizados:
+ * - useEffect: carga inicial desde localStorage.
+ * - useState: manejo de filas y filtros.
+ * - useMemo: aplica filtros de texto y estado.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <AdminOrders />
+ * ```
+ */
 // Pedidos: tabla editable de estados, filtros por texto y estado, y boleta.
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";

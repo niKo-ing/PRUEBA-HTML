@@ -1,3 +1,8 @@
+/**
+ * Componente Hero - Sección destacada con video opcional
+ * Props: video, poster, title, subtitle, full; Estado: ninguno
+ * Dependencias: HTML5 video y estilos CSS de hero
+ */
 type Props = {
   video?: string;
   poster?: string;
@@ -6,6 +11,11 @@ type Props = {
   full?: boolean;
 };
 
+/**
+ * Renderiza sección hero con overlay y CTA a destacados
+ * @param {Props} props - Contenido, medios y modo full
+ * @returns {JSX.Element} Sección hero
+ */
 export default function Hero({
   video,
   poster,

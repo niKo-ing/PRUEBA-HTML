@@ -1,8 +1,39 @@
+/**
+ * Nombre del componente: HomePage
+ * Propósito: Portada con hero y grilla de productos destacados rotatorios.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props.
+ *
+ * Métodos/funciones:
+ * - No aplica; renderiza secciones y calcula destacados.
+ *
+ * Hooks utilizados:
+ * - useState: índice inicial de rotación.
+ * - useEffect: temporizador para rotar destacados.
+ * - useMemo: selecciona los elementos visibles.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <HomePage />
+ * ```
+ */
+/**
+ * Página HomePage - Portada con hero y destacados rotatorios
+ * Props: no recibe; Estado: startIndex (rotación); Dependencias: Hero, CatalogGrid, productos
+ */
 import Hero from "../../organisms/Hero/Hero";
 import CatalogGrid from "../../organisms/CatalogGrid/CatalogGrid";
 import { productos } from "@domain/data";
 import { useEffect, useMemo, useState } from "react";
 
+/**
+ * Renderiza portada con grilla de productos destacados
+ * @returns {JSX.Element} Secciones hero y destacados
+ */
 export default function HomePage() {
   const PAGE_SIZE = 4;
   const [startIndex, setStartIndex] = useState(0);

@@ -2,6 +2,13 @@
 
 Proyecto web construido con React + TypeScript + Vite. Incluye una arquitectura modular de componentes, dominio con utilidades y servicios, y un entorno de pruebas unitarias con Jasmine + Karma en JSDOM, usando webpack y ts-loader para compilar TypeScript en el entorno de test.
 
+## Documentación técnica
+- `src/domain/README.md`: guía de modelado de negocio y tipos.
+- `src/services/README.md`: flujos de servicios y llamadas externas.
+- `src/styles/README.md`: sistema de diseño y convenciones de estilos.
+- `src/tests/README.md`: estrategia de pruebas y ejecución.
+- `src/app/admin/ADMIN-GUARD.md`: protección y flujo de acceso administrativo.
+
 ## Requisitos e instalación
 - Requisitos: Node.js 18+ y npm.
 - Instalación: `npm install`.

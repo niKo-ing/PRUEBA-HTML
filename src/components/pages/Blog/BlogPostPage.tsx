@@ -1,3 +1,26 @@
+/**
+ * Nombre del componente: BlogPostPage
+ * Propósito: Renderizar el detalle de un artículo de blog según `slug` y mejorar SEO.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; usa parámetro de ruta `slug`.
+ *
+ * Métodos/funciones:
+ * - Ninguno propio; actualiza `document.title` y meta tags.
+ *
+ * Hooks utilizados:
+ * - useParams: leer `slug`.
+ * - useNavigate: navegación a listados y atrás.
+ * - useEffect: setear título y meta/OG tags cuando `post` existe.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <Route path="/blog/:slug" element={<BlogPostPage />} />
+ * ```
+ */
 import { Container, Row, Col, Badge, Button } from "react-bootstrap";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { blogPosts } from "./blogData";

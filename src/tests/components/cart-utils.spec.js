@@ -1,4 +1,4 @@
-import { CartItem } from '../../domain/types';
+// Este spec es puro JS para Jasmine CLI; no importa tipos TS.
 describe('Cart Utilities', () => {
     let mockCartItems;
     beforeEach(() => {

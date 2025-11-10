@@ -1,6 +1,28 @@
-// Utilidades del carrito para pruebas y lógica básica.
-// Estas funciones aceptan items con campos en inglés o en español.
-// Normalización: precio/price y cantidad/quantity se interpretan de forma equivalente.
+/**
+ * Utilidades del carrito para pruebas y lógica de dominio.
+ *
+ * Propósito
+ * - Proveer funciones puras para operar sobre estructuras tipo carrito sin dependencias de UI.
+ * - Acepta campos bilingües: `precio|price` y `cantidad|quantity`, normalizados internamente.
+ *
+ * Tipos
+ * - `CartLike`: estructura mínima con `id` y opcionales bilingües para nombre, precio y cantidad.
+ *
+ * API
+ * - `calculateCartTotal(items)`: total del carrito en base a precio*cantidad.
+ * - `calculateItemSubtotal(item)`: subtotal por ítem.
+ * - `getCartItemCount(items)`: suma de cantidades.
+ * - `addItemToCart(items, newItem)`: añade o acumula cantidad del ítem existente.
+ * - `updateCartItemQuantity(items, id, newQty)`: fija nueva cantidad respetando la propiedad presente.
+ * - `removeItemFromCart(items, id)`: elimina ítem por id.
+ * - `findItemInCart(items, id)`: busca y retorna ítem.
+ * - `validateQuantity(q)`, `validatePrice(p)`: validaciones básicas.
+ * - `serializeCart(items)`, `deserializeCart(json)`: conversión segura a/desde JSON.
+ *
+ * Consideraciones de TypeScript
+ * - Evita asignar `undefined` a opcionales por `exactOptionalPropertyTypes`.
+ * - Usa guardas al acceder por índice debido a `noUncheckedIndexedAccess`.
+ */
 
 export type CartLike = {
   id: number;

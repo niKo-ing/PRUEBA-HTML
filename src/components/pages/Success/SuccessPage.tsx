@@ -1,3 +1,26 @@
+/**
+ * Nombre del componente: SuccessPage
+ * Propósito: Mostrar confirmación de compra, próximos pasos y redirección automática a Home.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; opcionalmente lee `orderNumber` desde params.
+ *
+ * Métodos/funciones:
+ * - No define métodos; usa estado para countdown.
+ *
+ * Hooks utilizados:
+ * - useParams: obtener `orderNumber`.
+ * - useState: manejar conteo regresivo.
+ * - useEffect: interval para countdown y redirección al terminar.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <Route path="/compra-exitosa" element={<SuccessPage />} />
+ * ```
+ */
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 

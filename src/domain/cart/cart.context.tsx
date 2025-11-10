@@ -129,3 +129,23 @@ export const useCart = () => {
   if (!ctx) throw new Error("useCart must be used within CartProvider");
   return ctx;
 };
+/**
+ * Contexto global del carrito de compras.
+ *
+ * Propósito
+ * - Centraliza el estado del carrito (lista de items) y las acciones para modificarlo.
+ * - Persiste en localStorage y sincroniza entre pestañas mediante el evento `storage`.
+ * - Expone derivados `count` y `total` calculados a partir de `productos` del dominio.
+ *
+ * Entidades y Tipos
+ * - `CartItem`: { id: number, qty: number } proveniente de `src/domain/types.ts`.
+ * - `Ctx`: interfaz interna del contexto con items y acciones (`add`, `change`, `remove`, `clear`).
+ *
+ * Uso
+ * - Envolver la app con `<CartProvider>` y consumir con `const { items, add } = useCart()`.
+ * - Lanza error si `useCart` se usa fuera de `<CartProvider>` para reforzar el contrato.
+ *
+ * Seguridad y rendimiento
+ * - Lectura/escritura segura en localStorage (try/catch, validación de forma).
+ * - `useMemo` para derivados y `useCallback` para acciones evita renders innecesarios.
+ */

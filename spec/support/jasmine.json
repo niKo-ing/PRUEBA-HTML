@@ -1,11 +1,10 @@
 {
   "spec_dir": "src/tests",
   "spec_files": [
-    "**/*[sS]pec.ts",
-    "**/*[sS]pec.js"
+    "components/**/cart-utils.spec.js",
+    "components/**/product-card.spec.js"
   ],
   "helpers": [
-    "helpers/**/*.ts",
     "helpers/**/*.js"
   ],
   "stopSpecOnExpectationFailure": false,

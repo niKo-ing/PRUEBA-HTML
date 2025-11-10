@@ -1,8 +1,4 @@
-/**
- * Componente RelatedProducts - Lista de productos relacionados por categoría
- * Props: categoria (string|string[]), excludeId (number), max (number opcional)
- * Dependencias: react-bootstrap Card, react-router-dom Link, productos, useCart
- */
+// Muestra productos relacionados por categoría, con acciones de ver y añadir.
 import { Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { productos } from "@domain/data";
@@ -11,12 +7,6 @@ import { useCart } from "@domain/cart/cart.context";
 type Categoria = string | string[];
 type Props = { categoria: Categoria; excludeId: number; max?: number; };
 
-/**
- * Verifica si dos categorías comparten algún elemento
- * @param {Categoria} pCat - Categoría del producto
- * @param {Categoria} target - Categoría objetivo
- * @returns {boolean} True si hay coincidencia
- */
 function matchCategoria(pCat: Categoria, target: Categoria) {
   const toArr = (c: Categoria) => (Array.isArray(c) ? c : [c]);
   const a = toArr(pCat);
@@ -24,11 +14,6 @@ function matchCategoria(pCat: Categoria, target: Categoria) {
   return a.some(x => b.includes(x));
 }
 
-/**
- * Renderiza sección con tarjetas de productos relacionados
- * @param {Props} props - Filtros y máximo de elementos
- * @returns {JSX.Element|null} Sección o null si no hay relacionados
- */
 export default function RelatedProducts({ categoria, excludeId, max = 4 }: Props) {
   const { add } = useCart();
 
@@ -61,7 +46,7 @@ export default function RelatedProducts({ categoria, excludeId, max = 4 }: Props
                   </Link>
                   <button
                     className="btn btn-warning btn-sm"
-                    onClick={() => add(p.id, 1)}   // Agrega desde relacionados
+                    onClick={() => add(p.id, 1)}   // 👈 agrega desde relacionados
                   >
                     Añadir
                   </button>

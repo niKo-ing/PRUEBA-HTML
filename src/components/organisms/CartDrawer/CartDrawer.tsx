@@ -1,18 +1,8 @@
-/**
- * Componente CartDrawer - Panel lateral del carrito
- * Props: { show: boolean, onHide: () => void }; Estado: sin estado propio
- * Dependencias: react-bootstrap Offcanvas; contexto de carrito useCart; datos productos
- */
+// CartDrawer: panel lateral que muestra el contenido del carrito
 import { Offcanvas } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 import { useCart } from "@domain/cart/useCart";
 import { productos } from "@domain/data";
 
-/**
- * Formatea número a CLP sin decimales
- * @param {number | undefined} v - Valor numérico
- * @returns {string} Texto con formato de moneda CLP
- */
 function formatCLP(v: number | undefined) {
   return (Number(v) || 0).toLocaleString("es-CL", {
     style: "currency",
@@ -23,15 +13,9 @@ function formatCLP(v: number | undefined) {
 
 type Props = { show: boolean; onHide: () => void };
 
-/**
- * Muestra items del carrito con controles de cantidad y acciones
- * @param {{ show: boolean, onHide: () => void }} props - Control de visibilidad
- * @returns {JSX.Element} Panel Offcanvas con contenido de carrito
- */
 export default function CartDrawer({ show, onHide }: Props) {
   // El contexto del carrito expone: items, change, remove, clear, total, count
   const { items = [], total = 0, change, remove, clear } = useCart();
-  const navigate = useNavigate();
 
   return (
     <Offcanvas placement="end" show={show} onHide={onHide} backdrop scroll>
@@ -70,7 +54,7 @@ export default function CartDrawer({ show, onHide }: Props) {
                       <div className="text-body-secondary small">{formatCLP(precio)}</div>
 
                       <div className="d-flex align-items-center gap-2 mt-2">
-                        // Botones para ajustar cantidad; si llega a 0 se elimina
+                        {/* Botones para ajustar cantidad, con eliminación si llega a 0 */}
                         <button
                           type="button"
                           className="btn btn-outline-secondary btn-sm"
@@ -108,19 +92,14 @@ export default function CartDrawer({ show, onHide }: Props) {
               })}
             </ul>
 
-            // Total del carrito y acciones principales
+            {/* Total del carrito y acciones principales */}
             <div className="d-flex justify-content-between border-top pt-3">
               <div className="fw-semibold">Total</div>
               <div className="fs-5 fw-bold">{formatCLP(total)}</div>
             </div>
 
             <div className="d-grid gap-2 mt-3">
-              <button
-                className="btn btn-warning btn-lg"
-                onClick={() => { onHide(); navigate("/checkout"); }}
-                aria-label="Pagar"
-                disabled={items.length === 0 || total <= 0}
-              >
+              <button className="btn btn-warning btn-lg">
                 <i className="bi bi-credit-card me-2" />
                 Pagar
               </button>

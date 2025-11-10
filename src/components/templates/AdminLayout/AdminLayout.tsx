@@ -23,7 +23,7 @@
  * <Route path="/admin" element={<AdminLayout />}>
  *   <Route index element={<AdminDashboard />} />
  *   <Route path="products" element={<AdminProducts />} />
- *   {/* ...otras rutas */}
+ *   // ...otras rutas
  * </Route>
  * ```
  */
@@ -44,7 +44,7 @@ export default function AdminLayout() {
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.end}
+              end={item.end === true}
               className={({ isActive }) => `admin-link${isActive ? " active" : ""}`}
             >
               {item.label}

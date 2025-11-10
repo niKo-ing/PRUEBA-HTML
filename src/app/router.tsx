@@ -5,8 +5,8 @@ import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import MainLayout from "@templates/MainLayout/MainLayout";
 import ErrorBoundary from "./error-boundary";
 import RequireAdmin from "@app/admin/require-admin";
-import AdminShell from "@templates/AdminLayout/AdminLayout";
-import { ADMIN_SEGMENTS } from "@templates/AdminLayout/menu.config";
+import AdminShell from "@templates/AdminLayout";
+import { ADMIN_SEGMENTS } from "@templates/AdminLayout";
 const CategoriesPage = lazy(() => import("@pages/Categories/CategoriesPage"));
 
 const HomePage     = lazy(() => import("@pages/Home/HomePage"));

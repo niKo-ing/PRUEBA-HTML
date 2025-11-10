@@ -1,8 +1,4 @@
-/**
- * Componente AddressAutocomplete - Entrada con autocompletado de direcciones
- * Props: label, placeholder, required, value, onTextChange, onAddressSelected, error, isInvalid, isValid
- * Dependencias: @react-google-maps/api, GMAPS_LOADER_OPTIONS; Estado: ready (cargado)
- */
+// src/components/molecules/AddressAutocomplete/AddressAutocomplete.tsx
 import { useRef, useEffect, useState } from "react";
 import { Form, Spinner } from "react-bootstrap";
 import { useJsApiLoader } from "@react-google-maps/api";
@@ -34,11 +30,6 @@ type Props = {
   isValid?: boolean;
 };
 
-/**
- * Renderiza input con autocompletado; emite dirección parseada
- * @param {Props} props - Texto y callbacks de cambios/selección
- * @returns {JSX.Element} Grupo de formulario con input y spinner
- */
 export default function AddressAutocomplete({
   label = "Dirección",
   placeholder = "Ej: Av. Apoquindo 1234, Las Condes",
@@ -53,20 +44,18 @@ export default function AddressAutocomplete({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [ready, setReady] = useState(false);
 
-  // Usa siempre el mismo objeto de loader para evitar recargas
+  // 👇 SIEMPRE el mismo objeto de loader
   const { isLoaded, loadError } = useJsApiLoader(GMAPS_LOADER_OPTIONS);
 
   useEffect(() => {
     if (!isLoaded || !inputRef.current || ready) return;
 
     const input = inputRef.current!;
-    // Inicializa Autocomplete restringido a Chile
     const autocomplete = new google.maps.places.Autocomplete(input, {
       fields: ["address_components", "geometry", "formatted_address", "place_id"],
       componentRestrictions: { country: ["cl"] },
     });
 
-    // Captura cambio de lugar, parsea y notifica
     autocomplete.addListener("place_changed", () => {
       const place = autocomplete.getPlace();
       if (!place || !place.address_components) return;
@@ -109,11 +98,6 @@ export default function AddressAutocomplete({
   );
 }
 
-/**
- * Convierte PlaceResult en objeto ParsedAddress
- * @param {google.maps.places.PlaceResult} place - Resultado de Google Places
- * @returns {ParsedAddress} Dirección normalizada con lat/lng y placeId
- */
 function parseAddress(place: google.maps.places.PlaceResult): ParsedAddress {
   const comps = place.address_components ?? [];
   const get = (type: string) => comps.find((c) => c.types.includes(type))?.long_name;

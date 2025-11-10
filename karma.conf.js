@@ -79,13 +79,11 @@ export default function(config) {
       failFast: false
     },
 
-    // Coverage reporter configuration
+    // Coverage reporter configuration (forzar carpeta 'jsdom')
     coverageReporter: {
       type: 'html',
       dir: 'coverage/',
-      subdir: function(browser) {
-        return browser.toLowerCase().split(/[ /-]/)[0];
-      }
+      subdir: 'jsdom'
     },
 
     // Web server port

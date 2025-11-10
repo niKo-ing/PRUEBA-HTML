@@ -16,6 +16,21 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Path aliases (alineados con vite.config.ts) */
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"],
+      "@atoms/*": ["components/atoms/*"],
+      "@molecules/*": ["components/molecules/*"],
+      "@organisms/*": ["components/organisms/*"],
+      "@templates/*": ["components/templates/*"],
+      "@pages/*": ["components/pages/*"],
+      "@domain/*": ["domain/*"],
+      "@app": ["app/index.ts"],
+      "@app/*": ["app/*"],
+      "@assets/*": ["assets/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

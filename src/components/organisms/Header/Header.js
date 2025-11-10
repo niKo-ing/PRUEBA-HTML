@@ -1,10 +1,12 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+// Header: navegación principal, estado de sesión y acceso al carrito.
 import { Navbar, Container, Nav, Badge } from "react-bootstrap";
 import { Link, NavLink } from "react-router-dom";
 import { useCart } from "@domain/cart/useCart";
 import { useCartUI } from "@app/cart-ui.context";
 import { useAuth } from "@domain/auth/auth.context";
 export default function Header() {
+    // count = cantidad de ítems; open = abre el drawer del carrito
     const { count } = useCart();
     const { open } = useCartUI();
     const { user, logout } = useAuth();

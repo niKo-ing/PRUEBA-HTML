@@ -28,13 +28,16 @@
 // Página de Checkout: valida el formulario, procesa el pago (mock)
 // y guarda una orden detallada en localStorage para que el admin
 // pueda ver e imprimir la boleta.
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '@domain/cart/cart.context';
 import { productos } from '@domain/data';
 import type { CartItem } from '@domain/types';
 import { useAuth } from '../../../domain/auth/auth.context';
 import { createPaymentGateway, formatCardNumber, formatExpiryDate, detectCardType } from '../../../services/payment.service';
+import AddressAutocomplete from '@molecules/AddressAutocomplete/AddressAutocomplete';
+import type { ParsedAddress } from '@molecules/AddressAutocomplete/AddressAutocomplete';
+import MapPreview from '@molecules/AddressAutocomplete/MapPreview';
 
 interface CheckoutForm {
   email: string;
@@ -53,9 +56,13 @@ interface CheckoutForm {
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { items, total, clear } = useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  // Evita redirección al carrito mientras se está procesando el pago
+  const isProcessingRef = useRef(false);
+  const [direccionParsed, setDireccionParsed] = useState<ParsedAddress | null>(null);
   const [formData, setFormData] = useState<CheckoutForm>({
     email: user?.email || '',
     firstName: user?.nombre || '',
@@ -71,14 +78,16 @@ const CheckoutPage: React.FC = () => {
     cvv: ''
   });
 
-  const [errors, setErrors] = useState<Partial<CheckoutForm>>({});
+  // Mapa de errores por campo: mensaje de error por cada clave del formulario
+  const [errors, setErrors] = useState<Partial<Record<keyof CheckoutForm, string>>>({});
 
   useEffect(() => {
-    // Si el carrito está vacío, redirigimos al usuario al carrito
-    if (items.length === 0) {
+    // Si el carrito está vacío y NO estamos procesando pago, redirigimos al carrito
+    // Solo aplica cuando estamos en la página de checkout para evitar redirecciones indeseadas
+    if (!isProcessingRef.current && items.length === 0 && location.pathname === '/checkout') {
       navigate('/carrito');
     }
-  }, [items, navigate]);
+  }, [items, navigate, location.pathname]);
 
   // Valida campos indispensables y también la tarjeta usando el "gateway" mock
   const validateForm = (): boolean => {
@@ -87,9 +96,20 @@ const CheckoutPage: React.FC = () => {
     if (!formData.email) newErrors.email = 'Email es requerido';
     if (!formData.firstName) newErrors.firstName = 'Nombre es requerido';
     if (!formData.lastName) newErrors.lastName = 'Apellido es requerido';
-    if (!formData.address) newErrors.address = 'Dirección es requerida';
+    // Dirección: exigir selección desde Google Autocomplete con placeId y lat/lng
+    if (!formData.address) {
+      newErrors.address = 'Dirección es requerida';
+    } else if (!direccionParsed?.placeId || typeof direccionParsed?.lat !== 'number' || typeof direccionParsed?.lng !== 'number') {
+      newErrors.address = 'Selecciona una dirección de la lista (Google)';
+    }
     if (!formData.city) newErrors.city = 'Ciudad es requerida';
     if (!formData.phone) newErrors.phone = 'Teléfono es requerido';
+
+    // Código postal: exactamente 7 dígitos numéricos (Chile)
+    const postalDigits = (formData.postalCode || '').replace(/\D/g, '');
+    if (!postalDigits || !/^\d{7}$/.test(postalDigits)) {
+      newErrors.postalCode = 'Código postal debe tener 7 dígitos';
+    }
     
     // Validar número de tarjeta usando el servicio
     if (!formData.cardNumber) {
@@ -135,6 +155,7 @@ const CheckoutPage: React.FC = () => {
     
     if (!validateForm()) return;
 
+    isProcessingRef.current = true;
     setLoading(true);
 
     try {
@@ -203,20 +224,24 @@ const CheckoutPage: React.FC = () => {
           localStorage.setItem('admin_orders', JSON.stringify([order, ...arr]));
         } catch {}
 
-        // Limpia el carrito tras compra exitosa
-        clear();
-
-        // Redirige a pantalla de compra exitosa con el id de la orden
+        // Navega a éxito primero y luego limpia el carrito para evitar
+        // que el efecto de carrito vacío redirija de vuelta al carrito.
         navigate(`/compra-exitosa?order=${orderNumber}`);
+        clear();
       } else {
         // Redirige a pantalla de error con información del gateway
         navigate(`/error-compra?error=${paymentResponse.errorCode}&message=${encodeURIComponent(paymentResponse.message)}`);
+        // Permite reintentar pago si seguimos en checkout
+        isProcessingRef.current = false;
       }
     } catch (error) {
       console.error('Payment processing error:', error);
       navigate('/error-compra?error=PROCESSING_ERROR&message=Error al procesar el pago');
+      // Permite reintentar pago si seguimos en checkout
+      isProcessingRef.current = false;
     } finally {
       setLoading(false);
+      // No liberar isProcessing aquí para evitar carreras antes de desmontar en éxito
     }
   };
 
@@ -226,7 +251,23 @@ const CheckoutPage: React.FC = () => {
     
     // Limpiar error del campo
     if (errors[name as keyof CheckoutForm]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[name as keyof CheckoutForm];
+        return next;
+      });
+    }
+  };
+
+  // Restringe código postal a solo números y máximo 7 dígitos
+  const handlePostalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 7);
+    setFormData(prev => ({ ...prev, postalCode: digits }));
+    if (errors.postalCode) {
+      setErrors(prev => {
+        const { postalCode, ...rest } = prev;
+        return rest;
+      });
     }
   };
 
@@ -319,17 +360,45 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="address" className="form-label">Dirección</label>
-                  <input
-                    type="text"
-                    className={`form-control ${errors.address ? 'is-invalid' : ''}`}
-                    id="address"
-                    name="address"
+                  <AddressAutocomplete
+                    label="Dirección"
                     value={formData.address}
-                    onChange={handleInputChange}
-                    required
+                    onTextChange={(v) => {
+                      setFormData(prev => ({ ...prev, address: v }));
+                      if (errors.address) {
+                        setErrors(prev => {
+                          const { address, ...rest } = prev;
+                          return rest;
+                        });
+                      }
+                    }}
+                    onAddressSelected={(addr) => {
+                      setDireccionParsed(addr);
+                      const postalDigits = (addr.postalCode || '').replace(/\D/g, '').slice(0, 7);
+                      setFormData(prev => ({
+                        ...prev,
+                        address: addr.fullText || prev.address,
+                        city: addr.comuna || addr.city || prev.city,
+                        region: addr.region || prev.region,
+                        postalCode: postalDigits || prev.postalCode,
+                      }));
+                    }}
+                    error={errors.address ?? null}
+                    isInvalid={!!errors.address}
+                    isValid={!!direccionParsed?.placeId && typeof direccionParsed?.lat === 'number' && typeof direccionParsed?.lng === 'number'}
                   />
-                  {errors.address && <div className="invalid-feedback">{errors.address}</div>}
+                  <div className="mt-2">
+                    {typeof direccionParsed?.lat === 'number' && typeof direccionParsed?.lng === 'number' ? (
+                      <MapPreview lat={direccionParsed.lat} lng={direccionParsed.lng} />
+                    ) : (
+                      <div
+                        className="bg-light rounded-4 d-flex align-items-center justify-content-center"
+                        style={{ height: 180 }}
+                      >
+                        <small className="text-body-secondary">Escribe y selecciona una dirección para ver el mapa…</small>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="row">
                   <div className="col-md-4 mb-3">
@@ -360,12 +429,16 @@ const CheckoutPage: React.FC = () => {
                     <label htmlFor="postalCode" className="form-label">Código Postal</label>
                     <input
                       type="text"
-                      className="form-control"
+                      className={`form-control ${errors.postalCode ? 'is-invalid' : ''}`}
                       id="postalCode"
                       name="postalCode"
                       value={formData.postalCode}
-                      onChange={handleInputChange}
+                      onChange={handlePostalChange}
+                      inputMode="numeric"
+                      maxLength={7}
+                      required
                     />
+                    {errors.postalCode && <div className="invalid-feedback">{errors.postalCode}</div>}
                   </div>
                 </div>
               </div>
@@ -439,7 +512,11 @@ const CheckoutPage: React.FC = () => {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-lg w-100" disabled={loading}>
+            <button
+              type="submit"
+              className="btn btn-primary btn-lg w-100"
+              disabled={loading || isProcessingRef.current}
+            >
               {loading ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>

@@ -1,4 +1,5 @@
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
+// Página de categorías: lista todas las categorías y permite filtrar productos.
 import { useMemo } from "react";
 import { Container, Row, Col, Card, Badge } from "react-bootstrap";
 import { Link, useSearchParams } from "react-router-dom";
@@ -7,9 +8,11 @@ const toArr = (c) => (Array.isArray(c) ? c : [c]);
 export default function CategoriesPage() {
     const [params, setParams] = useSearchParams();
     const cat = params.get("cat") ?? "";
+    // Todas las categorías únicas presentes en el catálogo
     const ALL = useMemo(() => {
         return Array.from(new Set(productos.flatMap(p => toArr(p.categoria)))).sort();
     }, []);
+    // Filtra por categoría seleccionada (query param "cat")
     const filtered = useMemo(() => {
         if (!cat)
             return productos;

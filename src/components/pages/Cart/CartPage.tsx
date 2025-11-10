@@ -139,7 +139,15 @@ export default function CartPage() {
                 </div>
               </div>
               <div className="d-grid gap-2 mt-3">
-                <Button variant="warning" onClick={() => navigate("/checkout")}>Ir a Checkout</Button>
+                <Button
+                  variant="warning"
+                  className="btn-lg"
+                  onClick={() => navigate("/checkout")}
+                  aria-label="Pagar"
+                >
+                  <i className="bi bi-credit-card me-2" />
+                  Pagar
+                </Button>
                 <Button variant="outline-secondary" onClick={() => clear()}>Vaciar carrito</Button>
               </div>
             </Card.Body>

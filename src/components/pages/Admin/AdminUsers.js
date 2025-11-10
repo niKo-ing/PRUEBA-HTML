@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// Usuarios: administración básica con búsqueda, edición inline y autocompletado de dirección.
 import { useEffect, useMemo, useState } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";
 import AddressAutocomplete from "@molecules/AddressAutocomplete/AddressAutocomplete";
@@ -16,6 +17,7 @@ export default function AdminUsers() {
             return !ql || base.includes(ql);
         });
     }, [rows, q]);
+    // Carga usuarios desde localStorage y sincroniza textos de dirección
     useEffect(() => {
         try {
             const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
@@ -42,6 +44,7 @@ export default function AdminUsers() {
         const val = e.target.value;
         setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, [key]: sv(val) } : r)));
     };
+    // Agrega un usuario nuevo con valores por defecto
     const addUser = () => {
         const newUser = {
             nombre: "",
@@ -82,6 +85,7 @@ export default function AdminUsers() {
     const isAddressValid = (user) => {
         return !!user.direccion?.placeId && typeof user.direccion?.lat === "number" && typeof user.direccion?.lng === "number";
     };
+    // Persistencia mock a localStorage
     const saveAll = () => {
         localStorage.setItem("usuarios", JSON.stringify(rows));
         alert("Usuarios guardados (localStorage)");

@@ -1,6 +1,9 @@
 import { jsx as _jsx } from "react/jsx-runtime";
+// Protección de rutas de administración.
+// Si el usuario no es admin (según localStorage), redirige al Home.
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 function isAdmin() {
+    // Lee un flag simple desde localStorage. En producción usarías auth real.
     try {
         return localStorage.getItem("isAdmin") === "1";
     }
@@ -11,7 +14,9 @@ function isAdmin() {
 export default function RequireAdmin() {
     const loc = useLocation();
     if (!isAdmin()) {
+        // Redirige a la página principal y guarda desde dónde venía el usuario
         return _jsx(Navigate, { to: "/", replace: true, state: { from: loc } });
     }
+    // Si es admin, renderiza las rutas hijas del panel
     return _jsx(Outlet, {});
 }

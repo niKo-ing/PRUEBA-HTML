@@ -4,7 +4,7 @@
     "target": "ES2022",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "types": ["google.maps", "jasmine"],
 
@@ -21,6 +21,7 @@
 
     "baseUrl": "src",
     "paths": {
+    "@/*": ["*"],
     "@atoms/*": ["components/atoms/*"],
     "@molecules/*": ["components/molecules/*"],
     "@organisms/*": ["components/organisms/*"],
@@ -28,14 +29,16 @@
     "@pages/*": ["components/pages/*"],
     "@domain/*": ["domain/*"],
     "@app": ["app/index.ts"],         
-    "@app/*": ["app/*"]               
+    "@app/*": ["app/*"],
+    "@assets/*": ["assets/*"]               
 }
   },
 
 
   "include": [
     "src",
-    "vite-env.d.ts"
+    "vite-env.d.ts",
+    "types/**/*.d.ts"
   ],
 
 

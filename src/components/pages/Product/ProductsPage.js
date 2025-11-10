@@ -1,4 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+// Listado de productos: permite buscar, filtrar, ordenar y paginar.
+// Cada tarjeta muestra info básica y acciones para ver/añadir al carrito.
 import { useMemo, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Container, Row, Col, Form, InputGroup, Button, Card, Badge, Pagination } from "react-bootstrap";

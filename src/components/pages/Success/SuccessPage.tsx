@@ -1,52 +1,23 @@
-/**
- * Nombre del componente: SuccessPage
- * Propósito: Mostrar confirmación de compra, próximos pasos y redirección automática a Home.
- * Autor: Equipo Todobaratisimo
- * Fecha de creación: 2025-11-10
- * Última modificación: 2025-11-10
- *
- * Props:
- * - No recibe props; opcionalmente lee `orderNumber` desde params.
- *
- * Métodos/funciones:
- * - No define métodos; usa estado para countdown.
- *
- * Hooks utilizados:
- * - useParams: obtener `orderNumber`.
- * - useState: manejar conteo regresivo.
- * - useEffect: interval para countdown y redirección al terminar.
- *
- * Ejemplo de uso:
- * ```tsx
- * <Route path="/compra-exitosa" element={<SuccessPage />} />
- * ```
- */
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { formatCLP } from '@domain/format';
 
 const SuccessPage: React.FC = () => {
-  const { orderNumber } = useParams<{ orderNumber: string }>();
-  const [countdown, setCountdown] = useState(10);
+  const location = useLocation();
+  const queryOrder = (() => {
+    try {
+      const params = new URLSearchParams(location.search);
+      return params.get('order');
+    } catch { return null; }
+  })();
+  const lastOrder = useMemo<any | null>(() => {
+    try {
+      const arr = JSON.parse(localStorage.getItem('admin_orders') || '[]');
+      const list = Array.isArray(arr) ? arr : [];
+      return queryOrder ? list.find((o: any) => o.id === queryOrder) || null : list[0] || null;
+    } catch { return null; }
+  }, [location.search]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (countdown === 0) {
-      window.location.href = '/';
-    }
-  }, [countdown]);
 
   return (
     <div className="container py-5">
@@ -80,7 +51,7 @@ const SuccessPage: React.FC = () => {
               <div className="bg-light rounded p-4 mb-4">
                 <div className="row text-center">
                   <div className="col-md-4 mb-3 mb-md-0">
-                    <div className="fs-2 fw-bold text-primary">{orderNumber}</div>
+                    <div className="fs-2 fw-bold text-primary">{lastOrder?.id ?? '—'}</div>
                     <div className="text-muted">Número de Orden</div>
                   </div>
                   <div className="col-md-4 mb-3 mb-md-0">
@@ -90,6 +61,69 @@ const SuccessPage: React.FC = () => {
                   <div className="col-md-4">
                     <div className="fs-2 fw-bold text-primary">Gratis</div>
                     <div className="text-muted">Envío</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Resumen profesional de la orden */}
+              <div className="row g-4 align-items-start mb-4">
+                <div className="col-md-7">
+                  <div className="card border-0 shadow-sm">
+                    <div className="card-header bg-white border-0">
+                      <h5 className="mb-0">Resumen de tu Orden</h5>
+                    </div>
+                    <div className="card-body p-0">
+                      <table className="table mb-0">
+                        <thead>
+                          <tr>
+                            <th>Producto</th>
+                            <th className="text-center">Cant.</th>
+                            <th className="text-end">Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(lastOrder?.detalles ?? []).map((it: any, idx: number) => (
+                            <tr key={idx}>
+                              <td>{it.nombre}</td>
+                              <td className="text-center">{it.qty}</td>
+                              <td className="text-end">{formatCLP(it.total)}</td>
+                            </tr>
+                          ))}
+                          {(!lastOrder || (lastOrder?.detalles ?? []).length === 0) && (
+                            <tr>
+                              <td colSpan={3} className="text-center text-muted py-4">No hay detalles disponibles</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-md-5">
+                  <div className="card border-0 shadow-sm">
+                    <div className="card-header bg-white border-0">
+                      <h5 className="mb-0">Totales</h5>
+                    </div>
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <strong>{formatCLP(lastOrder?.subtotal ?? 0)}</strong>
+                      </div>
+                      <div className="d-flex justify-content-between mb-2">
+                        <span>Envío</span>
+                        <strong>{formatCLP(lastOrder?.shipping ?? 3990)}</strong>
+                      </div>
+                      <div className="d-flex justify-content-between mb-3">
+                        <span>IVA (19%)</span>
+                        <strong>{formatCLP(lastOrder?.iva ?? Math.round((lastOrder?.subtotal ?? 0) * 0.19))}</strong>
+                      </div>
+                      <hr />
+                      <div className="d-flex justify-content-between">
+                        <span>Total</span>
+                        <strong className="text-success fs-5">{formatCLP(lastOrder?.total ?? ((lastOrder?.subtotal ?? 0) + (lastOrder?.shipping ?? 3990) + (lastOrder?.iva ?? Math.round((lastOrder?.subtotal ?? 0) * 0.19))))}</strong>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -162,18 +196,12 @@ const SuccessPage: React.FC = () => {
               </div>
 
               <div className="d-flex flex-column flex-md-row gap-3 justify-content-center">
-                <Link to="/" className="btn btn-primary btn-lg">
-                  Volver al Inicio
+                <Link to="/productos" className="btn btn-outline-primary btn-lg">
+                  Continuar Comprando
                 </Link>
-                <Link to="/products" className="btn btn-outline-primary btn-lg">
-                  Seguir Comprando
+                <Link to="/contacto" className="btn btn-primary btn-lg">
+                  Necesito ayuda
                 </Link>
-              </div>
-
-              <div className="mt-4 text-muted">
-                <small>
-                  Redirigiendo a la página de inicio en {countdown} segundos...
-                </small>
               </div>
             </div>
           </div>

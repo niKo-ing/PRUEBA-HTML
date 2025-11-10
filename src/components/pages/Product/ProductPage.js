@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// Página de detalle de producto: muestra galería, información y acciones.
 import { useParams, Navigate } from "react-router-dom";
 import { productos } from "@domain/data";
 import ProductGallery from "@organisms/ProductGallery/ProductGallery";

@@ -1,7 +1,8 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// Galería de producto: permite elegir miniatura y hace zoom en desktop.
 import { useEffect, useRef, useState } from "react";
 export default function ProductGallery({ images = [], cover, alt }) {
-    // 1) Asegura array válido y sin duplicados (si solo hay cover, igual habrá 1 thumb)
+    // Asegura array válido y sin duplicados (si solo hay cover, igual habrá 1 thumb)
     const allImgs = Array.from(new Set([cover, ...(images ?? [])].filter(Boolean)));
     const [current, setCurrent] = useState(allImgs[0]);
     const [zooming, setZooming] = useState(false);

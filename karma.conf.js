@@ -1,3 +1,5 @@
+import path from 'path';
+
 export default function(config) {
   config.set({
     // Base path that will be used to resolve all patterns (eg. files, exclude)
@@ -29,7 +31,19 @@ export default function(config) {
     webpack: {
       mode: 'development',
       resolve: {
-        extensions: ['.ts', '.tsx', '.js', '.jsx']
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
+        // Alinear resolución de paths con tsconfig y Vite
+        alias: {
+          '@': path.resolve('src'),
+          '@atoms': path.resolve('src/components/atoms'),
+          '@molecules': path.resolve('src/components/molecules'),
+          '@organisms': path.resolve('src/components/organisms'),
+          '@templates': path.resolve('src/components/templates'),
+          '@pages': path.resolve('src/components/pages'),
+          '@domain': path.resolve('src/domain'),
+          '@app': path.resolve('src/app/index.ts'),
+          '@assets': path.resolve('src/assets')
+        }
       },
       module: {
         rules: [

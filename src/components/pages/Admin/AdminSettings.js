@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// Ajustes: configuración básica del sitio con persistencia en localStorage.
 import { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 const defaults = {
@@ -11,6 +12,7 @@ const defaults = {
 };
 export default function AdminSettings() {
     const [cfg, setCfg] = useState(defaults);
+    // Carga inicial desde localStorage si existe
     useEffect(() => {
         try {
             const saved = JSON.parse(localStorage.getItem("admin_settings") || "null");
@@ -19,6 +21,7 @@ export default function AdminSettings() {
         }
         catch { }
     }, []);
+    // Helper genérico para vincular inputs al estado según tipo
     const bind = (key) => (e) => {
         const target = e.target;
         const val = target.type === "checkbox"
@@ -28,10 +31,12 @@ export default function AdminSettings() {
                 : target.value;
         setCfg((prev) => ({ ...prev, [key]: val }));
     };
+    // Persistencia mock en localStorage
     const save = () => {
         localStorage.setItem("admin_settings", JSON.stringify(cfg));
         alert("Ajustes guardados (localStorage)");
     };
+    // Recupera última versión guardada o defaults
     const discard = () => {
         try {
             const saved = JSON.parse(localStorage.getItem("admin_settings") || "null");

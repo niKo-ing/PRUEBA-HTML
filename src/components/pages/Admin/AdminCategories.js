@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// Categorías: deriva categorías iniciales del catálogo, permite CRUD básico y guarda en localStorage.
 import { useMemo, useState } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";
 import { productos } from "@domain/data";
@@ -9,6 +10,7 @@ export default function AdminCategories() {
             const cats = Array.isArray(p.categoria) ? p.categoria : [p.categoria];
             cats.filter(Boolean).forEach(c => set.add(String(c)));
         });
+        // Mezcla categorías existentes con las guardadas previamente
         const saved = (() => {
             try {
                 return JSON.parse(localStorage.getItem("admin_categories") || "null") || [];
@@ -22,10 +24,12 @@ export default function AdminCategories() {
     }, []);
     const [rows, setRows] = useState(initial);
     const [q, setQ] = useState("");
+    // Búsqueda simple por nombre
     const filtered = useMemo(() => {
         const ql = q.trim().toLowerCase();
         return rows.filter(r => !ql || r.nombre.toLowerCase().includes(ql));
     }, [rows, q]);
+    // Operaciones CRUD básicas
     const addRow = () => setRows(prev => [{ nombre: "Nueva categoría" }, ...prev]);
     const onEdit = (idx) => (e) => {
         const val = e.target.value;

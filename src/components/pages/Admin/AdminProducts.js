@@ -1,11 +1,15 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// Página de administración de productos: edición inline, filtros y guardado en localStorage.
+// No cambia la lógica: solo añade contexto para facilitar el mantenimiento.
 // src/components/pages/Admin/AdminProducts.tsx
 import { useMemo, useState } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";
 import { productos } from "@domain/data";
 /* ----------------------- Helpers ----------------------- */
+// sv/sn: aseguran valores string/number válidos en formularios
 const sv = (v) => v ?? ""; // string value (nunca undefined)
 const sn = (v) => (Number.isFinite(v) ? v : 0); // number seguro
+// slugify: normaliza nombres a slugs web
 const slugify = (s) => sv(s)
     .toLowerCase()
     .normalize("NFD")
@@ -13,6 +17,7 @@ const slugify = (s) => sv(s)
     .replace(/[^\w\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-");
+// Convierte Product del dominio a Editable para formularios
 function toEditable(p) {
     const nombre = sv(p.nombre);
     const imagenBase = sv(p.img) || "/assets/img/placeholder.png";
@@ -33,17 +38,19 @@ function toEditable(p) {
 }
 /* ----------------------- Componente ----------------------- */
 export default function AdminProducts() {
-    // Fuente normalizada
+    // Fuente normalizada desde catálogo en memoria
     const initial = useMemo(() => productos.map(toEditable), []);
     const [rows, setRows] = useState(initial);
-    // Filtros básicos (si los necesitas)
+    // Filtros básicos en cabecera
     const [q, setQ] = useState("");
     const [cat, setCat] = useState("");
+    // Lista de categorías únicas para el selector
     const cats = useMemo(() => {
         const acc = new Set();
         initial.forEach((p) => acc.add(p.categoria));
         return Array.from(acc).sort();
     }, [initial]);
+    // Aplica búsqueda por nombre/slug y filtro por categoría
     const filtered = useMemo(() => {
         const ql = q.trim().toLowerCase();
         return rows.filter((r) => {
@@ -52,7 +59,7 @@ export default function AdminProducts() {
             return okQ && okC;
         });
     }, [rows, q, cat]);
-    // Handler genérico de edición
+    // Handler genérico de edición por campo; mantiene tipos correctos
     const onEdit = (id, key) => (e) => {
         const raw = e.target.value;
         setRows((prev) => prev.map((r) => {
@@ -72,6 +79,7 @@ export default function AdminProducts() {
             return { ...r, [key]: sv(raw) };
         }));
     };
+    // Persistencia mock: guarda cambios en localStorage
     const saveAll = () => {
         // Aquí podrías enviar a backend; por ahora, persistimos localStorage
         localStorage.setItem("admin_products", JSON.stringify(rows));

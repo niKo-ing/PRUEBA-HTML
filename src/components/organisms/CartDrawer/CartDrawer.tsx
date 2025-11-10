@@ -4,6 +4,7 @@
  * Dependencias: react-bootstrap Offcanvas; contexto de carrito useCart; datos productos
  */
 import { Offcanvas } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "@domain/cart/useCart";
 import { productos } from "@domain/data";
 
@@ -30,6 +31,7 @@ type Props = { show: boolean; onHide: () => void };
 export default function CartDrawer({ show, onHide }: Props) {
   // El contexto del carrito expone: items, change, remove, clear, total, count
   const { items = [], total = 0, change, remove, clear } = useCart();
+  const navigate = useNavigate();
 
   return (
     <Offcanvas placement="end" show={show} onHide={onHide} backdrop scroll>
@@ -113,7 +115,12 @@ export default function CartDrawer({ show, onHide }: Props) {
             </div>
 
             <div className="d-grid gap-2 mt-3">
-              <button className="btn btn-warning btn-lg">
+              <button
+                className="btn btn-warning btn-lg"
+                onClick={() => { onHide(); navigate("/checkout"); }}
+                aria-label="Pagar"
+                disabled={items.length === 0 || total <= 0}
+              >
                 <i className="bi bi-credit-card me-2" />
                 Pagar
               </button>

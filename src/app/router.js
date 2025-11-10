@@ -1,4 +1,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
+// Enrutador principal: define rutas públicas y admin con carga diferida (lazy).
+// Usa un layout raíz con Header/Footer y un ErrorBoundary para fallos.
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import MainLayout from "@templates/MainLayout/MainLayout";
@@ -27,9 +29,13 @@ const AdminOrders = lazy(() => import("@pages/Admin/AdminOrders"));
 const AdminSettings = lazy(() => import("@pages/Admin/AdminSettings"));
 const AdminCategories = lazy(() => import("@pages/Admin/AdminCategories"));
 const AdminReports = lazy(() => import("@pages/Admin/AdminReports"));
+const AdminReceipt = lazy(() => import("@pages/Admin/AdminReceipt"));
+// RootLayout define el marco común (header, footer, etc.) para rutas públicas
 function RootLayout() {
     return (_jsx(MainLayout, { children: _jsx(Suspense, { fallback: _jsx("div", { className: "py-5 text-center", children: "Cargando\u2026" }), children: _jsx(Outlet, {}) }) }));
 }
+// Definición de todas las rutas de la aplicación.
+// Usamos lazy() para que cada página se cargue bajo demanda (mejor rendimiento).
 const router = createBrowserRouter([
     {
         path: "/",
@@ -43,7 +49,7 @@ const router = createBrowserRouter([
             { path: "about", element: _jsx(AboutPage, {}) },
             { path: "blogs", element: _jsx(BlogsPage, {}) },
             { path: "blog/:slug", element: _jsx(BlogPostPage, {}) },
-            { path: "carrito", element: _jsx(CartPage, {}) },
+            { path: "carrito", element: _jsx(CartPage, {}) }, // Página dedicada del carrito
             { path: "checkout", element: _jsx(CheckoutPage, {}) },
             { path: "compra-exitosa", element: _jsx(SuccessPage, {}) },
             { path: "error-compra", element: _jsx(ErrorPage, {}) },
@@ -55,10 +61,10 @@ const router = createBrowserRouter([
     },
     {
         path: "/admin",
-        element: _jsx(RequireAdmin, {}),
+        element: _jsx(RequireAdmin, {}), // Protege las rutas administrativas
         children: [
             {
-                element: _jsx(AdminShell, {}),
+                element: _jsx(AdminShell, {}), // Layout para las pantallas de admin
                 children: [
                     { index: true, element: _jsx(AdminDashboard, {}) },
                     { path: "products", element: _jsx(AdminProducts, {}) },
@@ -66,6 +72,7 @@ const router = createBrowserRouter([
                     { path: "users", element: _jsx(AdminUsers, {}) },
                     { path: "orders", element: _jsx(AdminOrders, {}) },
                     { path: "reports", element: _jsx(AdminReports, {}) },
+                    { path: "receipt/:id", element: _jsx(AdminReceipt, {}) }, // Boleta imprimible
                     { path: "settings", element: _jsx(AdminSettings, {}) },
                 ],
             },

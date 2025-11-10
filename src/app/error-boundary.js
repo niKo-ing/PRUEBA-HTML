@@ -1,4 +1,6 @@
 import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
+// ErrorBoundary: muestra mensajes útiles cuando una ruta falla.
+// Captura errores de React Router y otros throw para ayudar al diagnóstico.
 import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 export default function ErrorBoundary() {
     const err = useRouteError();

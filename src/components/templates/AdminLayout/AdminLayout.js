@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// Layout del panel de administración: define navegación lateral y área principal.
 import { Navbar, Container, Nav } from "react-bootstrap";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import "@/styles/admin.css";

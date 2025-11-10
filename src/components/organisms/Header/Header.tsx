@@ -1,13 +1,8 @@
-/**
- * Componente Header - Barra de navegación principal
- * Props: no recibe; Estado: usa contextos (auth, carrito, UI)
- * Dependencias: react-bootstrap Navbar/Container/Nav/Badge; react-router-dom; useCart/useCartUI/useAuth
- */
+// Header: navegación principal, estado de sesión y acceso al carrito.
 import { Navbar, Container, Nav, Badge } from "react-bootstrap";
 import { Link, NavLink } from "react-router-dom";
 import { useCart } from "@domain/cart/useCart";
 import { useCartUI } from "@app/cart-ui.context";
-import { useCallback } from "react";
 import { useAuth } from "@domain/auth/auth.context";
 
 export default function Header() {
@@ -39,7 +34,7 @@ export default function Header() {
           </Nav>
 
           <div className="d-flex align-items-center gap-2">
-            // Estado de sesión: si hay usuario, muestra saludo, admin y logout
+            {/* Estado de sesión: si hay usuario, muestra saludo, admin y logout */}
             {user ? (
               <>
                 <span className="text-body-secondary small">
@@ -62,11 +57,11 @@ export default function Header() {
             )}
 
            
-            // Botón del carrito: abre el drawer con badge de cantidad
+            {/* Botón del carrito: abre el drawer con badge de cantidad */}
             <button
               type="button"
               className="btn btn-light position-relative"
-              onClick={() => { prefetchCartDrawer(); open(); }}
+              onClick={open}
               aria-label="Abrir carrito"
             >
               <i className="bi bi-cart" />
@@ -80,10 +75,3 @@ export default function Header() {
     </Navbar>
   );
 }
-  // Prefetch del Drawer: dispara la resolución del import dinámico antes de abrir
-  const prefetchCartDrawer = useCallback(() => {
-    try {
-      // Vite soporta prefetch con import() de la ruta del componente
-      import("@organisms/CartDrawer/CartDrawer");
-    } catch {}
-  }, []);

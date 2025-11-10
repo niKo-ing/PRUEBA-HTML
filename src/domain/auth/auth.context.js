@@ -1,10 +1,13 @@
 import { jsx as _jsx } from "react/jsx-runtime";
+// Contexto de autenticación: guarda el usuario actual, expone login/logout
+// y persiste la sesión en localStorage.
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 const AuthContext = createContext(null);
 const KEY_SESSION = "sessionUser";
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     useEffect(() => {
+        // Restaura sesión si existe en localStorage
         try {
             const raw = localStorage.getItem(KEY_SESSION);
             if (raw)
@@ -42,6 +45,7 @@ export function AuthProvider({ children }) {
     return _jsx(AuthContext.Provider, { value: value, children: children });
 }
 export function useAuth() {
+    // Hook de consumo para leer usuario y acciones. Requiere AuthProvider arriba.
     const ctx = useContext(AuthContext);
     if (!ctx)
         throw new Error("useAuth must be used within AuthProvider");

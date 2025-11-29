@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    # Sin credenciales GCP para probar productos. Añadir luego si se usa Vertex.

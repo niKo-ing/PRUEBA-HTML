@@ -1,21 +1,71 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-// Listado de productos: permite buscar, filtrar, ordenar y paginar.
-// Cada tarjeta muestra info básica y acciones para ver/añadir al carrito.
-import { useMemo, useCallback } from "react";
+/**
+ * Nombre del componente: ProductsPage
+ * Propósito: Listado de productos con búsqueda, filtros, orden y paginación.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; usa query params para estado (q, cat, min, max, sort, page, size).
+ *
+ * Métodos/funciones:
+ * - formatCLP(v: number): string — Formatea moneda CLP.
+ * - toArr(c: string|string[]): string[] — Normaliza categorías a arreglo.
+ * - matchCategoria(pCat, target): boolean — Verifica coincidencia de categoría.
+ * - sorters: Record<SortKey, (a,b)=>number> — Map de comparadores.
+ *
+ * Hooks utilizados:
+ * - useSearchParams: lee/actualiza query params.
+ * - useMemo: calcula filtrado, orden y paginación.
+ * - useCallback: actualiza parámetros preservando estado.
+ * - useCart: añade productos al carrito.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <ProductsPage />
+ * ```
+ */
+/**
+ * Página ProductsPage - Listado con búsqueda/filtros/orden/paginación
+ * Props: no recibe; Estado: derivado de query params; Dependencias: react-bootstrap, react-router-dom, useCart
+ */
+import { useMemo, useCallback, useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Container, Row, Col, Form, InputGroup, Button, Card, Badge, Pagination } from "react-bootstrap";
-import { productos } from "@domain/data";
+import { fetchProducts } from "../../../services/products.service";
 import { useCart } from "@domain/cart/cart.context";
 // ————————————————————————————————————————
 // Utils
 // ————————————————————————————————————————
+/**
+ * Formatea número a CLP sin decimales
+ * @param {number} v - Valor numérico
+ * @returns {string} Moneda CLP
+ */
 function formatCLP(v) {
     return v.toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
 }
+/**
+ * Helpers de categorías: normaliza y compara
+ * @returns {boolean} True si pCat incluye target
+ */
 const toArr = (c) => (Array.isArray(c) ? c : [c]);
 const matchCategoria = (pCat, target) => !target || toArr(pCat).some((x) => x === target);
-// categorías únicas desde la data
-const ALL_CATEGORIES = Array.from(new Set(productos.flatMap(p => toArr(p.categoria)))).sort();
+// categorías únicas: derivadas desde la data cargada
+function computeCategories(items) {
+    const acc = new Set();
+    for (const p of items) {
+        const cats = toArr(p.categoria);
+        for (const c of cats)
+            acc.add(String(c));
+    }
+    return Array.from(acc).sort();
+}
+/**
+ * Map de ordenadores por clave
+ * @returns {number} Comparador de sort
+ */
 const sorters = {
     relevancia: () => 0,
     precio_asc: (a, b) => a.precio - b.precio,
@@ -26,6 +76,10 @@ const sorters = {
 // ————————————————————————————————————————
 // Página
 // ————————————————————————————————————————
+/**
+ * Renderiza listado con filtros, tarjetas y paginación
+ * @returns {JSX.Element} Contenido de la página de productos
+ */
 export default function ProductsPage() {
     const { add } = useCart();
     const [params, setParams] = useSearchParams();
@@ -38,6 +92,10 @@ export default function ProductsPage() {
     const page = Math.max(1, parseInt(params.get("page") ?? "1", 10));
     const pageSize = Math.min(48, Math.max(4, parseInt(params.get("size") ?? "12", 10))); // 12 por defecto
     // setters de params (mantienen el resto)
+    /**
+     * Actualiza query param manteniendo el resto
+     * Resetea page al cambiar filtros (salvo page/size)
+     */
     const setParam = useCallback((k, v) => {
         const next = new URLSearchParams(params);
         if (v === null || v === "")
@@ -49,6 +107,9 @@ export default function ProductsPage() {
             next.set("page", "1");
         setParams(next, { replace: true });
     }, [params, setParams]);
+    /**
+     * Limpia filtros; conserva el tamaño de página si está definido
+     */
     const resetFilters = () => {
         const keep = new URLSearchParams();
         // conserva page size si quieres
@@ -56,12 +117,36 @@ export default function ProductsPage() {
             keep.set("size", params.get("size"));
         setParams(keep, { replace: true });
     };
+    // datos: intenta cargar desde API, fallback al estático
+    const [itemsApi, setItemsApi] = useState(null);
+    useEffect(() => {
+        let alive = true;
+        fetchProducts(true)
+            .then((data) => {
+            if (!alive)
+                return;
+            setItemsApi(Array.isArray(data) ? data : []);
+        })
+            .catch(() => void 0);
+        return () => {
+            alive = false;
+        };
+    }, []);
+    const fuente = (itemsApi ?? []).map((p) => ({
+        // normaliza campos por si vienen del backend con nombres consistentes
+        ...p,
+        categoria: p.categoria,
+    }));
+    const ALL_CATEGORIES = useMemo(() => computeCategories(fuente), [fuente]);
     // filtrar + ordenar
+    /**
+     * Aplica búsqueda, filtros y orden a la lista de productos
+     */
     const filtered = useMemo(() => {
         const qNorm = q.trim().toLowerCase();
         const minV = min ? Number(min) : null;
         const maxV = max ? Number(max) : null;
-        const items = productos.filter((p) => {
+        const items = fuente.filter((p) => {
             if (qNorm) {
                 const hayCoincidencia = p.nombre.toLowerCase().includes(qNorm) ||
                     (p.descripcion ?? "").toLowerCase().includes(qNorm);
@@ -78,8 +163,9 @@ export default function ProductsPage() {
         });
         const sorter = sorters[sort] ?? sorters.relevancia;
         return [...items].sort(sorter);
-    }, [q, cat, min, max, sort]);
+    }, [q, cat, min, max, sort, fuente]);
     // paginación
+    // Paginación segura
     const total = filtered.length;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
     const pageSafe = Math.min(page, totalPages);

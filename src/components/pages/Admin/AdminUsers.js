@@ -1,4 +1,32 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/**
+ * Nombre del componente: AdminUsers
+ * Propósito: Administración de usuarios con búsqueda, edición inline y autocompletado de dirección.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; opera sobre un dataset persistido en localStorage.
+ *
+ * Métodos/funciones:
+ * - addUser(): agrega un usuario con valores por defecto.
+ * - removeUser(idx): elimina usuario.
+ * - onEditInput/onEditSelect: actualiza campos.
+ * - onAddressTextChange/onAddressSelected: maneja dirección y validación.
+ * - getAddressText(u): obtiene texto actual de dirección considerando legacy.
+ * - isAddressValid(u): valida que la dirección tenga placeId y coordenadas.
+ *
+ * Hooks utilizados:
+ * - useEffect: carga y sincroniza textos de dirección desde localStorage.
+ * - useState: filas, filtro y estados de dirección/errores.
+ * - useMemo: filtrado por búsqueda.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <AdminUsers />
+ * ```
+ */
 // Usuarios: administración básica con búsqueda, edición inline y autocompletado de dirección.
 import { useEffect, useMemo, useState } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";

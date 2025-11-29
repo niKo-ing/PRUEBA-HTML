@@ -38,7 +38,6 @@ type FormData = {
   telefono: string;
   password: string;
   confirmPassword: string;
-  role: "user" | "admin";
 };
 
 export default function RegisterPage() {
@@ -49,7 +48,6 @@ export default function RegisterPage() {
     telefono: "",
     password: "",
     confirmPassword: "",
-    role: "user",
   });
 
   const [direccionText, setDireccionText] = useState("");
@@ -79,10 +77,7 @@ export default function RegisterPage() {
     setForm({ ...form, [name]: value });
   };
 
-  const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
+  const handleSelectChange = (_e: ChangeEvent<HTMLSelectElement>) => {};
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -117,19 +112,12 @@ export default function RegisterPage() {
       return;
     }
 
-    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-    if (usuarios.some((u: any) => u.email === form.email)) {
-      setError("Ya existe un usuario registrado con este correo");
-      return;
-    }
-
-    // Guardado en localStorage (simulado)
-    usuarios.push({
+    const payload = {
       nombre: form.nombre,
       apellido: form.apellido,
       email: form.email,
       telefono: form.telefono,
-      role: form.role,
+      password: form.password,
       direccion: {
         fullText: direccionParsed?.fullText,
         street: direccionParsed?.street,
@@ -143,12 +131,28 @@ export default function RegisterPage() {
         lng: direccionParsed?.lng,
         placeId: direccionParsed?.placeId,
       },
-      password: form.password,
-    });
+    } as Record<string, unknown>;
 
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-    setSuccess(true);
-    setTimeout(() => navigate("/login"), 2000);
+    return fetch('/api/users/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(async (resp) => {
+        if (!resp.ok) {
+          const data = await resp.json().catch(() => ({}));
+          throw new Error(data?.detail || 'Error al registrar usuario');
+        }
+        return resp.json();
+      })
+      .then(() => {
+        setSuccess(true);
+        setTimeout(() => navigate("/login"), 2000);
+      })
+      .catch((err) => {
+        const msg = err instanceof Error ? err.message : 'No se pudo registrar';
+        setError(msg);
+      });
   };
 
   return (
@@ -268,22 +272,7 @@ export default function RegisterPage() {
                   </Form.Text>
                 </Form.Group>
 
-                {/* === ROL === */}
-                <Form.Group className="mb-3" controlId="role">
-                  <Form.Label>Rol de usuario</Form.Label>
-                  <Form.Select
-                    name="role"
-                    value={form.role}
-                    onChange={handleSelectChange}
-                    required
-                  >
-                    <option value="user">Usuario</option>
-                    <option value="admin">Administrador</option>
-                  </Form.Select>
-                  <Form.Text className="text-muted">
-                    El rol "Administrador" tiene acceso al panel de administración.
-                  </Form.Text>
-                </Form.Group>
+                {/* Selector de rol eliminado; el backend asigna "user" por defecto */}
                 
                 {/* === DIRECCIÓN CON GOOGLE MAPS === */}
                 <AddressAutocomplete

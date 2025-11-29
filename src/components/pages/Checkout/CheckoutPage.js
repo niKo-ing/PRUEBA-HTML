@@ -1,4 +1,31 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+/**
+ * Nombre del componente: CheckoutPage
+ * Propósito: Flujo de checkout con validación, procesamiento de pago (mock) y persistencia de orden.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; usa `useCart` y `useAuth` para completar campos.
+ *
+ * Métodos/funciones:
+ * - validateForm(): valida campos del formulario y tarjeta.
+ * - handleSubmit(e): procesa pago, genera orden y navega a éxito/error.
+ * - handleInputChange(e), handleCardNumberChange(e), handleExpiryDateChange(e): formateo/validación onChange.
+ *
+ * Hooks utilizados:
+ * - useEffect: redirige si el carrito está vacío.
+ * - useState: maneja estado del formulario, errores y loading.
+ * - useCart: obtiene items y total.
+ * - useAuth: datos del usuario autenticado.
+ * - useNavigate: navegación entre pantallas de checkout.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <CheckoutPage />
+ * ```
+ */
 // Página de Checkout: valida el formulario, procesa el pago (mock)
 // y guarda una orden detallada en localStorage para que el admin
 // pueda ver e imprimir la boleta.

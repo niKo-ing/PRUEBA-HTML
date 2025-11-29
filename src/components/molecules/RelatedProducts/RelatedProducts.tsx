@@ -1,7 +1,8 @@
 // Muestra productos relacionados por categoría, con acciones de ver y añadir.
 import { Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { productos } from "@domain/data";
+import { useEffect, useState } from "react";
+import { fetchProducts } from "@/services/products.service";
 import { useCart } from "@domain/cart/cart.context";
 
 type Categoria = string | string[];
@@ -16,10 +17,18 @@ function matchCategoria(pCat: Categoria, target: Categoria) {
 
 export default function RelatedProducts({ categoria, excludeId, max = 4 }: Props) {
   const { add } = useCart();
-
-  const items = productos
-    .filter(p => p.id !== excludeId && matchCategoria(p.categoria as Categoria, categoria))
-    .slice(0, max);
+  const [items, setItems] = useState<any[]>([]);
+  useEffect(() => {
+    let alive = true;
+    fetchProducts(true)
+      .then((arr) => {
+        if (!alive) return;
+        const rel = arr.filter(p => p.id !== excludeId && matchCategoria(p.categoria as Categoria, categoria)).slice(0, max);
+        setItems(rel);
+      })
+      .catch(() => void 0);
+    return () => { alive = false; };
+  }, [categoria, excludeId, max]);
 
   if (!items.length) return null;
 

@@ -1,4 +1,26 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/**
+ * Nombre del componente: ContactPage
+ * Propósito: Página de contacto con accesos rápidos para copiar correos y abrir Gmail.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props.
+ *
+ * Métodos/funciones:
+ * - buildMailto(subject, body): construye enlace mailto.
+ * - buildGmail(subject, body): construye enlace de redacción en Gmail.
+ *
+ * Hooks utilizados:
+ * - No utiliza hooks.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <ContactPage />
+ * ```
+ */
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 const RECIPIENTS = [
     "nic.estefania@duocuc.cl",

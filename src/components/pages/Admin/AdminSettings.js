@@ -1,4 +1,28 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/**
+ * Nombre del componente: AdminSettings
+ * Propósito: Configurar ajustes del sitio (moneda, impuestos, envío, soporte, mantenimiento) con persistencia local.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props.
+ *
+ * Métodos/funciones:
+ * - bind(key): vincula inputs a estado `cfg` dependiendo del tipo (text, number, checkbox).
+ * - save(): guarda configuración en `localStorage`.
+ * - discard(): recupera última versión guardada o valores por defecto.
+ *
+ * Hooks utilizados:
+ * - useState: estado `cfg` basado en `defaults`.
+ * - useEffect: cargar configuración inicial desde `localStorage`.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <Route path="/admin/settings" element={<AdminSettings />} />
+ * ```
+ */
 // Ajustes: configuración básica del sitio con persistencia en localStorage.
 import { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";

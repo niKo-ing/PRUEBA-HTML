@@ -8,8 +8,7 @@ import RequireAdmin from "@app/admin/require-admin";
 import AdminShell from "@templates/AdminLayout";
 import { ADMIN_SEGMENTS } from "@templates/AdminLayout";
 const CategoriesPage = lazy(() => import("@pages/Categories/CategoriesPage"));
-
-const HomePage     = lazy(() => import("@pages/Home/HomePage"));
+import HomePage     from "@pages/Home/HomePage";
 const ProductPage  = lazy(() => import("@pages/Product/ProductPage"));
 const ProductsPage = lazy(() => import("@pages/Product/ProductsPage"));
 const AboutPage    = lazy(() => import("@pages/About/AboutPage"));
@@ -23,6 +22,7 @@ const CheckoutPage = lazy(() => import("@pages/Checkout/CheckoutPage"));
 const SuccessPage  = lazy(() => import("@pages/Success/SuccessPage"));
 const ErrorPage    = lazy(() => import("@pages/Error/ErrorPage"));
 const OffersPage   = lazy(() => import("@pages/Offers/OffersPage"));
+const AssistantPage = lazy(() => import("@pages/Assistant/AssistantPage"));
 const AdminDashboard = lazy(() => import("@pages/Admin/AdminDashboard"));
 const AdminProducts  = lazy(() => import("@pages/Admin/AdminProducts"));
 const AdminUsers     = lazy(() => import("@pages/Admin/AdminUsers"));
@@ -65,6 +65,7 @@ const router = createBrowserRouter([
       { path: "error-compra", element: <ErrorPage /> },
       { path: "ofertas", element: <OffersPage /> },
       { path: "contacto", element: <ContactPage /> },
+      { path: "asistente", element: <AssistantPage /> },
       { path: "login", element: <LoginPage /> },          
       { path: "registro", element: <RegisterPage /> },
     ],

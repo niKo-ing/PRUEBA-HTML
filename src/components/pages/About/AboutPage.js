@@ -1,4 +1,26 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/**
+ * Nombre del componente: AboutPage
+ * Propósito: Página de presentación de la tienda con métricas, valores,
+ *            timeline, equipo y preguntas frecuentes.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props.
+ *
+ * Métodos/funciones:
+ * - No aplica; solo renderiza secciones informativas.
+ *
+ * Hooks utilizados:
+ * - No utiliza hooks.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <AboutPage />
+ * ```
+ */
 import { Container, Row, Col, Card, Badge, Accordion, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 export default function AboutPage() {

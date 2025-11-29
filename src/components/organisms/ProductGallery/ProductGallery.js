@@ -1,6 +1,15 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-// Galería de producto: permite elegir miniatura y hace zoom en desktop.
+/**
+ * Componente ProductGallery - Galería con miniaturas y zoom
+ * Props: { images?: string[], cover?: string, alt?: string }; Estado: current, zooming
+ * Dependencias: ninguna externa (usa DOM para efecto de zoom)
+ */
 import { useEffect, useRef, useState } from "react";
+/**
+ * Renderiza galería con imagen principal y miniaturas
+ * @param {Props} props - Imágenes y texto alternativo
+ * @returns {JSX.Element} Contenedor de galería interactiva
+ */
 export default function ProductGallery({ images = [], cover, alt }) {
     // Asegura array válido y sin duplicados (si solo hay cover, igual habrá 1 thumb)
     const allImgs = Array.from(new Set([cover, ...(images ?? [])].filter(Boolean)));
@@ -8,6 +17,9 @@ export default function ProductGallery({ images = [], cover, alt }) {
     const [zooming, setZooming] = useState(false);
     const zoomRef = useRef(null);
     // Limpieza de zoom (para evitar “interposición” al navegar)
+    /**
+     * Restablece el estado y estilos del zoom
+     */
     const resetZoom = () => {
         const el = zoomRef.current;
         if (!el)
@@ -32,6 +44,9 @@ export default function ProductGallery({ images = [], cover, alt }) {
             resetZoom();
         };
     }, []);
+    /**
+     * Activa el zoom al entrar al área principal
+     */
     const handleEnter = () => {
         const el = zoomRef.current;
         if (!el)
@@ -40,6 +55,9 @@ export default function ProductGallery({ images = [], cover, alt }) {
         el.style.backgroundSize = "200%"; // ajusta 180–300% a gusto
         setZooming(true);
     };
+    /**
+     * Posiciona el zoom según el puntero del mouse
+     */
     const handleMove = (e) => {
         const el = zoomRef.current;
         if (!el || !zooming)

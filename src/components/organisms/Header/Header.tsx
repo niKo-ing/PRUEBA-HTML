@@ -4,6 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useCart } from "@domain/cart/useCart";
 import { useCartUI } from "@app/cart-ui.context";
 import { useAuth } from "@domain/auth/auth.context";
+import { } from "react";
 
 export default function Header() {
   // count = cantidad de ítems; open = abre el drawer del carrito
@@ -31,6 +32,7 @@ export default function Header() {
             <Nav.Link as={NavLink} to="/blogs">Blogs</Nav.Link>
             <Nav.Link as={NavLink} to="/about">Nosotros</Nav.Link>
             <Nav.Link as={NavLink} to="/contacto">Contacto</Nav.Link>
+            <Nav.Link as={NavLink} to="/asistente">Asistente</Nav.Link>
           </Nav>
 
           <div className="d-flex align-items-center gap-2">

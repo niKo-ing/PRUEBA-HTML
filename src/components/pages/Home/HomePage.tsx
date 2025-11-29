@@ -27,8 +27,9 @@
  */
 import Hero from "../../organisms/Hero/Hero";
 import CatalogGrid from "../../organisms/CatalogGrid/CatalogGrid";
-import { productos } from "@domain/data";
 import { useEffect, useMemo, useState } from "react";
+import type { Product } from "@domain/types";
+import { fetchProducts } from "../../../services/products.service";
 
 /**
  * Renderiza portada con grilla de productos destacados
@@ -37,27 +38,44 @@ import { useEffect, useMemo, useState } from "react";
 export default function HomePage() {
   const PAGE_SIZE = 4;
   const [startIndex, setStartIndex] = useState(0);
+  const [itemsApi, setItemsApi] = useState<Product[] | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => {
-      setStartIndex((i) => (i + PAGE_SIZE) % productos.length);
+      const total = (itemsApi?.length ?? 0);
+      setStartIndex((i) => total > 0 ? (i + PAGE_SIZE) % total : 0);
     }, 6000); // rota cada 6 segundos
     return () => clearInterval(id);
+  }, [itemsApi]);
+
+  useEffect(() => {
+    let alive = true;
+    fetchProducts()
+      .then((data) => {
+        if (!alive) return;
+        if (Array.isArray(data) && data.length > 0) setItemsApi(data);
+      })
+      .catch(() => void 0);
+    return () => {
+      alive = false;
+    };
   }, []);
 
+  const fuente = (itemsApi ?? []);
+
   const destacados = useMemo(() => {
-    const total = productos.length;
+    const total = fuente.length;
     if (total === 0) return [];
-    const items = [] as typeof productos;
+    const items: Product[] = [];
     for (let i = 0; i < Math.min(PAGE_SIZE, total); i++) {
-      const p = productos[(startIndex + i) % total];
+      const p = fuente[(startIndex + i) % total];
       if (p) items.push(p);
     }
     return items;
-  }, [startIndex]);
+  }, [startIndex, fuente]);
   return (
     <>
-      <Hero video="/assets/video/mouse.mp4" poster="/assets/video/mouse-poster.JPG" />
+      <Hero image="/assets/img/mouse-poster.jpg" />
       <section className="container-xxl py-4">
         <h2 id="destacados" className="mb-3">Destacados</h2>
         <CatalogGrid items={destacados} />

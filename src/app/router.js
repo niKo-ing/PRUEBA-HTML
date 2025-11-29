@@ -6,9 +6,10 @@ import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import MainLayout from "@templates/MainLayout/MainLayout";
 import ErrorBoundary from "./error-boundary";
 import RequireAdmin from "@app/admin/require-admin";
-import AdminShell from "@templates/AdminLayout/AdminLayout";
+import AdminShell from "@templates/AdminLayout";
+import { ADMIN_SEGMENTS } from "@templates/AdminLayout";
 const CategoriesPage = lazy(() => import("@pages/Categories/CategoriesPage"));
-const HomePage = lazy(() => import("@pages/Home/HomePage"));
+import HomePage from "@pages/Home/HomePage";
 const ProductPage = lazy(() => import("@pages/Product/ProductPage"));
 const ProductsPage = lazy(() => import("@pages/Product/ProductsPage"));
 const AboutPage = lazy(() => import("@pages/About/AboutPage"));
@@ -22,6 +23,7 @@ const CheckoutPage = lazy(() => import("@pages/Checkout/CheckoutPage"));
 const SuccessPage = lazy(() => import("@pages/Success/SuccessPage"));
 const ErrorPage = lazy(() => import("@pages/Error/ErrorPage"));
 const OffersPage = lazy(() => import("@pages/Offers/OffersPage"));
+const AssistantPage = lazy(() => import("@pages/Assistant/AssistantPage"));
 const AdminDashboard = lazy(() => import("@pages/Admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("@pages/Admin/AdminProducts"));
 const AdminUsers = lazy(() => import("@pages/Admin/AdminUsers"));
@@ -55,6 +57,7 @@ const router = createBrowserRouter([
             { path: "error-compra", element: _jsx(ErrorPage, {}) },
             { path: "ofertas", element: _jsx(OffersPage, {}) },
             { path: "contacto", element: _jsx(ContactPage, {}) },
+            { path: "asistente", element: _jsx(AssistantPage, {}) },
             { path: "login", element: _jsx(LoginPage, {}) },
             { path: "registro", element: _jsx(RegisterPage, {}) },
         ],
@@ -67,13 +70,13 @@ const router = createBrowserRouter([
                 element: _jsx(AdminShell, {}), // Layout para las pantallas de admin
                 children: [
                     { index: true, element: _jsx(AdminDashboard, {}) },
-                    { path: "products", element: _jsx(AdminProducts, {}) },
-                    { path: "categories", element: _jsx(AdminCategories, {}) },
-                    { path: "users", element: _jsx(AdminUsers, {}) },
-                    { path: "orders", element: _jsx(AdminOrders, {}) },
-                    { path: "reports", element: _jsx(AdminReports, {}) },
-                    { path: "receipt/:id", element: _jsx(AdminReceipt, {}) }, // Boleta imprimible
-                    { path: "settings", element: _jsx(AdminSettings, {}) },
+                    { path: ADMIN_SEGMENTS.products, element: _jsx(AdminProducts, {}) },
+                    { path: ADMIN_SEGMENTS.categories, element: _jsx(AdminCategories, {}) },
+                    { path: ADMIN_SEGMENTS.users, element: _jsx(AdminUsers, {}) },
+                    { path: ADMIN_SEGMENTS.orders, element: _jsx(AdminOrders, {}) },
+                    { path: ADMIN_SEGMENTS.reports, element: _jsx(AdminReports, {}) },
+                    { path: ADMIN_SEGMENTS.receipt, element: _jsx(AdminReceipt, {}) }, // Boleta imprimible
+                    { path: ADMIN_SEGMENTS.settings, element: _jsx(AdminSettings, {}) },
                 ],
             },
         ],

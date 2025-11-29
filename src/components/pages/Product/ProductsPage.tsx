@@ -29,12 +29,12 @@
  * Página ProductsPage - Listado con búsqueda/filtros/orden/paginación
  * Props: no recibe; Estado: derivado de query params; Dependencias: react-bootstrap, react-router-dom, useCart
  */
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import {
   Container, Row, Col, Form, InputGroup, Button, Card, Badge, Pagination
 } from "react-bootstrap";
-import { productos } from "@domain/data";
+import { fetchProducts } from "../../../services/products.service";
 import type { Product } from "@domain/types";
 import { useCart } from "@domain/cart/cart.context";
 
@@ -59,12 +59,15 @@ type Categoria = string | string[];
 const toArr = (c: Categoria) => (Array.isArray(c) ? c : [c]);
 const matchCategoria = (pCat: Categoria, target: string) => !target || toArr(pCat).some((x) => x === target);
 
-// categorías únicas desde la data
-const ALL_CATEGORIES = Array.from(
-  new Set(
-    productos.flatMap(p => toArr(p.categoria as Categoria))
-  )
-).sort();
+// categorías únicas: derivadas desde la data cargada
+function computeCategories(items: Product[]): string[] {
+  const acc = new Set<string>();
+  for (const p of items) {
+    const cats = toArr(p.categoria as Categoria);
+    for (const c of cats) acc.add(String(c));
+  }
+  return Array.from(acc).sort();
+}
 
 // ordenadores
 type SortKey = "relevancia" | "precio_asc" | "precio_desc" | "nombre_asc" | "nombre_desc";
@@ -124,6 +127,29 @@ export default function ProductsPage() {
     setParams(keep, { replace: true });
   };
 
+  // datos: intenta cargar desde API, fallback al estático
+  const [itemsApi, setItemsApi] = useState<Product[] | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetchProducts(true)
+      .then((data) => {
+        if (!alive) return;
+        setItemsApi(Array.isArray(data) ? data : []);
+      })
+      .catch(() => void 0);
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const fuente = (itemsApi ?? []).map((p) => ({
+    // normaliza campos por si vienen del backend con nombres consistentes
+    ...p,
+    categoria: p.categoria,
+  }));
+
+  const ALL_CATEGORIES = useMemo(() => computeCategories(fuente), [fuente]);
+
   // filtrar + ordenar
   /**
    * Aplica búsqueda, filtros y orden a la lista de productos
@@ -133,7 +159,7 @@ export default function ProductsPage() {
     const minV = min ? Number(min) : null;
     const maxV = max ? Number(max) : null;
 
-    const items = productos.filter((p) => {
+    const items = fuente.filter((p) => {
       if (qNorm) {
         const hayCoincidencia =
           p.nombre.toLowerCase().includes(qNorm) ||
@@ -148,7 +174,7 @@ export default function ProductsPage() {
 
     const sorter = sorters[sort] ?? sorters.relevancia;
     return [...items].sort(sorter);
-  }, [q, cat, min, max, sort]);
+  }, [q, cat, min, max, sort, fuente]);
 
   // paginación
   // Paginación segura

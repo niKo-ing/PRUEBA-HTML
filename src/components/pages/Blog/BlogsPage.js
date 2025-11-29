@@ -1,4 +1,25 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/**
+ * Nombre del componente: BlogsPage
+ * Propósito: Mostrar listado de artículos del blog con tarjetas enlazadas a detalle.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props.
+ *
+ * Métodos/funciones:
+ * - posts: arreglo estático de post con `id`, `title`, `excerpt`, `date`, `tag`, `cover`, `slug`.
+ *
+ * Hooks utilizados:
+ * - No utiliza hooks.
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <BlogsPage />
+ * ```
+ */
 import { Container, Row, Col, Card, Badge, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { blogPosts } from "./blogData";

@@ -1,4 +1,27 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/**
+ * Nombre del componente: AdminDashboard
+ * Propósito: Panel con KPIs del día y últimos pedidos (mock/localStorage).
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; obtiene datos locales.
+ *
+ * Métodos/funciones:
+ * - formatCLP(v: number): string — Formatea números como CLP sin decimales.
+ *
+ * Hooks utilizados:
+ * - useState: estado de pedidos cargados.
+ * - useEffect: lectura inicial desde localStorage.
+ * - useMemo: derivación de KPIs (pendientes, ventas hoy, recientes).
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <AdminDashboard />
+ * ```
+ */
 // Dashboard: muestra KPIs del día y últimos pedidos desde localStorage.
 import { useEffect, useMemo, useState } from "react";
 import { Card, Row, Col, Badge, ProgressBar, Table } from "react-bootstrap";

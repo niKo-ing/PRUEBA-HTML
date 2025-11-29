@@ -21,10 +21,11 @@
  * ```
  */
 // Página de categorías: lista todas las categorías y permite filtrar productos.
-import { useMemo } from "react";
+//
 import { Container, Row, Col, Card, Badge } from "react-bootstrap";
 import { Link, useSearchParams } from "react-router-dom";
-import { productos } from "@domain/data";
+import { useEffect, useState, useMemo } from "react";
+import { fetchProducts } from "@/services/products.service";
 import type { Product } from "@domain/types";
 
 type Categoria = string | string[];
@@ -33,17 +34,26 @@ const toArr = (c: Categoria) => (Array.isArray(c) ? c : [c]);
 export default function CategoriesPage() {
   const [params, setParams] = useSearchParams();
   const cat = params.get("cat") ?? "";
+  const [items, setItems] = useState<Product[]>([]);
+
+  useEffect(() => {
+    let alive = true;
+    fetchProducts(true)
+      .then((arr) => { if (alive) setItems(arr); })
+      .catch(() => void 0);
+    return () => { alive = false; };
+  }, []);
 
   // Todas las categorías únicas presentes en el catálogo
   const ALL = useMemo(() => {
-    return Array.from(new Set(productos.flatMap(p => toArr(p.categoria as Categoria)))).sort();
-  }, []);
+    return Array.from(new Set(items.flatMap(p => toArr(p.categoria as Categoria)))).sort();
+  }, [items]);
 
   // Filtra por categoría seleccionada (query param "cat")
   const filtered: Product[] = useMemo(() => {
-    if (!cat) return productos;
-    return productos.filter((p) => toArr(p.categoria as Categoria).some((x) => x === cat));
-  }, [cat]);
+    if (!cat) return items;
+    return items.filter((p) => toArr(p.categoria as Categoria).some((x) => x === cat));
+  }, [cat, items]);
 
   return (
     <Container className="py-4">

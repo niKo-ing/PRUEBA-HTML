@@ -1,4 +1,29 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/**
+ * Nombre del componente: AdminReceipt
+ * Propósito: Cargar una orden por `id` desde localStorage y mostrar una boleta imprimible.
+ * Autor: Equipo Todobaratisimo
+ * Fecha de creación: 2025-11-10
+ * Última modificación: 2025-11-10
+ *
+ * Props:
+ * - No recibe props; utiliza parámetro de ruta `id`.
+ *
+ * Métodos/funciones:
+ * - formatCLP(v: number): string — Formatea números a CLP con fallback.
+ * - printReceipt(): void — Abre diálogo de impresión del navegador.
+ *
+ * Hooks utilizados:
+ * - useParams: obtener `id` de la ruta.
+ * - useState: manejar estado `order`.
+ * - useEffect: cargar orden desde `localStorage` al montar/cambiar `id`.
+ * - useMemo: recalcular totales (subtotal, iva, shipping, total).
+ *
+ * Ejemplo de uso:
+ * ```tsx
+ * <Route path="/admin/receipt/:id" element={<AdminReceipt />} />
+ * ```
+ */
 // Página AdminReceipt: carga una orden desde localStorage por id y
 // muestra una boleta imprimible con detalle por ítems y totales.
 import { useEffect, useMemo, useState } from "react";

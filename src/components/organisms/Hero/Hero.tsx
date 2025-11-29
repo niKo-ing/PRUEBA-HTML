@@ -4,8 +4,7 @@
  * Dependencias: HTML5 video y estilos CSS de hero
  */
 type Props = {
-  video?: string;
-  poster?: string;
+  image?: string;
   title?: string;
   subtitle?: string;
   full?: boolean;
@@ -17,19 +16,14 @@ type Props = {
  * @returns {JSX.Element} Sección hero
  */
 export default function Hero({
-  video,
-  poster,
+  image = "/assets/img/hero.jpg",
   title = "Precisión y velocidad",
   subtitle = "Periféricos de alto rendimiento",
   full = false,     
 }: Props) {
   return (
     <section className={`hero ${full ? "hero--full" : "hero--flat"}`}>
-      {video && (
-        <video className="hero-media" autoPlay loop muted playsInline preload="metadata" poster={poster}>
-          <source src={video} type="video/mp4" />
-        </video>
-      )}
+      <img className="hero-media" src={image} alt="Hero" />
 
       <div className="hero-overlay" />
 

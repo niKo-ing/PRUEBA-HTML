@@ -1,53 +1,37 @@
-/**
- * Nombre del componente: LoginPage
- * Propósito: Formulario de inicio de sesión con validación básica y redirección.
- * Autor: Equipo Todobaratisimo
- * Fecha de creación: 2025-11-10
- * Última modificación: 2025-11-10
- *
- * Props:
- * - No recibe props.
- *
- * Métodos/funciones:
- * - onSubmit(e): maneja envío, llama `useAuth.login`, redirige a admin/home.
- *
- * Hooks utilizados:
- * - useState: gestiona email, password, error y loading.
- * - useNavigate: navegación tras login.
- * - useAuth: acceso a `login`.
- *
- * Ejemplo de uso:
- * ```tsx
- * <LoginPage />
- * ```
- */
 import { useState } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@domain/auth/auth.context";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
-  const [password, setPass] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const fromAdmin = location.state?.from === "admin";
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
-      await login(email.trim(), password);
-      const goAdmin = (() => { try { return localStorage.getItem("isAdmin") === "1"; } catch { return false; } })();
-      navigate(goAdmin ? "/admin" : "/", { replace: true });
-    } catch (err: any) {
-      setError(err?.message || "No se pudo iniciar sesión");
+      await login(email, password);
+      const isAdmin = (() => { try { return localStorage.getItem("isAdmin") === "1"; } catch { return false; } })();
+      if (isAdmin && fromAdmin) {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    } catch (e: any) {
+      setError(e?.message || "No se pudo iniciar sesión");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <Container className="py-5">
@@ -56,43 +40,39 @@ export default function LoginPage() {
           <Card className="shadow-sm border-0">
             <Card.Body>
               <h3 className="mb-4 text-center">Iniciar sesión</h3>
-
               {error && <Alert variant="danger">{error}</Alert>}
-
-              <Form onSubmit={onSubmit}>
+              <Form onSubmit={handleSubmit} noValidate>
                 <Form.Group className="mb-3" controlId="email">
                   <Form.Label>Correo electrónico</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="correo@ejemplo.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    placeholder="correo@ejemplo.com"
                     required
+                    autoFocus
                   />
                 </Form.Group>
-
-                <Form.Group className="mb-4" controlId="password">
+                <Form.Group className="mb-3" controlId="password">
                   <Form.Label>Contraseña</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="********"
                     value={password}
-                    onChange={(e) => setPass(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="********"
                     required
                   />
                 </Form.Group>
 
-                <div className="d-grid">
-                  <Button variant="warning" size="lg" type="submit" disabled={loading}>
-                    {loading ? "Ingresando..." : "Ingresar"}
-                  </Button>
-                </div>
+                <Button type="submit" disabled={loading || !email || !password} className="w-100">
+                  {loading ? "Ingresando…" : "Entrar"}
+                </Button>
               </Form>
-
-              <p className="mt-3 text-center mb-0">
-                ¿No tienes cuenta?{" "}
-                <Link to="/registro" className="link-primary">Regístrate</Link>
-              </p>
+              <div className="mt-3 text-center">
+                <small className="text-body-secondary">
+                  ¿No tienes cuenta? <Link to="/registro">Regístrate</Link>
+                </small>
+              </div>
             </Card.Body>
           </Card>
         </Col>
@@ -100,3 +80,4 @@ export default function LoginPage() {
     </Container>
   );
 }
+

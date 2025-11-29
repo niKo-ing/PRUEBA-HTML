@@ -1,0 +1,28 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+
+
+class Settings(BaseSettings):
+    MONGO_URI: str
+    MONGO_DB: str = "todobaratisimo"
+    MONGO_DB_USERS: str = "todobaratisimo_users"
+    # Incluye puertos comunes de Vite (5173/5174) por defecto
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://localhost:5176",
+    ]
+    GOOGLE_CLOUD_PROJECT: str = ""
+    GOOGLE_CLOUD_LOCATION: str = "us-central1"
+    ADMIN_EMAIL: str = ""
+    ADMIN_PASSWORD: str = ""
+
+    # Pydantic v2 settings config
+    model_config = SettingsConfigDict(
+        env_file=str(Path(__file__).parent / ".env"),
+        extra="ignore",
+    )
+
+
+settings = Settings()

@@ -1,6 +1,12 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 // Contexto de autenticación: guarda el usuario actual, expone login/logout
 // y persiste la sesión en localStorage.
+/**
+ * @file Contexto de autenticación.
+ * @description Gestiona el usuario actual, login/logout y persistencia.
+ * @author Equipo Todobaratisimo
+ * @date 2025-11-10
+ */
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 const AuthContext = createContext(null);
 const KEY_SESSION = "sessionUser";
@@ -16,20 +22,21 @@ export function AuthProvider({ children }) {
         catch { }
     }, []);
     const login = async (email, password) => {
-        // Simula la “BD” con usuarios guardados por tu registro (localStorage)
-        const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-        // HTML-like: validación simple (igual que haría el form básico)
-        const match = usuarios.find(u => u.email === email && u.password === password);
-        if (!match) {
-            throw new Error("Correo o contraseña incorrectos");
+        const resp = await fetch('/api/users/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        if (!resp.ok) {
+            const data = await resp.json().catch(() => ({}));
+            throw new Error(data?.detail || 'Correo o contraseña incorrectos');
         }
-        const current = { nombre: match.nombre, apellido: match.apellido, email: match.email };
+        const data = await resp.json();
+        const current = data.user;
         setUser(current);
         localStorage.setItem(KEY_SESSION, JSON.stringify(current));
-        // Marcador de admin (mock): si el usuario tiene campo role === 'admin' o email conocido
-        const isAdmin = match.role === 'admin' || /^(admin|root)@/i.test(match.email);
         try {
-            localStorage.setItem('isAdmin', isAdmin ? '1' : '0');
+            localStorage.setItem('isAdmin', data.isAdmin ? '1' : '0');
         }
         catch { }
     };

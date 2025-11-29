@@ -29,7 +29,8 @@ import type { ReactNode } from "react";
 import Header from "@organisms/Header/Header";
 import Footer from "@organisms/Footer/Footer";
 import { CartUIProvider, useCartUI } from "@app";          // ⬅️ desde @app/index
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
+import ChatAssistant from "@organisms/ChatAssistant/ChatAssistant";
 
 const CartDrawer = lazy(() => import("@organisms/CartDrawer/CartDrawer"));
 
@@ -49,12 +50,22 @@ function CartDrawerHost() {
  * @returns {JSX.Element} Layout con Header/Footer y Drawer
  */
 export default function MainLayout({ children }: { children: ReactNode }) {
+  const [assistantOpen, setAssistantOpen] = useState(false);
   return (
     <CartUIProvider>
       <Header />
       <main>{children}</main>
       <Footer />
       <CartDrawerHost />
+      {/* Botón flotante inferior derecho que abre el asistente */}
+      <button
+        className="chat-fab"
+        aria-label="Abrir asistente"
+        onClick={() => setAssistantOpen(true)}
+      >
+        <i className="bi bi-chat-dots" />
+      </button>
+      <ChatAssistant open={assistantOpen} onClose={() => setAssistantOpen(false)} />
     </CartUIProvider>
   );
 }

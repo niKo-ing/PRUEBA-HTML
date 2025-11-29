@@ -28,13 +28,15 @@
  * Props: no recibe; Estado: none; Dependencias: react-router-dom, ProductGallery, RelatedProducts, useCart/useCartUI
  */
 import { useParams, Navigate } from "react-router-dom";
-import { productos } from "@domain/data";
+import { useEffect, useState } from "react";
+// Data estática eliminada: ahora se carga desde el backend
 import type { Product } from "@domain/types";
 import ProductGallery from "@organisms/ProductGallery/ProductGallery";
 import RelatedProducts from "@molecules/RelatedProducts/RelatedProducts";
 import { Badge, Button } from "react-bootstrap";
 import { useCart } from "@domain/cart/cart.context";
 import { useCartUI } from "@app/cart-ui.context";
+import { fetchProductBySlug } from "@/services/products.service";
 
 /**
  * Formatea número a CLP sin decimales
@@ -51,17 +53,43 @@ function formatCLP(v: number) {
  */
 export default function ProductPage() {
   const { slug } = useParams();
-  const prod: Product | undefined = productos.find(p => p.slug === slug);
+  const [prod, setProd] = useState<Product | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const { add } = useCart();
   const { open } = useCartUI();
+
+  useEffect(() => {
+    const s = slug ?? "";
+    let alive = true;
+    setLoading(true);
+    fetchProductBySlug(s)
+      .then((p) => {
+        if (!alive) return;
+        setProd(p ?? null);
+      })
+      .catch(() => {
+        if (!alive) return;
+        setProd(null);
+      })
+      .finally(() => {
+        if (!alive) return;
+        setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [slug]);
+
+  if (loading) {
+    return <div className="container py-5 text-center">Cargando…</div>;
+  }
 
   if (!prod) return <Navigate to="/productos" replace />;
 
   return (
     <div id="productDetail" className="container py-4">
       <div className="row g-4">
-        // Galería: imagen principal + miniaturas, con re-mount al cambiar id
-        <div className="col-12 col-lg-6" key={prod.id}> {/* 👈 forzamos remount */}
+        <div className="col-12 col-lg-6">
           <ProductGallery images={prod.images ?? []} cover={prod.img} alt={prod.nombre} />
         </div>
 
@@ -99,8 +127,7 @@ export default function ProductPage() {
         </div>
       </div>
 
-      // Relacionados: sugiere productos de la misma categoría
-      <RelatedProducts categoria={prod.categoria} excludeId={prod.id} />
+      <RelatedProducts categoria={prod.categoria} excludeId={prod.id} max={8} />
     </div>
   );
 }

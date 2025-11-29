@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+motor
+dnspython
+pydantic
+pydantic-settings
+email-validator
+google-cloud-aiplatform
+vertexai

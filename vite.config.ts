@@ -17,4 +17,20 @@ export default defineConfig({
       "@assets": path.resolve(__dirname, "src/assets"),
     },
   },
+  server: {
+    watch: {
+      // Evita que Vite intente observar la venv de Python y otras carpetas pesadas
+      ignored: [
+        "**/.venv/**",
+        "**/backend/.venv/**",
+        "**/coverage/**",
+      ],
+    },
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+      },
+    },
+  },
 });

@@ -113,10 +113,10 @@ const ErrorPage: React.FC = () => {
                 <Link to="/checkout" className="btn btn-primary btn-lg">
                   Intentar de nuevo
                 </Link>
-                <Link to="/cart" className="btn btn-outline-secondary btn-lg">
+                <Link to="/carrito" className="btn btn-outline-secondary btn-lg">
                   Volver al carrito
                 </Link>
-                <Link to="/contact" className="btn btn-outline-primary btn-lg">
+                <Link to="/contacto" className="btn btn-outline-primary btn-lg">
                   Contactar soporte
                 </Link>
               </div>

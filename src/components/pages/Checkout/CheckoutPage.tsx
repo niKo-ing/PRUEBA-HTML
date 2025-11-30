@@ -31,7 +31,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '@domain/cart/cart.context';
-import { productos } from '@domain/data';
+import type { Product } from '@domain/types';
+import { fetchProducts } from '../../../services/products.service';
 import type { CartItem } from '@domain/types';
 import { useAuth } from '../../../domain/auth/auth.context';
 import { createPaymentGateway, formatCardNumber, formatExpiryDate, detectCardType } from '../../../services/payment.service';
@@ -60,6 +61,7 @@ const CheckoutPage: React.FC = () => {
   const { items, total, clear } = useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [catalog, setCatalog] = useState<Product[]>([]);
   // Evita redirección al carrito mientras se está procesando el pago
   const isProcessingRef = useRef(false);
   const [direccionParsed, setDireccionParsed] = useState<ParsedAddress | null>(null);
@@ -89,6 +91,15 @@ const CheckoutPage: React.FC = () => {
     }
   }, [items, navigate, location.pathname]);
 
+  // Cargar catálogo desde backend para mostrar nombres/precios correctos
+  useEffect(() => {
+    let alive = true;
+    fetchProducts()
+      .then((data) => { if (!alive) return; setCatalog(Array.isArray(data) ? data : []); })
+      .catch(() => void 0);
+    return () => { alive = false; };
+  }, []);
+
   // Valida campos indispensables y también la tarjeta usando el "gateway" mock
   const validateForm = (): boolean => {
     const newErrors: Partial<CheckoutForm> = {};
@@ -99,8 +110,6 @@ const CheckoutPage: React.FC = () => {
     // Dirección: exigir selección desde Google Autocomplete con placeId y lat/lng
     if (!formData.address) {
       newErrors.address = 'Dirección es requerida';
-    } else if (!direccionParsed?.placeId || typeof direccionParsed?.lat !== 'number' || typeof direccionParsed?.lng !== 'number') {
-      newErrors.address = 'Selecciona una dirección de la lista (Google)';
     }
     if (!formData.city) newErrors.city = 'Ciudad es requerida';
     if (!formData.phone) newErrors.phone = 'Teléfono es requerido';
@@ -192,7 +201,7 @@ const CheckoutPage: React.FC = () => {
 
           // Detalles por ítem del carrito (nombre, precio, cantidad, subtotal)
           const detalles = items.map((it: CartItem) => {
-            const prod = productos.find(p => p.id === it.id);
+            const prod = catalog.find(p => p.id === it.id);
             const nombre = prod?.nombre ?? `Producto ${it.id}`;
             const precio = Number(prod?.precio) || 0;
             const qty = Number(it.qty) || 1;
@@ -538,7 +547,7 @@ const CheckoutPage: React.FC = () => {
               <div className="mb-3">
                 <h6>Productos ({items.length})</h6>
                 {items.map((it: CartItem) => {
-                  const prod = productos.find(p => p.id === it.id);
+                  const prod = catalog.find(p => p.id === it.id);
                   const nombre = prod?.nombre ?? 'Producto';
                   const img = prod?.images?.[0] ?? prod?.img ?? '/assets/img/placeholder.png';
                   const precio = Number(prod?.precio) || 0;

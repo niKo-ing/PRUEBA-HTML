@@ -26,9 +26,9 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
  * Página CartPage - Tabla de carrito con resumen y acciones
  * Props: no recibe; Estado: derivado del contexto; Dependencias: react-bootstrap, react-router-dom, useCart
  */
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { Container, Row, Col, Table, Button, Alert, Card } from "react-bootstrap";
-import { productos } from "@domain/data";
+import { fetchProducts } from "../../../services/products.service";
 import { useCart } from "@domain/cart/cart.context";
 import { useNavigate, Link } from "react-router-dom";
 /**
@@ -38,21 +38,30 @@ import { useNavigate, Link } from "react-router-dom";
 export default function CartPage() {
     const { items, change, remove, clear } = useCart();
     const navigate = useNavigate();
+    const [catalog, setCatalog] = React.useState([]);
+    React.useEffect(() => {
+        let alive = true;
+        fetchProducts()
+            .then((data) => { if (!alive)
+            return; setCatalog(Array.isArray(data) ? data : []); })
+            .catch(() => void 0);
+        return () => { alive = false; };
+    }, []);
     // Normaliza los datos del carrito con información del catálogo
     const rows = useMemo(() => {
         return items.map((it) => {
-            const p = productos.find((pp) => pp.id === it.id);
+            const p = catalog.find((pp) => pp.id === it.id);
             return {
                 id: it.id,
                 qty: it.qty,
                 nombre: p?.nombre ?? `Producto ${it.id}`,
                 precio: p?.precio ?? 0,
-                img: p?.img ?? "/assets/img/icono.png",
+                img: (p?.images?.[0] ?? p?.img) ?? "/assets/img/icono.png",
                 slug: p?.slug ?? String(it.id),
                 subtotal: (p?.precio ?? 0) * it.qty,
             };
         });
-    }, [items]);
+    }, [items, catalog]);
     // Total general del carrito
     const total = useMemo(() => rows.reduce((acc, r) => acc + r.subtotal, 0), [rows]);
     // Estado vacío: sugiere volver al catálogo

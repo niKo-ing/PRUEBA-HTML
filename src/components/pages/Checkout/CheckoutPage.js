@@ -32,7 +32,7 @@ import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-run
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '@domain/cart/cart.context';
-import { productos } from '@domain/data';
+import { fetchProducts } from '../../../services/products.service';
 import { useAuth } from '../../../domain/auth/auth.context';
 import { createPaymentGateway, formatCardNumber, formatExpiryDate, detectCardType } from '../../../services/payment.service';
 import AddressAutocomplete from '@molecules/AddressAutocomplete/AddressAutocomplete';
@@ -43,6 +43,7 @@ const CheckoutPage = () => {
     const { items, total, clear } = useCart();
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [catalog, setCatalog] = useState([]);
     // Evita redirección al carrito mientras se está procesando el pago
     const isProcessingRef = useRef(false);
     const [direccionParsed, setDireccionParsed] = useState(null);
@@ -69,6 +70,15 @@ const CheckoutPage = () => {
             navigate('/carrito');
         }
     }, [items, navigate, location.pathname]);
+    // Cargar catálogo desde backend para mostrar nombres/precios correctos
+    useEffect(() => {
+        let alive = true;
+        fetchProducts()
+            .then((data) => { if (!alive)
+            return; setCatalog(Array.isArray(data) ? data : []); })
+            .catch(() => void 0);
+        return () => { alive = false; };
+    }, []);
     // Valida campos indispensables y también la tarjeta usando el "gateway" mock
     const validateForm = () => {
         const newErrors = {};
@@ -81,9 +91,6 @@ const CheckoutPage = () => {
         // Dirección: exigir selección desde Google Autocomplete con placeId y lat/lng
         if (!formData.address) {
             newErrors.address = 'Dirección es requerida';
-        }
-        else if (!direccionParsed?.placeId || typeof direccionParsed?.lat !== 'number' || typeof direccionParsed?.lng !== 'number') {
-            newErrors.address = 'Selecciona una dirección de la lista (Google)';
         }
         if (!formData.city)
             newErrors.city = 'Ciudad es requerida';
@@ -167,7 +174,7 @@ const CheckoutPage = () => {
                     const grandTotal = subtotal + shipping + iva;
                     // Detalles por ítem del carrito (nombre, precio, cantidad, subtotal)
                     const detalles = items.map((it) => {
-                        const prod = productos.find(p => p.id === it.id);
+                        const prod = catalog.find(p => p.id === it.id);
                         const nombre = prod?.nombre ?? `Producto ${it.id}`;
                         const precio = Number(prod?.precio) || 0;
                         const qty = Number(it.qty) || 1;
@@ -273,7 +280,7 @@ const CheckoutPage = () => {
                                                                     postalCode: postalDigits || prev.postalCode,
                                                                 }));
                                                             }, error: errors.address ?? null, isInvalid: !!errors.address, isValid: !!direccionParsed?.placeId && typeof direccionParsed?.lat === 'number' && typeof direccionParsed?.lng === 'number' }), _jsx("div", { className: "mt-2", children: typeof direccionParsed?.lat === 'number' && typeof direccionParsed?.lng === 'number' ? (_jsx(MapPreview, { lat: direccionParsed.lat, lng: direccionParsed.lng })) : (_jsx("div", { className: "bg-light rounded-4 d-flex align-items-center justify-content-center", style: { height: 180 }, children: _jsx("small", { className: "text-body-secondary", children: "Escribe y selecciona una direcci\u00F3n para ver el mapa\u2026" }) })) })] }), _jsxs("div", { className: "row", children: [_jsxs("div", { className: "col-md-4 mb-3", children: [_jsx("label", { htmlFor: "city", className: "form-label", children: "Ciudad" }), _jsx("input", { type: "text", className: `form-control ${errors.city ? 'is-invalid' : ''}`, id: "city", name: "city", value: formData.city, onChange: handleInputChange, required: true }), errors.city && _jsx("div", { className: "invalid-feedback", children: errors.city })] }), _jsxs("div", { className: "col-md-4 mb-3", children: [_jsx("label", { htmlFor: "region", className: "form-label", children: "Regi\u00F3n" }), _jsx("input", { type: "text", className: "form-control", id: "region", name: "region", value: formData.region, onChange: handleInputChange })] }), _jsxs("div", { className: "col-md-4 mb-3", children: [_jsx("label", { htmlFor: "postalCode", className: "form-label", children: "C\u00F3digo Postal" }), _jsx("input", { type: "text", className: `form-control ${errors.postalCode ? 'is-invalid' : ''}`, id: "postalCode", name: "postalCode", value: formData.postalCode, onChange: handlePostalChange, inputMode: "numeric", maxLength: 7, required: true }), errors.postalCode && _jsx("div", { className: "invalid-feedback", children: errors.postalCode })] })] })] })] }), _jsxs("div", { className: "card mb-4", children: [_jsx("div", { className: "card-header", children: _jsx("h5", { className: "mb-0", children: "Informaci\u00F3n de Pago" }) }), _jsxs("div", { className: "card-body", children: [_jsxs("div", { className: "mb-3", children: [_jsx("label", { htmlFor: "cardNumber", className: "form-label", children: "N\u00FAmero de Tarjeta" }), _jsx("input", { type: "text", className: `form-control ${errors.cardNumber ? 'is-invalid' : ''}`, id: "cardNumber", name: "cardNumber", value: formData.cardNumber, onChange: handleCardNumberChange, placeholder: "1234 5678 9012 3456", maxLength: 19, required: true }), errors.cardNumber && _jsx("div", { className: "invalid-feedback", children: errors.cardNumber })] }), _jsxs("div", { className: "mb-3", children: [_jsx("label", { htmlFor: "cardName", className: "form-label", children: "Nombre en la Tarjeta" }), _jsx("input", { type: "text", className: `form-control ${errors.cardName ? 'is-invalid' : ''}`, id: "cardName", name: "cardName", value: formData.cardName, onChange: handleInputChange, required: true }), errors.cardName && _jsx("div", { className: "invalid-feedback", children: errors.cardName })] }), _jsxs("div", { className: "row", children: [_jsxs("div", { className: "col-md-6 mb-3", children: [_jsx("label", { htmlFor: "expiryDate", className: "form-label", children: "Fecha de Expiraci\u00F3n" }), _jsx("input", { type: "text", className: `form-control ${errors.expiryDate ? 'is-invalid' : ''}`, id: "expiryDate", name: "expiryDate", value: formData.expiryDate, onChange: handleExpiryDateChange, placeholder: "MM/AA", maxLength: 5, required: true }), errors.expiryDate && _jsx("div", { className: "invalid-feedback", children: errors.expiryDate })] }), _jsxs("div", { className: "col-md-6 mb-3", children: [_jsx("label", { htmlFor: "cvv", className: "form-label", children: "CVV" }), _jsx("input", { type: "text", className: `form-control ${errors.cvv ? 'is-invalid' : ''}`, id: "cvv", name: "cvv", value: formData.cvv, onChange: (e) => setFormData(prev => ({ ...prev, cvv: e.target.value.replace(/\D/g, '') })), placeholder: "123", maxLength: 3, required: true }), errors.cvv && _jsx("div", { className: "invalid-feedback", children: errors.cvv })] })] })] })] }), _jsx("button", { type: "submit", className: "btn btn-primary btn-lg w-100", disabled: loading || isProcessingRef.current, children: loading ? (_jsxs(_Fragment, { children: [_jsx("span", { className: "spinner-border spinner-border-sm me-2", role: "status", "aria-hidden": "true" }), "Procesando..."] })) : ('Completar Compra') })] })] }), _jsx("div", { className: "col-lg-4", children: _jsxs("div", { className: "card", children: [_jsx("div", { className: "card-header", children: _jsx("h5", { className: "mb-0", children: "Resumen del Pedido" }) }), _jsxs("div", { className: "card-body", children: [_jsxs("div", { className: "mb-3", children: [_jsxs("h6", { children: ["Productos (", items.length, ")"] }), items.map((it) => {
-                                                const prod = productos.find(p => p.id === it.id);
+                                                const prod = catalog.find(p => p.id === it.id);
                                                 const nombre = prod?.nombre ?? 'Producto';
                                                 const img = prod?.images?.[0] ?? prod?.img ?? '/assets/img/placeholder.png';
                                                 const precio = Number(prod?.precio) || 0;

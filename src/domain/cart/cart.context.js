@@ -3,7 +3,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
 // Guarda ítems (id, qty) y expone acciones para agregarlos/quitar o vaciar,
 // además de cálculos derivados como cantidad total y precio total.
 import { createContext, useContext, useEffect, useMemo, useState, useCallback, } from "react";
-import { productos } from "../data";
+import { fetchProducts } from "../../services/products.service";
 const KEY = "cart";
 const CartCtx = createContext(null);
 /* Utils seguras para localStorage */
@@ -38,6 +38,8 @@ function saveCart(items) {
 export function CartProvider({ children }) {
     // Estado principal del carrito: lista de { id, qty }
     const [items, setItems] = useState(() => loadCart());
+    // Catálogo cargado desde backend (o vacío si falla)
+    const [catalog, setCatalog] = useState([]);
     // Persistencia
     useEffect(() => { saveCart(items); }, [items]);
     // Sync entre pestañas
@@ -50,6 +52,18 @@ export function CartProvider({ children }) {
         };
         window.addEventListener("storage", onStorage);
         return () => window.removeEventListener("storage", onStorage);
+    }, []);
+    // Carga catálogo desde API para usar precios/nombres reales del backend
+    useEffect(() => {
+        let alive = true;
+        fetchProducts()
+            .then((data) => {
+            if (!alive)
+                return;
+            setCatalog(Array.isArray(data) ? data : []);
+        })
+            .catch(() => void 0);
+        return () => { alive = false; };
     }, []);
     // Agrega un producto al carrito, sumando cantidad si ya existe
     const add = useCallback((id, qty = 1) => {
@@ -79,12 +93,12 @@ export function CartProvider({ children }) {
     // Derivados: cantidad total de ítems y precio total (según datos de productos)
     const { count, total } = useMemo(() => {
         return items.reduce((acc, it) => {
-            const p = productos.find((pp) => pp.id === it.id);
+            const p = catalog.find((pp) => pp.id === it.id);
             acc.count += it.qty;
             acc.total += (p?.precio ?? 0) * it.qty;
             return acc;
         }, { count: 0, total: 0 });
-    }, [items]);
+    }, [items, catalog]);
     const value = { items, add, change, remove, clear, count, total };
     return _jsx(CartCtx.Provider, { value: value, children: children });
 }

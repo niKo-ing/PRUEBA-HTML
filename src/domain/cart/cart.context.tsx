@@ -12,7 +12,8 @@ import {
   type ReactNode,
 } from "react";
 import type { CartItem } from "../types";
-import { productos } from "../data";
+import type { Product } from "../types";
+import { fetchProducts } from "../../services/products.service";
 
 type Ctx = {
   items: CartItem[];
@@ -61,6 +62,8 @@ function saveCart(items: CartItem[]) {
 export function CartProvider({ children }: { children: ReactNode }) {
   // Estado principal del carrito: lista de { id, qty }
   const [items, setItems] = useState<CartItem[]>(() => loadCart());
+  // Catálogo cargado desde backend (o vacío si falla)
+  const [catalog, setCatalog] = useState<Product[]>([]);
 
   // Persistencia
   useEffect(() => { saveCart(items); }, [items]);
@@ -73,6 +76,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // Carga catálogo desde API para usar precios/nombres reales del backend
+  useEffect(() => {
+    let alive = true;
+    fetchProducts()
+      .then((data) => {
+        if (!alive) return;
+        setCatalog(Array.isArray(data) ? data : []);
+      })
+      .catch(() => void 0);
+    return () => { alive = false; };
   }, []);
 
   // Agrega un producto al carrito, sumando cantidad si ya existe
@@ -110,14 +125,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const { count, total } = useMemo(() => {
     return items.reduce(
       (acc, it) => {
-        const p = productos.find((pp) => pp.id === it.id);
+        const p = catalog.find((pp) => pp.id === it.id);
         acc.count += it.qty;
         acc.total += (p?.precio ?? 0) * it.qty;
         return acc;
       },
       { count: 0, total: 0 }
     );
-  }, [items]);
+  }, [items, catalog]);
 
   const value: Ctx = { items, add, change, remove, clear, count, total };
   return <CartCtx.Provider value={value}>{children}</CartCtx.Provider>;

@@ -1,7 +1,10 @@
 // CartDrawer: panel lateral que muestra el contenido del carrito
+import { useEffect, useState } from "react";
 import { Offcanvas } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "@domain/cart/useCart";
-import { productos } from "@domain/data";
+import type { Product } from "@domain/types";
+import { fetchProducts } from "../../../services/products.service";
 
 function formatCLP(v: number | undefined) {
   return (Number(v) || 0).toLocaleString("es-CL", {
@@ -16,6 +19,16 @@ type Props = { show: boolean; onHide: () => void };
 export default function CartDrawer({ show, onHide }: Props) {
   // El contexto del carrito expone: items, change, remove, clear, total, count
   const { items = [], total = 0, change, remove, clear } = useCart();
+  const [catalog, setCatalog] = useState<Product[]>([] as Product[]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let alive = true;
+    fetchProducts()
+      .then((data) => { if (!alive) return; setCatalog(Array.isArray(data) ? data : []); })
+      .catch(() => void 0);
+    return () => { alive = false; };
+  }, []);
 
   return (
     <Offcanvas placement="end" show={show} onHide={onHide} backdrop scroll>
@@ -33,7 +46,7 @@ export default function CartDrawer({ show, onHide }: Props) {
           <>
             <ul className="list-unstyled d-grid gap-3 mb-4">
               {items.map((it) => {
-                const prod = productos.find((p) => p.id === it.id);
+                const prod = catalog.find((p) => p.id === it.id);
                 const nombre = prod?.nombre ?? "Producto";
                 const img = prod?.images?.[0] ?? prod?.img ?? "/assets/img/placeholder.png";
                 const precio = Number(prod?.precio) || 0;
@@ -99,7 +112,10 @@ export default function CartDrawer({ show, onHide }: Props) {
             </div>
 
             <div className="d-grid gap-2 mt-3">
-              <button className="btn btn-warning btn-lg">
+              <button
+                className="btn btn-warning btn-lg"
+                onClick={() => { onHide(); navigate('/checkout'); }}
+              >
                 <i className="bi bi-credit-card me-2" />
                 Pagar
               </button>

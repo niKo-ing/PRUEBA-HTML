@@ -59,11 +59,11 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       <CartDrawerHost />
       {/* Botón flotante inferior derecho que abre el asistente */}
       <button
-        className="chat-fab"
-        aria-label="Abrir asistente"
-        onClick={() => setAssistantOpen(true)}
+        className={`chat-fab${assistantOpen ? " chat-fab--open" : ""}`}
+        aria-label={assistantOpen ? "Cerrar asistente" : "Abrir asistente"}
+        onClick={() => setAssistantOpen(v => !v)}
       >
-        <i className="bi bi-chat-dots" />
+        <i className={assistantOpen ? "bi bi-x-lg" : "bi bi-chat-dots"} />
       </button>
       <ChatAssistant open={assistantOpen} onClose={() => setAssistantOpen(false)} />
     </CartUIProvider>

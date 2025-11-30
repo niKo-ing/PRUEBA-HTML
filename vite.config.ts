@@ -18,6 +18,8 @@ export default defineConfig({
     },
   },
   server: {
+    port: 5173,
+    strictPort: true,
     watch: {
       // Evita que Vite intente observar la venv de Python y otras carpetas pesadas
       ignored: [
@@ -32,5 +34,9 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  preview: {
+    port: 5176,
+    strictPort: true,
   },
 });

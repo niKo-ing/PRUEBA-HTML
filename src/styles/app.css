@@ -239,6 +239,8 @@
 }
 
 .chat-fab:hover { background: #e12d5b; }
+/* Estado abierto: tono neutro para indicar 'cerrar' */
+.chat-fab.chat-fab--open { background: #333; }
 
 .chat-modal {
   position: fixed;
@@ -253,11 +255,14 @@
 }
 
 .chat-content {
-  width: min(420px, 94vw);
+  width: min(460px, 96vw);
+  max-height: 80vh;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 18px;
   box-shadow: 0 10px 30px rgba(0,0,0,.22);
-  padding: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-content h3 { margin: 0 0 8px; }
@@ -278,9 +283,9 @@
 }
 
 .chat-suggestions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr; /* vertical */
   gap: 8px;
-  flex-wrap: wrap;
   margin: 8px 0 12px;
 }
 
@@ -289,9 +294,53 @@
   color: #c2185b;
   border: none;
   border-radius: 999px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 0.9rem;
 }
+
+/* Cabecera tipo Messenger */
+.chat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.chat-title { display: flex; align-items: center; gap: 8px; }
+.chat-title .badge { background: #ff4d8a; color: #fff; border-radius: 999px; font-size: .75rem; padding: 2px 8px; }
+.chat-close { border: none; background: transparent; color: #666; font-size: 1rem; }
+.chat-close:hover { color: #000; }
+
+/* Burbujas de chat */
+.bubble { display: flex; margin-bottom: 8px; }
+.bubble .content { padding: 8px 12px; border-radius: 14px; max-width: 80%; white-space: pre-wrap; }
+.bubble.assistant { justify-content: flex-start; }
+.bubble.assistant .content { background: #f1f3f5; border: 1px solid #e9ecef; }
+.bubble.user { justify-content: flex-end; }
+.bubble.user .content { background: #0d6efd; color: #fff; }
+
+.chat-messages {
+  flex: 1 1 auto;
+  min-height: 220px;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid #f1f3f5;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+.chat-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+
+/* Fila de entrada + botón enviar estilo widget */
+.chat-input-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.chat-input-row input {
+  flex: 1 1 auto;
+  height: 42px;
+  border: 1px solid #e9ecef;
+  border-radius: 20px;
+  padding: 0 12px;
+}
+.send-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: none; background: #ff3366; color: #fff;
+  display: grid; place-items: center;
+}
+.send-btn:disabled { opacity: .6; }
+.send-btn:hover { background: #e12d5b; }
 
 .navbar .navbar-brand {
   flex: 1 1 auto;

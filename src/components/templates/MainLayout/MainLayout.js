@@ -17,5 +17,5 @@ function CartDrawerHost() {
  */
 export default function MainLayout({ children }) {
     const [assistantOpen, setAssistantOpen] = useState(false);
-    return (_jsxs(CartUIProvider, { children: [_jsx(Header, {}), _jsx("main", { children: children }), _jsx(Footer, {}), _jsx(CartDrawerHost, {}), _jsx("button", { className: "chat-fab", "aria-label": "Abrir asistente", onClick: () => setAssistantOpen(true), children: _jsx("i", { className: "bi bi-chat-dots" }) }), _jsx(ChatAssistant, { open: assistantOpen, onClose: () => setAssistantOpen(false) })] }));
+    return (_jsxs(CartUIProvider, { children: [_jsx(Header, {}), _jsx("main", { children: children }), _jsx(Footer, {}), _jsx(CartDrawerHost, {}), _jsx("button", { className: `chat-fab${assistantOpen ? " chat-fab--open" : ""}`, "aria-label": assistantOpen ? "Cerrar asistente" : "Abrir asistente", onClick: () => setAssistantOpen(v => !v), children: _jsx("i", { className: assistantOpen ? "bi bi-x-lg" : "bi bi-chat-dots" }) }), _jsx(ChatAssistant, { open: assistantOpen, onClose: () => setAssistantOpen(false) })] }));
 }

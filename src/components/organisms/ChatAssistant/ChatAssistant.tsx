@@ -7,9 +7,15 @@ type Props = {
 
 export default function ChatAssistant({ open, onClose }: Props) {
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  type Message = { role: "assistant" | "user"; text: string };
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: "assistant",
+      text: "Hi there 👋\nBienvenido a Todobaratisimo!\n¿Cómo puedo ayudarte hoy?",
+    },
+  ]);
   const suggestions = [
     "¿Qué puede hacer este asistente?",
     "Cuéntame sobre sus ofertas",
@@ -17,18 +23,21 @@ export default function ChatAssistant({ open, onClose }: Props) {
   ];
 
   async function ask() {
+    const q = question.trim();
+    if (!q) return;
     setLoading(true);
     setError(null);
-    setAnswer(null);
+    setMessages((prev) => [...prev, { role: "user", text: q }]);
+    setQuestion("");
     try {
       const res = await fetch("/api/ai/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question: q }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      setAnswer(data.answer);
+      setMessages((prev) => [...prev, { role: "assistant", text: data.answer }]);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -38,9 +47,17 @@ export default function ChatAssistant({ open, onClose }: Props) {
 
   if (!open) return null;
   return (
-    <div className="chat-modal">
+    <div className="chat-modal" role="dialog" aria-modal="true" aria-label="Asistente de la tienda">
       <div className="chat-content">
-        <h3>Asistente</h3>
+        <div className="chat-header">
+          <div className="chat-title">
+            <strong>Asistente</strong>
+            <span className="badge">Beta</span>
+          </div>
+          <button className="chat-close" aria-label="Cerrar" onClick={onClose}>
+            <i className="bi bi-x-lg" />
+          </button>
+        </div>
         <div className="chat-suggestions">
           {suggestions.map((s) => (
             <button key={s} className="chat-suggestion" onClick={() => setQuestion(s)}>
@@ -48,19 +65,37 @@ export default function ChatAssistant({ open, onClose }: Props) {
             </button>
           ))}
         </div>
-        <textarea
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Escribe tu pregunta..."
-        />
-        <div>
-          <button onClick={ask} disabled={loading || !question}>
-            {loading ? "Consultando..." : "Preguntar"}
-          </button>
-          <button onClick={onClose}>Cerrar</button>
+        <div className="chat-messages">
+          {messages.map((m, idx) => (
+            <div key={idx} className={`bubble ${m.role}`}>
+              <div className="content">{m.text}</div>
+            </div>
+          ))}
+          {loading && (
+            <div className="bubble assistant"><div className="content">Consultando...</div></div>
+          )}
+          {error && <p className="error">{error}</p>}
         </div>
-        {error && <p className="error">{error}</p>}
-        {answer && <pre className="answer">{answer}</pre>}
+        <div className="chat-input-row">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") ask();
+            }}
+            placeholder="Escribe tu pregunta..."
+          />
+          <button
+            className="send-btn"
+            onClick={ask}
+            disabled={loading || !question.trim()}
+            aria-label="Enviar"
+            title="Enviar"
+          >
+            <i className="bi bi-send" />
+          </button>
+        </div>
       </div>
     </div>
   );

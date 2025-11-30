@@ -1,10 +1,31 @@
 from fastapi import APIRouter, HTTPException
+from contextlib import asynccontextmanager
 from pydantic import BaseModel, EmailStr
 from pydantic_settings import SettingsConfigDict
 from .. import db as db_module
 from ..config import settings
 
-router = APIRouter(prefix="/api/users", tags=["users"])
+@asynccontextmanager
+async def lifespan_users(router: APIRouter):
+    # Sembrar admin en arranque si hay DB y credenciales
+    if db_module.client is not None and db_module.db_users is not None:
+        admin_email = settings.ADMIN_EMAIL.strip() if settings.ADMIN_EMAIL else ""
+        admin_password = settings.ADMIN_PASSWORD.strip() if settings.ADMIN_PASSWORD else ""
+        if admin_email and admin_password:
+            users = db_module.db_users["usuarios"]
+            exists = await users.find_one({"email": admin_email})
+            if not exists:
+                await users.insert_one({
+                    "nombre": "Admin",
+                    "apellido": "",
+                    "email": admin_email,
+                    "telefono": "",
+                    "password": admin_password,
+                    "role": "admin"
+                })
+    yield
+
+router = APIRouter(prefix="/api/users", tags=["users"], lifespan=lifespan_users)
 
 
 class Direccion(BaseModel):
@@ -36,25 +57,7 @@ class LoginPayload(BaseModel):
     password: str
 
 
-@router.on_event("startup")
-async def seed_admin():
-    if db_module.client is None or db_module.db_users is None:
-        return
-    admin_email = settings.ADMIN_EMAIL.strip() if settings.ADMIN_EMAIL else ""
-    admin_password = settings.ADMIN_PASSWORD.strip() if settings.ADMIN_PASSWORD else ""
-    if not admin_email or not admin_password:
-        return
-    users = db_module.db_users["usuarios"]
-    exists = await users.find_one({"email": admin_email})
-    if not exists:
-        await users.insert_one({
-            "nombre": "Admin",
-            "apellido": "",
-            "email": admin_email,
-            "telefono": "",
-            "password": admin_password,
-            "role": "admin"
-        })
+# La siembra automática ahora ocurre en lifespan_users
 
 
 @router.post("/seed-admin")

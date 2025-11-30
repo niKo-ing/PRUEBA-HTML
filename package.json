@@ -13,7 +13,8 @@
     "test:coverage": "karma start --coverage",
     "test:jasmine": "npx jasmine",
     "test:ci": "karma start --single-run --no-auto-watch --reporters spec",
-    "test:coverage:ci": "karma start --single-run --no-auto-watch --coverage"
+    "test:coverage:ci": "karma start --single-run --no-auto-watch --coverage",
+    "test:all": "node scripts/test-all.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

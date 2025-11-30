@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from contextlib import asynccontextmanager
 from pydantic import BaseModel
 import os
 import re
@@ -9,7 +10,25 @@ from ..config import settings
 from .. import db as db_module
 from ..data_fallback import productos_fallback
 
-router = APIRouter(prefix="/api/ai", tags=["ai"])
+@asynccontextmanager
+async def lifespan_ai(router: APIRouter):
+    global model
+    try:
+        if settings.AI_DISABLED:
+            model = None
+        else:
+            project = settings.GOOGLE_CLOUD_PROJECT or os.environ.get("GOOGLE_CLOUD_PROJECT", "")
+            location = settings.GOOGLE_CLOUD_LOCATION or os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+            if project:
+                vertex_init(project=project, location=location)
+                model = GenerativeModel(settings.GEMINI_MODEL)
+            else:
+                model = None
+    except Exception:
+        model = None
+    yield
+
+router = APIRouter(prefix="/api/ai", tags=["ai"], lifespan=lifespan_ai)
 model: GenerativeModel | None = None
 
 
@@ -19,22 +38,7 @@ class AskPayload(BaseModel):
     context: dict | None = None
 
 
-@router.on_event("startup")
-async def init_ai():
-    global model
-    try:
-        # Si está desactivada por configuración, no inicializar el modelo
-        if settings.AI_DISABLED:
-            model = None
-            return
-        # Usa la variable de entorno de Cloud Run si no viene en settings
-        project = settings.GOOGLE_CLOUD_PROJECT or os.environ.get("GOOGLE_CLOUD_PROJECT", "")
-        location = settings.GOOGLE_CLOUD_LOCATION or os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
-        if project:
-            vertex_init(project=project, location=location)
-            model = GenerativeModel(settings.GEMINI_MODEL)
-    except Exception:
-        model = None
+# Inicialización movida al lifespan del router
 
 
 def sanitize_product(doc: Dict[str, Any]) -> Dict[str, Any]:
@@ -334,11 +338,11 @@ async def ask_ai(payload: AskPayload):
                 "¿Quieres comparar dos modelos?",
             ])
 
-    try:
-        if not model:
-            # Sin fallback: devolver error explícito para que el frontend maneje correctamente
-            raise HTTPException(status_code=503, detail="Vertex AI no configurado")
+    if not model:
+        # Sin fallback: devolver error explícito para que el frontend maneje correctamente
+        raise HTTPException(status_code=503, detail="Vertex AI no configurado")
 
+    try:
         parts.append(f"Intención: {intent_info}")
         resp = model.generate_content(parts)
         text = resp.text if hasattr(resp, "text") else str(resp)
@@ -350,6 +354,9 @@ async def ask_ai(payload: AskPayload):
             "next": next_questions,
             "intent": intent_info,
         }
+    except HTTPException:
+        # Dejar pasar HTTPException tal cual
+        raise
     except Exception as e:
-        # Sin fallback: propagar error para que el cliente lo trate como fallo real
+        # Error interno al consultar Vertex AI
         raise HTTPException(status_code=502, detail=f"Error Vertex AI: {e}")

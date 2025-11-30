@@ -30,12 +30,17 @@ export default function ChatAssistant({ open, onClose }: Props) {
     setMessages((prev) => [...prev, { role: "user", text: q }]);
     setQuestion("");
     try {
-      const res = await fetch("/api/ai/ask", {
+      const base = import.meta.env.VITE_API_BASE_URL || "";
+      const url = `${base.replace(/\/$/, "")}/api/ai/ask`;
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.detail || `HTTP ${res.status}`);
+      }
       const data = await res.json();
       setMessages((prev) => [...prev, { role: "assistant", text: data.answer }]);
     } catch (e: any) {

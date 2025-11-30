@@ -9,9 +9,9 @@ if not project:
     raise RuntimeError("GOOGLE_CLOUD_PROJECT no está definido")
 
 vertex_init(project=project, location=location)
-model = GenerativeModel("gemini-1.5-flash")
+model_name = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash-001")
+model = GenerativeModel(model_name)
 
 prompt = "Dame 3 ideas para mejorar una tienda online de electrónica."
 resp = model.generate_content(prompt)
 print(resp.text if hasattr(resp, "text") else resp)
-

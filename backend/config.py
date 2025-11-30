@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     ]
     GOOGLE_CLOUD_PROJECT: str = ""
     GOOGLE_CLOUD_LOCATION: str = "us-central1"
+    GEMINI_MODEL: str = "gemini-2.0-flash-001"
+    # Permite desactivar completamente la IA para evitar respuestas por defecto
+    AI_DISABLED: bool = False
     ADMIN_EMAIL: str = ""
     ADMIN_PASSWORD: str = ""
 

@@ -1,0 +1,149 @@
+/* Estilos compactos y profesionales para el chat flotante */
+
+.chat-modal {
+  position: fixed;
+  right: 16px;
+  bottom: 84px; /* deja espacio al FAB */
+  z-index: 1060;
+}
+
+.chat-content {
+  width: 360px;
+  max-height: 70vh;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.chat-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-title .badge {
+  background: #222;
+  color: #fff;
+  font-size: 11px;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.chat-close {
+  border: none;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+}
+
+.chat-suggestions {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px dashed rgba(0,0,0,0.06);
+}
+
+.chat-suggestion {
+  border: 1px solid rgba(0,0,0,0.1);
+  background: #f8f9fa;
+  color: #333;
+  border-radius: 16px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chat-messages {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.bubble {
+  max-width: 80%;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.bubble.user {
+  margin-left: auto;
+  background: #222;
+  color: #fff;
+}
+
+.bubble.assistant {
+  margin-right: auto;
+  background: #f3f4f6;
+  color: #222;
+}
+
+.bubble .content {
+  white-space: pre-wrap;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.chat-input-row input[type="text"] {
+  flex: 1;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.send-btn {
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #222;
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+/* FAB ya existente: solo asegurar posicionamiento relativo */
+.chat-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: #222;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.chat-fab--open {
+  background: #444;
+}
+
+/* Responsive: ajustar ancho en pantallas pequeñas */
+@media (max-width: 480px) {
+  .chat-content {
+    width: 92vw;
+    right: 4vw;
+    bottom: 84px;
+  }
+}

@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from "react";
+import "./chat.css";
 export default function ChatAssistant({ open, onClose }) {
     const [question, setQuestion] = useState("");
     const [loading, setLoading] = useState(false);

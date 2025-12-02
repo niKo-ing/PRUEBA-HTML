@@ -28,8 +28,9 @@
 // src/components/pages/Admin/AdminProducts.tsx
 import { useMemo, useState, type ChangeEvent } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";
-import { productos } from "@domain/data";
+import { adminListProducts, adminBulkUpsertProducts, type AdminProduct } from "@/services/admin.service";
 import type { Product } from "@domain/types";
+import { useEffect } from "react";
 
 /* ----------------------- Helpers ----------------------- */
 // sv/sn: aseguran valores string/number válidos en formularios
@@ -83,9 +84,38 @@ function toEditable(p: Product): Editable {
 
 /* ----------------------- Componente ----------------------- */
 export default function AdminProducts() {
-  // Fuente normalizada desde catálogo en memoria
-  const initial = useMemo<Editable[]>(() => productos.map(toEditable), []);
-  const [rows, setRows] = useState<Editable[]>(initial);
+  const [rows, setRows] = useState<Editable[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [initialRows, setInitialRows] = useState<Editable[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [newProd, setNewProd] = useState<Editable>({
+    id: 0,
+    nombre: "",
+    slug: "",
+    precio: 0,
+    categoria: "",
+    stock: 0,
+    img: "/assets/img/placeholder.png",
+    images: ["/assets/img/placeholder.png"],
+    descripcion: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Carga inicial desde backend
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    adminListProducts()
+      .then((items) => {
+        if (!alive) return;
+        const editable = (items as AdminProduct[]).map((p) => toEditable(p as unknown as Product));
+        setRows(editable);
+        setInitialRows(editable);
+      })
+      .catch(() => void 0)
+      .finally(() => alive && setLoading(false));
+    return () => { alive = false; };
+  }, []);
 
   // Filtros básicos en cabecera
   const [q, setQ] = useState("");
@@ -94,9 +124,9 @@ export default function AdminProducts() {
   // Lista de categorías únicas para el selector
   const cats = useMemo(() => {
     const acc = new Set<string>();
-    initial.forEach((p) => acc.add(p.categoria));
+    rows.forEach((p) => acc.add(p.categoria));
     return Array.from(acc).sort();
-  }, [initial]);
+  }, [rows]);
 
   // Aplica búsqueda por nombre/slug y filtro por categoría
   const filtered = useMemo(() => {
@@ -114,6 +144,21 @@ export default function AdminProducts() {
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const raw = e.target.value;
 
+      // Validación visual para campos numéricos
+      if (key === "precio" || key === "stock") {
+        const hasLetters = /[a-zA-Z]/.test(raw);
+        const hasMinus = raw.includes("-");
+        const n = raw === "" ? 0 : Number(raw.replace(/[^0-9.]/g, ""));
+        const invalid = hasLetters || Number.isNaN(n) || hasMinus;
+        const k = `${id}:${String(key)}`;
+        setFieldErrors((prev) => {
+          const next = { ...prev };
+          if (invalid) next[k] = hasMinus ? "Debe ser ≥ 0" : "Número inválido";
+          else delete next[k];
+          return next;
+        });
+      }
+
       setRows((prev) =>
         prev.map((r) => {
           if (r.id !== id) return r;
@@ -121,7 +166,9 @@ export default function AdminProducts() {
           // Campos numéricos guardan número, pero mostramos string
           if (key === "precio" || key === "stock") {
             const n = raw === "" ? 0 : Number(raw.replace(/[^0-9.]/g, ""));
-            return { ...r, [key]: Number.isFinite(n) ? n : 0 } as Editable;
+            const safe = Number.isFinite(n) ? n : 0;
+            const clamped = Math.max(0, safe);
+            return { ...r, [key]: clamped } as Editable;
           }
 
           // slug: autogenerable si queda vacío
@@ -136,11 +183,68 @@ export default function AdminProducts() {
       );
     };
 
-  // Persistencia mock: guarda cambios en localStorage
-  const saveAll = () => {
-    // Aquí podrías enviar a backend; por ahora, persistimos localStorage
-    localStorage.setItem("admin_products", JSON.stringify(rows));
-    alert("Cambios guardados (localStorage)");
+  // Guarda cambios en backend (bulk upsert)
+  const saveAll = async () => {
+    try {
+      const payload: AdminProduct[] = rows.map((r) => ({
+        id: r.id,
+        slug: r.slug,
+        nombre: r.nombre,
+        precio: r.precio,
+        stock: r.stock,
+        categoria: r.categoria,
+        img: r.img,
+        images: r.images,
+        descripcion: r.descripcion,
+      }));
+      const res = await adminBulkUpsertProducts(payload);
+      alert(`Guardado: upserted=${res.upserted}, modified=${res.modified}`);
+    } catch (e: any) {
+      alert(`Error al guardar: ${e?.message || e}`);
+    }
+  };
+
+  // Validación rápida del nuevo producto
+  const validateNew = (p: Editable) => {
+    const errs: Record<string, string> = {};
+    if (!sv(p.nombre)) errs.nombre = "Nombre requerido";
+    if (!sn(p.precio)) errs.precio = "Precio debe ser mayor a 0";
+    if (!sv(p.categoria)) errs.categoria = "Categoría requerida";
+    if (!sn(p.stock) && sn(p.stock) < 0) errs.stock = "Stock no puede ser negativo";
+    return errs;
+  };
+
+  const addProduct = () => {
+    const baseId = rows.length ? Math.max(...rows.map(r => r.id)) + 1 : 1;
+    const prepared: Editable = {
+      ...newProd,
+      id: baseId,
+      nombre: sv(newProd.nombre),
+      slug: sv(newProd.slug) || slugify(newProd.nombre || `prod-${baseId}`),
+      precio: Math.max(0, sn(newProd.precio)),
+      stock: Math.max(0, sn(newProd.stock)),
+      categoria: sv(newProd.categoria),
+      img: sv(newProd.img) || "/assets/img/placeholder.png",
+      images: (newProd.images?.length ? newProd.images : [sv(newProd.img) || "/assets/img/placeholder.png"]).map(sv),
+      descripcion: sv(newProd.descripcion),
+    };
+    const errs = validateNew(prepared);
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+    setRows(prev => [prepared, ...prev]);
+    setInitialRows(prev => [prepared, ...prev]);
+    setNewProd({
+      id: 0,
+      nombre: "",
+      slug: "",
+      precio: 0,
+      categoria: "",
+      stock: 0,
+      img: "/assets/img/placeholder.png",
+      images: ["/assets/img/placeholder.png"],
+      descripcion: "",
+    });
+    setErrors({});
   };
 
   return (
@@ -151,6 +255,7 @@ export default function AdminProducts() {
           <small className="text-body-secondary">
             {rows.length} ítems&nbsp;|&nbsp;
             <Badge bg="info">{filtered.length} visibles</Badge>
+            {loading && <span className="ms-2">Cargando…</span>}
           </small>
         </Col>
         <Col xs={12} md={3}>
@@ -176,6 +281,33 @@ export default function AdminProducts() {
       </Row>
 
       <Card className="shadow-sm">
+        <Card.Header>
+          <div className="d-flex align-items-end gap-3">
+            <div className="flex-grow-1">
+              <Form.Label className="small mb-1">Nombre</Form.Label>
+              <Form.Control value={newProd.nombre} onChange={(e) => setNewProd({ ...newProd, nombre: e.target.value })} placeholder="Nombre del producto" />
+              {errors.nombre && <div className="text-danger small mt-1">{errors.nombre}</div>}
+            </div>
+            <div style={{ width: 140 }}>
+              <Form.Label className="small mb-1">Precio</Form.Label>
+              <Form.Control type="number" value={String(newProd.precio)} onChange={(e) => setNewProd({ ...newProd, precio: Number(e.target.value) })} />
+              {errors.precio && <div className="text-danger small mt-1">{errors.precio}</div>}
+            </div>
+            <div style={{ width: 140 }}>
+              <Form.Label className="small mb-1">Stock</Form.Label>
+              <Form.Control type="number" value={String(newProd.stock)} onChange={(e) => setNewProd({ ...newProd, stock: Number(e.target.value) })} />
+            </div>
+            <div style={{ width: 200 }}>
+              <Form.Label className="small mb-1">Categoría</Form.Label>
+              <Form.Control value={newProd.categoria} onChange={(e) => setNewProd({ ...newProd, categoria: e.target.value })} placeholder="Ej: Teclado" />
+              {errors.categoria && <div className="text-danger small mt-1">{errors.categoria}</div>}
+            </div>
+            <div className="d-grid" style={{ width: 160 }}>
+              <Form.Label className="small mb-1">&nbsp;</Form.Label>
+              <Button variant="primary" onClick={addProduct}>Crear producto</Button>
+            </div>
+          </div>
+        </Card.Header>
         <Card.Body className="p-0">
           {/* Tabla editable: cada celda actualiza el estado local */}
           <Table responsive hover className="mb-0 align-middle">
@@ -221,19 +353,27 @@ export default function AdminProducts() {
                   </td>
                   <td>
                     <Form.Control
-                      type="text"
-                      inputMode="numeric"
+                      type="number"
+                      min={0}
                       value={String(sn(r.precio))}
                       onChange={onEdit(r.id, "precio")}
+                      isInvalid={Boolean(fieldErrors[`${r.id}:precio`])}
                     />
+                    {fieldErrors[`${r.id}:precio`] && (
+                      <div className="text-danger small mt-1">{fieldErrors[`${r.id}:precio`]}</div>
+                    )}
                   </td>
                   <td>
                     <Form.Control
-                      type="text"
-                      inputMode="numeric"
+                      type="number"
+                      min={0}
                       value={String(sn(r.stock))}
                       onChange={onEdit(r.id, "stock")}
+                      isInvalid={Boolean(fieldErrors[`${r.id}:stock`])}
                     />
+                    {fieldErrors[`${r.id}:stock`] && (
+                      <div className="text-danger small mt-1">{fieldErrors[`${r.id}:stock`]}</div>
+                    )}
                   </td>
                   <td>
                     <Form.Control
@@ -256,7 +396,7 @@ export default function AdminProducts() {
           </Table>
         </Card.Body>
         <Card.Footer className="d-flex justify-content-end gap-2">
-          <Button variant="outline-secondary" onClick={() => setRows(initial)}>
+          <Button variant="outline-secondary" onClick={() => setRows(initialRows)}>
             Descartar cambios
           </Button>
           <Button variant="warning" onClick={saveAll}>

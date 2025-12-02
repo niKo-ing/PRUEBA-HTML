@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import List, Optional
 from .. import db as db_module
 from ..data_fallback import productos_fallback
 
@@ -18,3 +20,58 @@ async def list_products():
     except Exception:
         # Ante cualquier error de DB, usar fallback
         return productos_fallback
+
+
+class ProductDoc(BaseModel):
+    id: int
+    slug: Optional[str] = None
+    nombre: str
+    precio: int
+    stock: int
+    categoria: str | list[str]
+    img: Optional[str] = None
+    images: Optional[list[str]] = None
+    descripcion: Optional[str] = None
+    rating: Optional[float] = None
+    tags: Optional[list[str]] = None
+
+
+@router.post("/bulk-upsert")
+async def bulk_upsert_products(items: List[ProductDoc]):
+    """
+    Inserta o actualiza múltiples productos por `id`.
+    - Requiere DB disponible; de lo contrario, retorna 503.
+    - Usa `replace_one` con `upsert=True` para cada documento.
+    """
+    if db_module.client is None or db_module.db_main is None:
+        raise HTTPException(status_code=503, detail="DB no disponible para guardar productos")
+    try:
+        col = db_module.db_main["productos"]
+        result_summary = {"matched": 0, "modified": 0, "upserted": 0}
+        for item in items:
+            doc = item.model_dump()
+            # Asegura slug si falta
+            if not doc.get("slug"):
+                doc["slug"] = str(doc["id"])
+            res = await col.replace_one({"id": doc["id"]}, doc, upsert=True)
+            result_summary["matched"] += res.matched_count
+            result_summary["modified"] += res.modified_count
+            # upserted_id es None si no hubo upsert
+            if getattr(res, "upserted_id", None) is not None:
+                result_summary["upserted"] += 1
+        return {"ok": True, **result_summary}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al guardar productos: {e}")
+
+
+@router.delete("/{id}")
+async def delete_product(id: int):
+    """Elimina un producto por id."""
+    if db_module.client is None or db_module.db_main is None:
+        raise HTTPException(status_code=503, detail="DB no disponible")
+    try:
+        col = db_module.db_main["productos"]
+        res = await col.delete_one({"id": id})
+        return {"deleted": res.deleted_count}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar producto: {e}")

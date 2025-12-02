@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./chat.css";
 
 type Props = {
   open: boolean;

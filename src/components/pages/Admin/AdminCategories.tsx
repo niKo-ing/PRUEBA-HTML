@@ -29,7 +29,7 @@ import { useMemo, useState } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";
 import { productos } from "@domain/data";
 
-type Row = { nombre: string };
+type Row = { nombre: string; parent?: string };
 
 export default function AdminCategories() {
   const initial = useMemo(() => {
@@ -56,12 +56,16 @@ export default function AdminCategories() {
   }, [rows, q]);
 
   // Operaciones CRUD básicas
-  const addRow = () => setRows(prev => [{ nombre: "Nueva categoría" }, ...prev]);
+  const addRow = () => setRows(prev => [{ nombre: "Nueva categoría", parent: "" }, ...prev]);
   const onEdit = (idx: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setRows(prev => prev.map((r, i) => (i === idx ? { nombre: val } : r)));
   };
-  const onDelete = (idx: number) => setRows(prev => prev.filter((_, i) => i !== idx));
+  const onDelete = (idx: number) => {
+    const name = rows[idx]?.nombre || "(sin nombre)";
+    if (!confirm(`¿Eliminar categoría "${name}"?`)) return;
+    setRows(prev => prev.filter((_, i) => i !== idx));
+  };
   const saveAll = () => { localStorage.setItem("admin_categories", JSON.stringify(rows)); alert("Categorías guardadas (localStorage)"); };
   const discard = () => {
     try { const saved: Row[] = JSON.parse(localStorage.getItem("admin_categories") || "null") || initial; setRows(saved); }
@@ -94,6 +98,7 @@ export default function AdminCategories() {
             <thead className="table-light">
               <tr>
                 <th>Nombre</th>
+                <th>Padre</th>
                 <th style={{ width: 120 }}>Acciones</th>
               </tr>
             </thead>
@@ -104,13 +109,24 @@ export default function AdminCategories() {
                     <Form.Control value={r.nombre} onChange={onEdit(idx)} />
                   </td>
                   <td>
+                    <Form.Select
+                      value={r.parent || ""}
+                      onChange={(e) => setRows(prev => prev.map((row, i) => i === idx ? { ...row, parent: e.target.value } : row))}
+                    >
+                      <option value="">(sin padre)</option>
+                      {rows.map((opt, i) => (
+                        <option key={`${opt.nombre}-${i}`} value={opt.nombre}>{opt.nombre}</option>
+                      ))}
+                    </Form.Select>
+                  </td>
+                  <td>
                     <Button variant="outline-danger" size="sm" onClick={() => onDelete(idx)}>Eliminar</Button>
                   </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={2} className="text-center text-body-secondary py-4">Sin categorías.</td>
+                  <td colSpan={3} className="text-center text-body-secondary py-4">Sin categorías.</td>
                 </tr>
               )}
             </tbody>

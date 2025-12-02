@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import "./assistant-page.css";
 import { Container, Row, Col, Card, Form, Button, Badge, ListGroup, Spinner, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
@@ -126,7 +127,7 @@ export default function AssistantPage() {
   ];
 
   return (
-    <div className="py-4">
+    <div className="py-4 assistant-container">
       <Container>
         <Row className="mb-3">
           <Col>
@@ -139,16 +140,16 @@ export default function AssistantPage() {
 
         <Row>
           <Col md={8} className="mb-3">
-            <Card className="shadow-sm">
+            <Card className="shadow-sm chat-card">
               <Card.Body>
-                <div className="d-flex flex-column gap-3" role="log" aria-live="polite">
+                <div className="d-flex flex-column gap-3 chat-messages" role="log" aria-live="polite">
                   {messages.map((msg, idx) => (
                     <div key={idx} className={`d-flex ${msg.role === "user" ? "justify-content-end" : "justify-content-start"}`}>
-                      <div className={`p-3 rounded-3 ${msg.role === "user" ? "bg-dark text-white" : "bg-light"}`}>
-                        <div className="small text-body-secondary mb-1">
+                      <div className={`msg-bubble ${msg.role === "user" ? "user" : "assistant"}`}>
+                        <div className="msg-meta small text-body-secondary mb-1">
                           {msg.role === "user" ? "Tú" : "Asistente"}
                         </div>
-                        <div>{msg.text}</div>
+                        <div className="msg-text">{msg.text}</div>
                       </div>
                     </div>
                   ))}

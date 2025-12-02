@@ -1,0 +1,41 @@
+/* Compacta burbujas en AssistantPage para evitar aspecto alargado */
+
+.msg-bubble {
+  max-width: 420px; /* burbuja más compacta */
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.msg-bubble.user {
+  background: #222;
+  color: #fff;
+}
+
+.msg-bubble.assistant {
+  background: #f6f7f9;
+  color: #222;
+}
+
+.msg-text { white-space: pre-wrap; }
+.msg-meta { display: none; }
+
+/* Evitar que el panel crezca demasiado en altura */
+.card-body:has(.msg-bubble) {
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+/* Reducir espacios verticales de la lista de mensajes */
+.assistant-container .gap-3 { gap: 0.5rem !important; }
+
+/* Compactar controles */
+.assistant-container .btn, .assistant-container .form-control { font-size: 14px; }
+.assistant-container .btn { padding: 6px 10px; }
+.assistant-container .form-control { padding: 6px 10px; }
+.assistant-container .card { max-width: 720px; margin-left: auto; margin-right: auto; }
+.assistant-container .card-body { padding: 16px; }
+.assistant-container .card-footer { padding: 12px 16px; }
+.chat-card { max-width: 640px; }
+.chat-messages { padding-right: 6px; }

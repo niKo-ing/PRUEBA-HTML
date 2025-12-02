@@ -31,6 +31,7 @@ import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Container, Row, Col, Card, Table, Form, Button, Badge } from "react-bootstrap";
 import AddressAutocomplete from "@molecules/AddressAutocomplete/AddressAutocomplete";
 import type { ParsedAddress } from "@molecules/AddressAutocomplete/AddressAutocomplete";
+import { adminRegisterUser, adminListUsers } from "@/services/admin.service";
 
 // Modelo de usuario editable en tabla
 type Usuario = {
@@ -38,6 +39,7 @@ type Usuario = {
   apellido?: string;
   email: string;
   telefono?: string;
+  password?: string; // campo opcional para alta en backend
   direccion?: ParsedAddress;
   ciudad?: string; // Campo legacy para compatibilidad hacia atrás
   role?: string; // 'admin' | 'user'
@@ -47,6 +49,7 @@ const sv = (v?: string | null) => v ?? "";
 
 export default function AdminUsers() {
   const [rows, setRows] = useState<Usuario[]>([]);
+  const [loading, setLoading] = useState(false);
   const [q, setQ] = useState("");
   
   // Estado para manejar los campos de dirección de cada usuario
@@ -60,22 +63,37 @@ export default function AdminUsers() {
     });
   }, [rows, q]);
 
-  // Carga usuarios desde localStorage y sincroniza textos de dirección
+  // Carga usuarios desde backend (fallback a localStorage si falla) y sincroniza textos
   useEffect(() => {
-    try {
-      const usuarios: Usuario[] = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      // Inicializar textos de dirección para usuarios existentes
-      const initialTexts: Record<string, string> = {};
-      usuarios.forEach(user => {
-        if (user.direccion?.fullText) {
-          initialTexts[user.email] = user.direccion.fullText;
-        } else if (user.ciudad) {
-          initialTexts[user.email] = user.ciudad;
-        }
-      });
-      setAddressTexts(initialTexts);
-      setRows(usuarios);
-    } catch {}
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const usuariosBackend = await adminListUsers();
+        const usuarios: Usuario[] = Array.isArray(usuariosBackend) && usuariosBackend.length > 0
+          ? usuariosBackend as any
+          : JSON.parse(localStorage.getItem("usuarios") || "[]");
+        if (cancelled) return;
+        const initialTexts: Record<string, string> = {};
+        usuarios.forEach(user => {
+          if ((user as any).direccion?.fullText) {
+            initialTexts[user.email] = (user as any).direccion.fullText;
+          } else if ((user as any).ciudad) {
+            initialTexts[user.email] = (user as any).ciudad;
+          }
+        });
+        setAddressTexts(initialTexts);
+        setRows(usuarios);
+      } catch {
+        try {
+          const usuarios: Usuario[] = JSON.parse(localStorage.getItem("usuarios") || "[]");
+          if (!cancelled) setRows(usuarios);
+        } catch {}
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   type InputEl = HTMLInputElement | HTMLTextAreaElement;
@@ -98,6 +116,7 @@ export default function AdminUsers() {
       apellido: "",
       email: `user${rows.length + 1}@example.com`,
       telefono: "",
+      password: "",
       direccion: undefined as any,
       role: "user"
     };
@@ -141,14 +160,37 @@ export default function AdminUsers() {
     return !!user.direccion?.placeId && typeof user.direccion?.lat === "number" && typeof user.direccion?.lng === "number";
   };
 
-  // Persistencia mock a localStorage
-  const saveAll = () => {
-    localStorage.setItem("usuarios", JSON.stringify(rows));
-    alert("Usuarios guardados (localStorage)");
+  // Registro en backend para nuevos usuarios (por ahora, sólo alta)
+  const saveAll = async () => {
+    try {
+      // En esta primera integración, registramos los usuarios que tengan password definido
+      const toRegister = rows.filter(u => !!u.password).map(u => ({
+        nombre: sv(u.nombre),
+        apellido: sv(u.apellido),
+        email: sv(u.email),
+        telefono: sv(u.telefono),
+        password: sv(u.password),
+        direccion: u.direccion ?? undefined
+      }));
+      for (const user of toRegister) {
+        try { await adminRegisterUser(user as any); } catch (e) { /* continuar */ }
+      }
+      localStorage.setItem("usuarios", JSON.stringify(rows));
+      alert("Usuarios guardados (backend + localStorage)");
+    } catch (e: any) {
+      alert(`Error al guardar usuarios: ${e?.message || e}`);
+    }
   };
 
   return (
     <Container className="py-4">
+      {loading && (
+        <Row className="mb-3">
+          <Col>
+            <div className="small text-body-secondary">Cargando usuarios…</div>
+          </Col>
+        </Row>
+      )}
       <Row className="mb-3 align-items-end g-2">
         <Col xs={12} md={6}>
           <h2 className="mb-0">Administrar usuarios</h2>
@@ -180,6 +222,7 @@ export default function AdminUsers() {
                 <th>Apellido</th>
                 <th>Email</th>
                 <th>Teléfono</th>
+                <th>Password</th>
                 <th>Dirección</th>
                 <th>Rol</th>
                 <th style={{ width: 120 }}>Acciones</th>
@@ -187,44 +230,47 @@ export default function AdminUsers() {
             </thead>
             <tbody>
               {filtered.map((u, idx) => (
-                <tr key={`${u.email}-${idx}`}>
-                  <td>
-                    <Form.Control type="text" value={sv(u.nombre)} onChange={onEditInput(idx, "nombre")} />
-                  </td>
-                  <td>
-                    <Form.Control type="text" value={sv(u.apellido)} onChange={onEditInput(idx, "apellido")} />
-                  </td>
-                  <td>
-                    <Form.Control type="email" value={sv(u.email)} onChange={onEditInput(idx, "email")} />
-                  </td>
-                  <td>
-                    <Form.Control type="text" value={sv(u.telefono)} onChange={onEditInput(idx, "telefono")} />
-                  </td>
-                  <td>
-                    <AddressAutocomplete
-                      label=""
-                      value={getAddressText(u)}
-                      onTextChange={(value) => onAddressTextChange(u.email, value)}
-                      onAddressSelected={(address) => onAddressSelected(u.email, address)}
-                      required={false}
-                      placeholder="Ej: Av. Apoquindo 1234, Las Condes"
-                      error={addressErrors[u.email] || null}
-                      isInvalid={!!addressErrors[u.email]}
-                      isValid={isAddressValid(u)}
-                    />
-                  </td>
-                  <td>
-                    <Form.Select value={sv(u.role)} onChange={onEditSelect(idx, "role")}>
-                      <option value="user">Usuario</option>
-                      <option value="admin">Administrador</option>
-                    </Form.Select>
-                  </td>
-                  <td>
-                    <div className="d-flex gap-2">
-                      <Button variant="outline-danger" size="sm" onClick={() => removeUser(idx)}>Eliminar</Button>
-                    </div>
-                  </td>
-                </tr>
+              <tr key={`${u.email}-${idx}`}>
+                <td>
+                  <Form.Control type="text" value={sv(u.nombre)} onChange={onEditInput(idx, "nombre")} />
+                </td>
+                <td>
+                  <Form.Control type="text" value={sv(u.apellido)} onChange={onEditInput(idx, "apellido")} />
+                </td>
+                <td>
+                  <Form.Control type="email" value={sv(u.email)} onChange={onEditInput(idx, "email")} />
+                </td>
+                <td>
+                  <Form.Control type="text" value={sv(u.telefono)} onChange={onEditInput(idx, "telefono")} />
+                </td>
+                <td>
+                  <Form.Control type="password" value={sv(u.password)} onChange={onEditInput(idx, "password" as any)} placeholder="Password (sólo alta)" />
+                </td>
+                <td>
+                  <AddressAutocomplete
+                    label=""
+                    value={getAddressText(u)}
+                    onTextChange={(value) => onAddressTextChange(u.email, value)}
+                    onAddressSelected={(address) => onAddressSelected(u.email, address)}
+                    required={false}
+                    placeholder="Ej: Av. Apoquindo 1234, Las Condes"
+                    error={addressErrors[u.email] || null}
+                    isInvalid={!!addressErrors[u.email]}
+                    isValid={isAddressValid(u)}
+                  />
+                </td>
+                <td>
+                  <Form.Select value={sv(u.role)} onChange={onEditSelect(idx, "role")}>
+                    <option value="user">Usuario</option>
+                    <option value="admin">Administrador</option>
+                  </Form.Select>
+                </td>
+                <td>
+                  <div className="d-flex gap-2">
+                    <Button variant="outline-danger" size="sm" onClick={() => removeUser(idx)}>Eliminar</Button>
+                  </div>
+                </td>
+              </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>

@@ -108,3 +108,30 @@ async def login(payload: LoginPayload):
         raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
     is_admin = u.get("role") == "admin"
     return {"user": {"nombre": u.get("nombre", ""), "apellido": u.get("apellido", ""), "email": u["email"]}, "isAdmin": is_admin}
+
+
+@router.get("")
+async def list_users():
+    """Lista usuarios registrados (oculta password)."""
+    if db_module.client is None or db_module.db_users is None:
+        raise HTTPException(status_code=500, detail="DB no inicializada")
+    users = db_module.db_users["usuarios"]
+    try:
+        cursor = users.find({}, {"_id": 0, "password": 0})
+        items = [doc async for doc in cursor]
+        return items
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al listar usuarios: {e}")
+
+
+@router.delete("/{email}")
+async def delete_user(email: EmailStr):
+    """Elimina un usuario por email."""
+    if db_module.client is None or db_module.db_users is None:
+        raise HTTPException(status_code=500, detail="DB no inicializada")
+    users = db_module.db_users["usuarios"]
+    try:
+        res = await users.delete_one({"email": str(email)})
+        return {"deleted": res.deleted_count}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar usuario: {e}")

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from contextlib import asynccontextmanager
 from pydantic import BaseModel, EmailStr
 from pydantic_settings import SettingsConfigDict
 from .. import db as db_module
 from ..config import settings
+from ..security import create_jwt, verify_jwt
 
 @asynccontextmanager
 async def lifespan_users(router: APIRouter):
@@ -100,21 +101,53 @@ async def register(payload: RegisterPayload):
 
 @router.post("/login")
 async def login(payload: LoginPayload):
+    # Si no hay DB, permitir login de desarrollo con ADMIN_EMAIL/ADMIN_PASSWORD
     if db_module.client is None or db_module.db_users is None:
+        admin_email = (settings.ADMIN_EMAIL or "").strip()
+        admin_password = (settings.ADMIN_PASSWORD or "").strip()
+        if admin_email and admin_password:
+            if payload.email == admin_email and payload.password == admin_password:
+                secret = settings.ADMIN_PASSWORD or "todobaratisimo_dev_secret"
+                token = create_jwt({"sub": admin_email, "role": "admin"}, secret, expires_in_seconds=60*60*8)
+                return {
+                    "user": {"nombre": "Admin", "apellido": "", "email": admin_email},
+                    "isAdmin": True,
+                    "token": token,
+                }
+            # Credenciales proporcionadas pero incorrectas: responder como 401
+            raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
+        # Sin credenciales admin configuradas en settings, la DB no inicializada impide login
         raise HTTPException(status_code=500, detail="DB no inicializada")
     users = db_module.db_users["usuarios"]
     u = await users.find_one({"email": payload.email, "password": payload.password}, {"_id": 0})
     if not u:
         raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
     is_admin = u.get("role") == "admin"
-    return {"user": {"nombre": u.get("nombre", ""), "apellido": u.get("apellido", ""), "email": u["email"]}, "isAdmin": is_admin}
+    # Generar JWT con claims mínimos
+    secret = settings.ADMIN_PASSWORD or "todobaratisimo_dev_secret"
+    token = create_jwt({
+        "sub": u["email"],
+        "role": u.get("role", "user"),
+    }, secret, expires_in_seconds=60*60*8)  # 8h
+    return {
+        "user": {"nombre": u.get("nombre", ""), "apellido": u.get("apellido", ""), "email": u["email"]},
+        "isAdmin": is_admin,
+        "token": token,
+    }
 
 
 @router.get("")
-async def list_users():
+async def list_users(authorization: str | None = Header(default=None)):
     """Lista usuarios registrados (oculta password)."""
     if db_module.client is None or db_module.db_users is None:
         raise HTTPException(status_code=500, detail="DB no inicializada")
+    # Verificar JWT (solo admin puede listar)
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Autorización requerida")
+    token = authorization.split(" ", 1)[1]
+    payload = verify_jwt(token, settings.ADMIN_PASSWORD or "todobaratisimo_dev_secret")
+    if not payload or payload.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="No autorizado")
     users = db_module.db_users["usuarios"]
     try:
         cursor = users.find({}, {"_id": 0, "password": 0})
@@ -125,10 +158,17 @@ async def list_users():
 
 
 @router.delete("/{email}")
-async def delete_user(email: EmailStr):
+async def delete_user(email: EmailStr, authorization: str | None = Header(default=None)):
     """Elimina un usuario por email."""
     if db_module.client is None or db_module.db_users is None:
         raise HTTPException(status_code=500, detail="DB no inicializada")
+    # Verificar JWT (solo admin)
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Autorización requerida")
+    token = authorization.split(" ", 1)[1]
+    payload = verify_jwt(token, settings.ADMIN_PASSWORD or "todobaratisimo_dev_secret")
+    if not payload or payload.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="No autorizado")
     users = db_module.db_users["usuarios"]
     try:
         res = await users.delete_one({"email": str(email)})

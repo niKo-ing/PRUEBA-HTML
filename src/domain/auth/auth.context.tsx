@@ -16,6 +16,7 @@ export type User = {
 
 type AuthCtx = {
   user: User | null;
+  token: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
@@ -23,15 +24,19 @@ type AuthCtx = {
 const AuthContext = createContext<AuthCtx | null>(null);
 
 const KEY_SESSION = "sessionUser";
+const KEY_TOKEN = "sessionToken";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     // Restaura sesión si existe en localStorage
     try {
       const raw = localStorage.getItem(KEY_SESSION);
       if (raw) setUser(JSON.parse(raw));
+      const tk = localStorage.getItem(KEY_TOKEN);
+      if (tk) setToken(tk);
     } catch {}
   }, []);
 
@@ -48,17 +53,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = await resp.json();
     const current: User = data.user;
     setUser(current);
+    setToken(data.token ?? null);
     localStorage.setItem(KEY_SESSION, JSON.stringify(current));
+    if (data.token) {
+      try { localStorage.setItem(KEY_TOKEN, data.token); } catch {}
+    }
     try { localStorage.setItem('isAdmin', data.isAdmin ? '1' : '0'); } catch {}
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem(KEY_SESSION);
+    try { localStorage.removeItem(KEY_TOKEN); } catch {}
     try { localStorage.removeItem('isAdmin'); } catch {}
   };
 
-  const value = useMemo<AuthCtx>(() => ({ user, login, logout }), [user]);
+  const value = useMemo<AuthCtx>(() => ({ user, token, login, logout }), [user, token]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

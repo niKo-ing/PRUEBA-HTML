@@ -339,8 +339,20 @@ async def ask_ai(payload: AskPayload):
             ])
 
     if not model:
-        # Sin fallback: devolver error explícito para que el frontend maneje correctamente
-        raise HTTPException(status_code=503, detail="Vertex AI no configurado")
+        # Fallback local cuando Vertex AI no está disponible
+        parts.append(f"Intención: {intent_info}")
+        text = (
+            "Asistente en modo básico: no hay IA en línea. "
+            "Te muestro resultados y preguntas para refinar tu búsqueda."
+        )
+        return {
+            "answer": text,
+            "fallback": True,
+            "products": found_products,
+            "actions": actions,
+            "next": next_questions,
+            "intent": intent_info,
+        }
 
     try:
         parts.append(f"Intención: {intent_info}")

@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from typing import List, Optional
 from .. import db as db_module
 from ..data_fallback import productos_fallback
+from ..config import settings
+from ..security import verify_jwt
 
 router = APIRouter(prefix="/api/products", tags=["products"])
 
@@ -37,12 +39,19 @@ class ProductDoc(BaseModel):
 
 
 @router.post("/bulk-upsert")
-async def bulk_upsert_products(items: List[ProductDoc]):
+async def bulk_upsert_products(items: List[ProductDoc], authorization: str | None = Header(default=None)):
     """
     Inserta o actualiza múltiples productos por `id`.
     - Requiere DB disponible; de lo contrario, retorna 503.
     - Usa `replace_one` con `upsert=True` para cada documento.
     """
+    # Proteger con JWT y rol admin
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Autorización requerida")
+    token = authorization.split(" ", 1)[1]
+    payload = verify_jwt(token, settings.ADMIN_PASSWORD or "todobaratisimo_dev_secret")
+    if not payload or payload.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="No autorizado")
     if db_module.client is None or db_module.db_main is None:
         raise HTTPException(status_code=503, detail="DB no disponible para guardar productos")
     try:
@@ -65,8 +74,14 @@ async def bulk_upsert_products(items: List[ProductDoc]):
 
 
 @router.delete("/{id}")
-async def delete_product(id: int):
+async def delete_product(id: int, authorization: str | None = Header(default=None)):
     """Elimina un producto por id."""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Autorización requerida")
+    token = authorization.split(" ", 1)[1]
+    payload = verify_jwt(token, settings.ADMIN_PASSWORD or "todobaratisimo_dev_secret")
+    if not payload or payload.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="No autorizado")
     if db_module.client is None or db_module.db_main is None:
         raise HTTPException(status_code=503, detail="DB no disponible")
     try:

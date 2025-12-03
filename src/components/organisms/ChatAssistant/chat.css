@@ -1,6 +1,6 @@
 /* Estilos compactos y profesionales para el chat flotante */
 
-.chat-modal {
+.chat-window {
   position: fixed;
   right: 16px;
   bottom: 84px; /* deja espacio al FAB */
@@ -69,33 +69,40 @@
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem; /* igual que AssistantPage */
   overflow-y: auto;
 }
 
-.bubble {
-  max-width: 80%;
+/* Unificar estilo con AssistantPage: msg-bubble */
+.chat-content .msg-bubble {
+  max-width: 420px;
   padding: 8px 10px;
   border-radius: 12px;
   font-size: 14px;
   line-height: 1.35;
 }
 
-.bubble.user {
-  margin-left: auto;
-  background: #222;
-  color: #fff;
+.chat-content .msg-bubble.user {
+  background: #222 !important;
+  color: #fff !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-.bubble.assistant {
-  margin-right: auto;
-  background: #f3f4f6;
-  color: #222;
+.chat-content .msg-bubble.assistant {
+  background: #222 !important; /* igual que el usuario */
+  color: #fff !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-.bubble .content {
-  white-space: pre-wrap;
-}
+.chat-content .msg-text { white-space: pre-wrap; }
+.chat-content .msg-meta { display: none; }
+
+/* Evitar que el panel crezca demasiado en altura */
+.chat-content .chat-messages { max-height: 46vh; }
 
 .chat-input-row {
   display: flex;
@@ -104,21 +111,7 @@
   border-top: 1px solid rgba(0,0,0,0.06);
 }
 
-.chat-input-row input[type="text"] {
-  flex: 1;
-  border: 1px solid rgba(0,0,0,0.12);
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 14px;
-}
-
-.send-btn {
-  border: 1px solid rgba(0,0,0,0.12);
-  background: #222;
-  color: #fff;
-  border-radius: 8px;
-  padding: 6px 10px;
-}
+/* Los inputs y botones ahora usan Bootstrap (form-control, btn) */
 
 /* FAB ya existente: solo asegurar posicionamiento relativo */
 .chat-fab {

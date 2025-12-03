@@ -15,8 +15,20 @@ function pickApiBase() {
     return ""; // dev proxy
 }
 const API_BASE = pickApiBase();
+function getToken() {
+    try {
+        return localStorage.getItem('sessionToken');
+    }
+    catch {
+        return null;
+    }
+}
 async function fetchJson(url, init) {
-    const res = await fetch(url, init);
+    const token = getToken();
+    const headers = new Headers(init?.headers || {});
+    if (token)
+        headers.set('Authorization', `Bearer ${token}`);
+    const res = await fetch(url, { ...init, headers });
     if (!res.ok)
         throw new Error(`HTTP ${res.status}`);
     return res.json();

@@ -3,7 +3,6 @@ export const ADMIN_ROOT = "/admin";
 export const ADMIN_SEGMENTS = {
     dashboard: "",
     products: "products",
-    categories: "categories",
     orders: "orders",
     users: "users",
     reports: "reports",
@@ -14,7 +13,6 @@ export const ADMIN_SEGMENTS = {
 export const adminMenu = [
     { to: `${ADMIN_ROOT}`, label: "Dashboard", end: true },
     { to: `${ADMIN_ROOT}/${ADMIN_SEGMENTS.products}`, label: "Productos" },
-    { to: `${ADMIN_ROOT}/${ADMIN_SEGMENTS.categories}`, label: "Categorías" },
     { to: `${ADMIN_ROOT}/${ADMIN_SEGMENTS.orders}`, label: "Pedidos" },
     { to: `${ADMIN_ROOT}/${ADMIN_SEGMENTS.users}`, label: "Usuarios" },
     { to: `${ADMIN_ROOT}/${ADMIN_SEGMENTS.reports}`, label: "Reportes" },

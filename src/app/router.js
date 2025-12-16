@@ -29,7 +29,6 @@ const AdminProducts = lazy(() => import("@pages/Admin/AdminProducts"));
 const AdminUsers = lazy(() => import("@pages/Admin/AdminUsers"));
 const AdminOrders = lazy(() => import("@pages/Admin/AdminOrders"));
 const AdminSettings = lazy(() => import("@pages/Admin/AdminSettings"));
-const AdminCategories = lazy(() => import("@pages/Admin/AdminCategories"));
 const AdminReports = lazy(() => import("@pages/Admin/AdminReports"));
 const AdminReceipt = lazy(() => import("@pages/Admin/AdminReceipt"));
 // RootLayout define el marco común (header, footer, etc.) para rutas públicas
@@ -71,7 +70,6 @@ const router = createBrowserRouter([
                 children: [
                     { index: true, element: _jsx(AdminDashboard, {}) },
                     { path: ADMIN_SEGMENTS.products, element: _jsx(AdminProducts, {}) },
-                    { path: ADMIN_SEGMENTS.categories, element: _jsx(AdminCategories, {}) },
                     { path: ADMIN_SEGMENTS.users, element: _jsx(AdminUsers, {}) },
                     { path: ADMIN_SEGMENTS.orders, element: _jsx(AdminOrders, {}) },
                     { path: ADMIN_SEGMENTS.reports, element: _jsx(AdminReports, {}) },

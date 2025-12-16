@@ -130,16 +130,7 @@ export default function AdminDashboard() {
     return nums.length ? Math.round(sum / nums.length) : 0;
   }, [products]);
 
-  // Categorías: agrupadas desde productos
-  const categories = useMemo(() => {
-    const map = new Map<string, number>();
-    products.forEach((p) => {
-      const cat = Array.isArray(p.categoria) ? (p.categoria[0] ?? "") : (p.categoria ?? "");
-      const k = String(cat || "(sin categoría)");
-      map.set(k, (map.get(k) || 0) + 1);
-    });
-    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [products]);
+
 
   // Crear producto: formulario simple con validación
   const [newProd, setNewProd] = useState({ nombre: "", precio: "", stock: "", categoria: "", img: "", descripcion: "" });
@@ -309,34 +300,7 @@ export default function AdminDashboard() {
           </Col>
         </Row>
         <Row className="g-3 mt-1">
-          <Col md={6}>
-            <Card className="shadow-sm">
-              <Card.Header className="fw-semibold">Categorías</Card.Header>
-              <Card.Body className="p-0">
-                <Table responsive hover className="mb-0 align-middle">
-                  <thead className="table-light">
-                    <tr>
-                      <th>Categoría</th>
-                      <th className="text-end">Productos</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {categories.map(([name, count]) => (
-                      <tr key={name as string}>
-                        <td>{name as string}</td>
-                        <td className="text-end">{count as number}</td>
-                      </tr>
-                    ))}
-                    {categories.length === 0 && (
-                      <tr>
-                        <td colSpan={2} className="text-center text-body-secondary py-3">Sin categorías.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
-              </Card.Body>
-            </Card>
-          </Col>
+
           <Col md={6}>
             <Card className="shadow-sm">
               <Card.Header className="fw-semibold">Reportes</Card.Header>
@@ -397,15 +361,7 @@ export default function AdminDashboard() {
               </Card.Body>
             </Card>
           </Col>
-          <Col md={6}>
-            <Card className="shadow-sm">
-              <Card.Header className="fw-semibold">Crear categoría</Card.Header>
-              <Card.Body>
-                <div className="text-body-secondary small">Usa el módulo “Categorías” para alta y jerarquía.</div>
-                <Button href="/admin/categories" variant="warning">Ir a Categorías</Button>
-              </Card.Body>
-            </Card>
-          </Col>
+
         </Row>
       </div>
     </div>

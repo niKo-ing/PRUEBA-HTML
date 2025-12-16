@@ -28,7 +28,6 @@ const AdminProducts  = lazy(() => import("@pages/Admin/AdminProducts"));
 const AdminUsers     = lazy(() => import("@pages/Admin/AdminUsers"));
 const AdminOrders    = lazy(() => import("@pages/Admin/AdminOrders"));
 const AdminSettings  = lazy(() => import("@pages/Admin/AdminSettings"));
-const AdminCategories = lazy(() => import("@pages/Admin/AdminCategories"));
 const AdminReports = lazy(() => import("@pages/Admin/AdminReports"));
 const AdminReceipt = lazy(() => import("@pages/Admin/AdminReceipt"));
 
@@ -79,7 +78,6 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboard /> },
           { path: ADMIN_SEGMENTS.products, element: <AdminProducts /> },
-          { path: ADMIN_SEGMENTS.categories, element: <AdminCategories /> },
           { path: ADMIN_SEGMENTS.users, element: <AdminUsers /> },
           { path: ADMIN_SEGMENTS.orders, element: <AdminOrders /> },
           { path: ADMIN_SEGMENTS.reports, element: <AdminReports /> },

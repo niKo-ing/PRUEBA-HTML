@@ -58,6 +58,7 @@ export default function AdminLayout() {
           <Container fluid className="justify-content-between">
             <div className="fw-semibold">Panel de Administración</div>
             <Nav>
+              <Nav.Link href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer">API Docs</Nav.Link>
               <Link to="/" className="nav-link">Ver tienda</Link>
               <button
                 type="button"

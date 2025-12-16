@@ -7,3 +7,10 @@ pydantic-settings
 email-validator
 google-cloud-aiplatform
 vertexai
+
+# Dev / Testing / Quality
+pytest
+pytest-asyncio
+httpx
+ruff
+mypy

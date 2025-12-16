@@ -339,6 +339,8 @@ async def ask_ai(payload: AskPayload):
             ])
 
     if not model:
+        if settings.AI_REQUIRE_VERTEX:
+            raise HTTPException(status_code=503, detail="Vertex AI no configurado")
         # Fallback local cuando Vertex AI no está disponible
         parts.append(f"Intención: {intent_info}")
         text = (

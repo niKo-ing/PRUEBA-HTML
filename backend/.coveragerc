@@ -1,0 +1,6 @@
+[run]
+omit =
+    seed_products.py
+    test_vertex.py
+    tests/*
+    */__init__.py

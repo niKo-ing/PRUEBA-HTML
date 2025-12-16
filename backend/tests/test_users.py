@@ -8,6 +8,19 @@ from backend import db as db_module
 from backend.config import settings
 
 
+class FakeCursor:
+    def __init__(self, items):
+        self._iter = iter(items)
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        try:
+            return next(self._iter)
+        except StopIteration:
+            raise StopAsyncIteration
+
 class FakeCollection:
     def __init__(self):
         self.docs = []
@@ -23,9 +36,24 @@ class FakeCollection:
                 return d
         return None
 
+    def find(self, query, projection=None):
+        # Simplificado: retorna todos o nada, no filtra realmente en este fake básico
+        # Para list_users se llama con {}
+        return FakeCursor(self.docs)
+
     async def insert_one(self, doc):
         self.docs.append(doc)
         return {"inserted_id": doc.get("email")}
+
+    async def delete_one(self, query):
+        initial_len = len(self.docs)
+        self.docs = [d for d in self.docs if not all(d.get(k) == v for k, v in query.items())]
+        deleted_count = initial_len - len(self.docs)
+        
+        from unittest.mock import MagicMock
+        res = MagicMock()
+        res.deleted_count = deleted_count
+        return res
 
 
 class FakeDBUsers:
@@ -97,6 +125,84 @@ async def test_register_and_login_flow(client_users):
     # Registro duplicado debe fallar con 400
     resp_dup = await client_users.post("/api/users/register", json=payload)
     assert resp_dup.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_admin_list_and_delete_users(client_users):
+    from backend.security import create_jwt
+    from backend.config import settings
+
+    # 1. Crear usuario normal
+    payload = {
+        "nombre": "User", "apellido": "Test", "email": "user@test.com",
+        "telefono": "123", "password": "pass"
+    }
+    await client_users.post("/api/users/register", json=payload)
+
+    # 2. Intentar listar sin token -> 401
+    resp = await client_users.get("/api/users")
+    assert resp.status_code == 401
+
+    # 3. Intentar listar con token usuario normal -> 403
+    secret = settings.ADMIN_PASSWORD or "todobaratisimo_dev_secret"
+    token_user = create_jwt({"sub": "user@test.com", "role": "user"}, secret)
+    headers_user = {"Authorization": f"Bearer {token_user}"}
+    
+    resp = await client_users.get("/api/users", headers=headers_user)
+    assert resp.status_code == 403
+
+    # 4. Listar con token admin -> 200
+    token_admin = create_jwt({"sub": "admin@test.com", "role": "admin"}, secret)
+    headers_admin = {"Authorization": f"Bearer {token_admin}"}
+    
+    resp = await client_users.get("/api/users", headers=headers_admin)
+    assert resp.status_code == 200
+    users = resp.json()
+    assert len(users) >= 1
+    found = any(u["email"] == "user@test.com" for u in users)
+    assert found
+
+    # 5. Borrar usuario (admin)
+    resp = await client_users.delete("/api/users/user@test.com", headers=headers_admin)
+    assert resp.status_code == 200
+    assert resp.json()["deleted"] == 1
+
+    # Verificar que ya no está
+    resp = await client_users.get("/api/users", headers=headers_admin)
+    users = resp.json()
+    found = any(u["email"] == "user@test.com" for u in users)
+    assert not found
+
+
+@pytest.mark.asyncio
+async def test_login_dev_mode_no_db(client_users):
+    # Simular DB no disponible
+    db_module.client = None
+    db_module.db_users = None
+    
+    settings.ADMIN_EMAIL = "admin@dev.com"
+    settings.ADMIN_PASSWORD = "devpass"
+    
+    # Login correcto
+    resp = await client_users.post("/api/users/login", json={"email": "admin@dev.com", "password": "devpass"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["isAdmin"] is True
+    assert "token" in data
+    
+    # Login incorrecto
+    resp = await client_users.post("/api/users/login", json={"email": "admin@dev.com", "password": "wrong"})
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_standard_login_flow(client_users):
+    # Registro de usuario
+    payload = {
+        "nombre": "Juan", "apellido": "Pérez", "email": "juan@example.com",
+        "telefono": "123", "password": "clave"
+    }
+    await client_users.post("/api/users/register", json=payload)
 
     # Login incorrecto
     bad_login = await client_users.post("/api/users/login", json={"email": "juan@example.com", "password": "mala"})
